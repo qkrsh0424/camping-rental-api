@@ -29,6 +29,7 @@ public class ItemDto {
     private String returnRegions;
     private Integer price;
     private Integer discountRate;
+    private String displayYn;
     private UUID categoryId;
     private String categoryName;
     private LocalDateTime createdAt;

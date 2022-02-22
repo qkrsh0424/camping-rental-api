@@ -27,8 +27,10 @@ public class ItemVo {
     private String returnRegions;
     private Integer price;
     private Integer discountRate;
+    private String displayYn;
     private UUID categoryId;
     private String categoryName;
+    private LocalDateTime createdAt;
 
     public static ItemVo toVo(ItemEntity entity) {
         ItemVo vo = ItemVo.builder()
@@ -43,8 +45,10 @@ public class ItemVo {
                 .returnRegions(entity.getReturnRegions())
                 .price(entity.getPrice())
                 .discountRate(entity.getDiscountRate())
+                .displayYn(entity.getDisplayYn())
                 .categoryId(entity.getCategoryId())
                 .categoryName(entity.getCategoryName())
+                .createdAt(entity.getCreatedAt())
                 .build();
         return vo;
     }

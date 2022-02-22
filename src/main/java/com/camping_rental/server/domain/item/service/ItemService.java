@@ -5,10 +5,7 @@ import com.camping_rental.server.domain.item.repository.ItemRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 @Service
 public class ItemService {
@@ -23,6 +20,10 @@ public class ItemService {
 
     public void saveAndModify(ItemEntity entity) {
         itemRepository.save(entity);
+    }
+
+    public List<ItemEntity> searchList(UUID itemId) {
+        return itemRepository.findById(itemId);
     }
 
     public List<ItemEntity> searchList(Map<String, Object> params) {
@@ -41,5 +42,27 @@ public class ItemService {
 
         List<ItemEntity> itemEntities = itemRepository.findByCategoryId(CATEGORY_ID);
         return itemEntities;
+    }
+
+    public List<ItemEntity> searchDisplayList(Map<String, Object> params) {
+        Object categoryIdObj = params.get("categoryId");
+        UUID CATEGORY_ID = null;
+
+        if (categoryIdObj == null) {
+            return itemRepository.findDisplayList();
+        }
+
+        try {
+            CATEGORY_ID = UUID.fromString(categoryIdObj.toString());
+        } catch (IllegalArgumentException e) {
+            return itemRepository.findDisplayList();
+        }
+
+        List<ItemEntity> itemEntities = itemRepository.findDisplayListByCategoryId(CATEGORY_ID);
+        return itemEntities;
+    }
+
+    public void deleteOne(ItemEntity itemEntity) {
+        itemRepository.delete(itemEntity);
     }
 }

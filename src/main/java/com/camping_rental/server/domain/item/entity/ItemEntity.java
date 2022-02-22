@@ -56,6 +56,9 @@ public class ItemEntity {
     @Column(name = "discount_rate")
     private Integer discountRate;
 
+    @Column(name = "display_yn")
+    private String displayYn;
+
     @Column(name = "category_id")
     @Type(type = "uuid-char")
     private UUID categoryId;
@@ -80,6 +83,7 @@ public class ItemEntity {
                 .returnRegions(dto.getReturnRegions())
                 .price(dto.getPrice())
                 .discountRate(dto.getDiscountRate())
+                .displayYn(dto.getDisplayYn())
                 .categoryId(dto.getCategoryId())
                 .categoryName(dto.getCategoryName())
                 .createdAt(dto.getCreatedAt())
