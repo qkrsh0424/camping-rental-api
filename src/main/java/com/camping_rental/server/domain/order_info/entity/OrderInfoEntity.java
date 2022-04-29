@@ -61,7 +61,7 @@ public class OrderInfoEntity {
                 .cid(dto.getCid())
                 .id(dto.getId())
                 .orderer(dto.getOrderer())
-                .ordererPhoneNumber(dto.getOrderer())
+                .ordererPhoneNumber(dto.getOrdererPhoneNumber())
                 .pickupDate(dto.getPickupDate())
                 .returnDate(dto.getReturnDate())
                 .pickupRegion(dto.getPickupRegion())
