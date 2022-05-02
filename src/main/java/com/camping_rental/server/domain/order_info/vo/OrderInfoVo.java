@@ -1,6 +1,7 @@
 package com.camping_rental.server.domain.order_info.vo;
 
 import com.camping_rental.server.domain.order_info.entity.OrderInfoEntity;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.*;
 
 import java.time.LocalDateTime;
@@ -16,7 +17,9 @@ public class OrderInfoVo {
     private UUID id;
     private String orderer;
     private String ordererPhoneNumber;
+    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss'Z'")
     private LocalDateTime pickupDate;
+    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss'Z'")
     private LocalDateTime returnDate;
     private String pickupRegion;
     private String returnRegion;

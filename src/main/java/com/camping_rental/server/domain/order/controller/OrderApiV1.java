@@ -54,9 +54,6 @@ public class OrderApiV1 {
             throw new NotMatchedFormatException("형식이 맞지 않습니다.");
         }
 
-        System.out.println(orderInfoDto);
-        System.out.println(orderItemDtos);
-
         orderBusinessService.create(orderInfoDto, orderItemDtos);
 
         message.setStatus(HttpStatus.OK);
