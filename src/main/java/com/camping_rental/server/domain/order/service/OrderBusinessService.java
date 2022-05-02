@@ -10,29 +10,24 @@ import com.camping_rental.server.domain.order_item.dto.OrderItemDto;
 import com.camping_rental.server.domain.order_item.entity.OrderItemEntity;
 import com.camping_rental.server.domain.order_item.service.OrderItemService;
 import com.camping_rental.server.domain.order_item.vo.OrderItemVo;
+import com.camping_rental.server.domain.twilio.dto.TwilioSmsRequestDto;
+import com.camping_rental.server.domain.twilio.service.TwilioSmsService;
 import com.camping_rental.server.utils.CustomDateUtils;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import javax.transaction.Transactional;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
+@RequiredArgsConstructor
 public class OrderBusinessService {
     private final OrderInfoService orderInfoService;
     private final OrderItemService orderItemService;
-
-    @Autowired
-    public OrderBusinessService(
-            OrderInfoService orderInfoService,
-            OrderItemService orderItemService
-    ) {
-        this.orderInfoService = orderInfoService;
-        this.orderItemService = orderItemService;
-    }
+    private final TwilioSmsService twilioSmsService;
 
     @Transactional
     public void create(OrderInfoDto orderInfoDto, List<OrderItemDto> orderItemDtos) {
@@ -54,8 +49,41 @@ public class OrderBusinessService {
 
         orderInfoService.saveAndModify(orderInfoEntity);
         orderItemService.saveAll(orderItemEntities);
+
+        /*
+        twilio 메세지 전송
+         */
+        List<TwilioSmsRequestDto> twilioSmsRequestDtos = new ArrayList<>();
+
+        StringBuilder smsMessage = new StringBuilder();
+        smsMessage.append("[캠핑 렌탈]\n\n");
+        smsMessage.append("신규 주문이 있습니다.\n\n");
+        smsMessage.append("주문자 성함 : " + orderInfoDto.getOrderer() + "\n");
+        smsMessage.append("주문자 전화번호 : " + orderInfoDto.getOrdererPhoneNumber() + "\n\n");
+        smsMessage.append("조회 링크 바로가기 : " + "http://www.multranslator.com/search/order");
+
+        twilioSmsRequestDtos.add(
+                TwilioSmsRequestDto.toDto(
+                        "01085356112",
+                        smsMessage.toString()
+                )
+        );
+        twilioSmsRequestDtos.add(
+                TwilioSmsRequestDto.toDto(
+                        "01050036206",
+                        smsMessage.toString()
+                )
+        );
+        twilioSmsRequestDtos.add(
+                TwilioSmsRequestDto.toDto(
+                        "01063760015",
+                        smsMessage.toString()
+                )
+        );
+        twilioSmsService.sendMultipleSms(twilioSmsRequestDtos);
     }
 
+    @Transactional(readOnly = true)
     public Object searchList() {
         List<OrderVo> orderVos = new ArrayList<>();
 
