@@ -26,6 +26,7 @@ public class OrderInfoVo {
     private String pickupTime;
     private String returnTime;
     private String serviceAgreementYn;
+    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss'Z'")
     private LocalDateTime createdAt;
 
     public static OrderInfoVo toVo(OrderInfoEntity entity) {

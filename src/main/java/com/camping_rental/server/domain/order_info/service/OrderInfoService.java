@@ -24,7 +24,6 @@ public class OrderInfoService {
 
     public List<OrderInfoEntity> searchList() {
         List<Sort.Order> sortList = new LinkedList<>();
-        sortList.add(Sort.Order.asc("orderer"));
         sortList.add(Sort.Order.desc("createdAt"));
         Sort sort = Sort.by(sortList);
         return orderInfoRepository.findAll(sort);
