@@ -56,7 +56,7 @@ public class OrderBusinessService {
         List<TwilioSmsRequestDto> twilioSmsRequestDtos = new ArrayList<>();
 
         StringBuilder smsMessage = new StringBuilder();
-        smsMessage.append("[캠핑 렌탈]\n\n");
+        smsMessage.append("[Campal | 캠핑 렌탈]\n\n");
         smsMessage.append("신규 주문이 있습니다.\n\n");
         smsMessage.append("주문자 성함 : " + orderInfoDto.getOrderer() + "\n");
         smsMessage.append("주문자 전화번호 : " + orderInfoDto.getOrdererPhoneNumber() + "\n\n");

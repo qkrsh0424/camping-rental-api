@@ -20,17 +20,32 @@ import java.util.UUID;
 public class OrderInfoDto {
     private Integer cid;
     private UUID id;
+    private String status;
     private String orderer;
     private String ordererPhoneNumber;
-//    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss", timezone = "Asia/Seoul")
+    //    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss", timezone = "Asia/Seoul")
     private LocalDateTime pickupDate;
-//    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss", timezone = "Asia/Seoul")
+    //    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss", timezone = "Asia/Seoul")
     private LocalDateTime returnDate;
     private String pickupRegion;
     private String returnRegion;
     private String pickupTime;
     private String returnTime;
     private String serviceAgreementYn;
-//    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss", timezone = "Asia/Seoul")
+    //    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss", timezone = "Asia/Seoul")
     private LocalDateTime createdAt;
+
+    @Getter
+    @Setter
+    @ToString
+    @AllArgsConstructor
+    @NoArgsConstructor
+    @Builder
+    public static class OrderStatus {
+        private UUID orderInfoId;
+        private String status;
+        private String selectedStatus;
+        private String smsMessage;
+        private boolean smsFlag;
+    }
 }

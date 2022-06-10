@@ -26,6 +26,9 @@ public class OrderInfoEntity {
     @Type(type = "uuid-char")
     private UUID id;
 
+    @Column(name = "status")
+    private String status;
+
     @Column(name = "orderer")
     private String orderer;
 
@@ -60,6 +63,7 @@ public class OrderInfoEntity {
         OrderInfoEntity entity = OrderInfoEntity.builder()
                 .cid(dto.getCid())
                 .id(dto.getId())
+                .status(dto.getStatus())
                 .orderer(dto.getOrderer())
                 .ordererPhoneNumber(dto.getOrdererPhoneNumber())
                 .pickupDate(dto.getPickupDate())

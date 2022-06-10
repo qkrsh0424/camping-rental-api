@@ -15,6 +15,7 @@ import java.util.UUID;
 @Builder
 public class OrderInfoVo {
     private UUID id;
+    private String status;
     private String orderer;
     private String ordererPhoneNumber;
     @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss'Z'")
@@ -32,6 +33,7 @@ public class OrderInfoVo {
     public static OrderInfoVo toVo(OrderInfoEntity entity) {
         OrderInfoVo vo = OrderInfoVo.builder()
                 .id(entity.getId())
+                .status(entity.getStatus())
                 .orderer(entity.getOrderer())
                 .ordererPhoneNumber(entity.getOrdererPhoneNumber())
                 .pickupDate(entity.getPickupDate())
