@@ -6,10 +6,7 @@ import com.camping_rental.server.domain.user.entity.UserEntity;
 import com.camping_rental.server.domain.user.enums.UserAllowedAccessCountEnum;
 import com.camping_rental.server.domain.user.enums.UserLoginTypeEnum;
 import com.camping_rental.server.domain.user.enums.UserRoleEnum;
-import com.camping_rental.server.utils.CustomCookieUtils;
-import com.camping_rental.server.utils.CustomDateUtils;
-import com.camping_rental.server.utils.DataFormatUtils;
-import com.camping_rental.server.utils.ValidationJwtTokenUtils;
+import com.camping_rental.server.utils.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
@@ -101,7 +98,7 @@ public class UserBusinessService {
         /*
         phoneNumber 중복 체크
          */
-        if (userService.searchByPhoneNumberAndLoginType(PHONE_NUMBER, "local") != null) {
+        if (userService.searchByPhoneNumberAndLoginType(PHONE_NUMBER, UserLoginTypeEnum.LOCAL.getValue()) != null) {
             throw new NotMatchedFormatException("이미 해당 휴대전화로 가입된 아이디가 있습니다.");
         }
 
@@ -115,7 +112,7 @@ public class UserBusinessService {
         phoneValidationToken = phoneValidationCookie.getValue();
 
         String jwtSecret = PHONE_NUMBER + PHONE_NUMBER_VALIDATION_CODE + JWT_PHONE_VALIDATION_SECRET;
-        ValidationJwtTokenUtils.parseJwt(jwtSecret, phoneValidationToken, "인증번호가 정확하지 않습니다.");
+        CustomJwtUtils.parseJwt(jwtSecret, phoneValidationToken, "인증번호가 정확하지 않습니다.");
 
         /*
         UserEntity setting

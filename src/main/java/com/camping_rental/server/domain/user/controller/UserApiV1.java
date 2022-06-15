@@ -29,7 +29,6 @@ public class UserApiV1 {
             HttpServletResponse response,
             @RequestBody UserDto.LocalSignup userSignupDto
     ) {
-//        TODO
         Message message = new Message();
 
         userBusinessService.signup(request, response, userSignupDto);

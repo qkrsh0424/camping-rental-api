@@ -53,7 +53,8 @@ public class ValidationApiV1 {
         if (phoneValidationCookie != null) {
             phoneValidationToken = phoneValidationCookie.getValue();
             DecodedJWT jwt = JWT.decode(phoneValidationToken);
-            long diffTime = CustomDateUtils.getCurrentTimeMillis() - jwt.getExpiresAt().getTime();
+
+            long diffTime = CustomDateUtils.getCurrentTimeMillis() - jwt.getIssuedAt().getTime();
 
             if(diffTime < 10000){
                 throw new NotMatchedFormatException("요청이 너무 많습니다. 잠시 후 다시 시도해 주세요.");

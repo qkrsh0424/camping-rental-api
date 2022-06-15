@@ -1,25 +1,18 @@
 package com.camping_rental.server.domain.validation.service;
 
-import com.auth0.jwt.JWT;
-import com.auth0.jwt.interfaces.DecodedJWT;
-import com.camping_rental.server.domain.exception.dto.NotMatchedFormatException;
 import com.camping_rental.server.domain.twilio.dto.TwilioSmsRequestDto;
 import com.camping_rental.server.domain.twilio.service.TwilioSmsService;
 import com.camping_rental.server.domain.user.entity.UserEntity;
+import com.camping_rental.server.domain.user.enums.UserLoginTypeEnum;
 import com.camping_rental.server.domain.user.service.UserService;
 import com.camping_rental.server.utils.CustomCookieUtils;
-import com.camping_rental.server.utils.CustomDateUtils;
 import com.camping_rental.server.utils.DataFormatUtils;
-import com.camping_rental.server.utils.ValidationJwtTokenUtils;
-import io.jsonwebtoken.Jwts;
+import com.camping_rental.server.utils.ValidationTokenUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseCookie;
 import org.springframework.stereotype.Service;
-import org.springframework.web.util.WebUtils;
 
-import javax.servlet.http.Cookie;
-import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 @Service
@@ -45,7 +38,7 @@ public class ValidationBusinessService {
         /*
         입력받은 phoneNumber 와 유저 login_type이 local인 경우의 UserEntity를 찾는다. 만약에 해당 데이터가 있다면 return
          */
-        UserEntity userEntity = userService.searchByPhoneNumberAndLoginType(phoneNumber, "local");
+        UserEntity userEntity = userService.searchByPhoneNumberAndLoginType(phoneNumber, UserLoginTypeEnum.LOCAL.getValue());
         if(userEntity != null){
             return;
         }
@@ -53,8 +46,8 @@ public class ValidationBusinessService {
         /*
         인증번호와 인증번호 토큰을 만든다.
          */
-        String validationNum = String.valueOf((int) (Math.random() * 900000) + 100000);
-        String validationNumToken = ValidationJwtTokenUtils.getPhoneValidationNumberJwtToken(validationNum, phoneNumber);
+        String validationNum = ValidationTokenUtils.generate6DigitValidationCode();
+        String validationNumToken = ValidationTokenUtils.generatePhoneValidationNumberJwtToken(validationNum, phoneNumber);
 
         /*
         인증번호 토큰을 cookie로 내보내준다.
