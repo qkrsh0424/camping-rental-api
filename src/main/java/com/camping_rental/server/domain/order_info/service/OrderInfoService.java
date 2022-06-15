@@ -2,8 +2,11 @@ package com.camping_rental.server.domain.order_info.service;
 
 import com.camping_rental.server.domain.exception.dto.NotMatchedFormatException;
 import com.camping_rental.server.domain.order_info.entity.OrderInfoEntity;
+import com.camping_rental.server.domain.order_info.projection.OrderInfoProjection;
 import com.camping_rental.server.domain.order_info.repository.OrderInfoRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
@@ -33,5 +36,10 @@ public class OrderInfoService {
 
     public OrderInfoEntity searchOne(UUID id){
         return orderInfoRepository.findById(id).orElseThrow(() -> new NotMatchedFormatException("존재하지 않는 데이터 입니다."));
+    }
+
+    public Page<OrderInfoProjection.JoinOrderItems> searchJoinOrderItemsPage(Pageable pageable) {
+        Page<OrderInfoProjection.JoinOrderItems> orderInfoPage = orderInfoRepository.qSelectJoinOrderItemsPage(pageable);
+        return orderInfoPage;
     }
 }

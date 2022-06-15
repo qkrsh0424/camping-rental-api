@@ -1,4 +1,4 @@
-package com.piaar_store_manager.server.config.querydsl;
+package com.camping_rental.server.config.querydsl;
 
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import org.springframework.context.annotation.Bean;

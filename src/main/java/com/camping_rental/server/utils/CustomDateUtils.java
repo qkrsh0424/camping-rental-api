@@ -9,6 +9,10 @@ import java.util.Date;
 import java.util.TimeZone;
 
 public class CustomDateUtils {
+    public static long getCurrentTimeMillis(){
+        return System.currentTimeMillis();
+    }
+
     public static LocalDateTime getCurrentDateTime(){
         return LocalDateTime.now();
     }

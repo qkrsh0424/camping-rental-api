@@ -1,19 +1,19 @@
 package com.camping_rental.server.domain.exception.dto;
 
 /**
- * 403
+ * 401
  */
-public class AccessDeniedPermissionException extends RuntimeException{
-    public AccessDeniedPermissionException() {
+public class InvalidUserException extends RuntimeException{
+    public InvalidUserException() {
         super();
     }
-    public AccessDeniedPermissionException(String message, Throwable cause) {
+    public InvalidUserException(String message, Throwable cause) {
         super(message, cause);
     }
-    public AccessDeniedPermissionException(String message) {
+    public InvalidUserException(String message) {
         super(message);
     }
-    public AccessDeniedPermissionException(Throwable cause) {
+    public InvalidUserException(Throwable cause) {
         super(cause);
     }
 }
