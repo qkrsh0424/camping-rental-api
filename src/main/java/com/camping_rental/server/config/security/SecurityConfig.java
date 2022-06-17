@@ -1,11 +1,12 @@
 package com.camping_rental.server.config.security;
 
+import com.camping_rental.server.config.auth.JwtAuthorizationFilter;
 import com.camping_rental.server.config.csrf.CsrfAuthenticationFilter;
 import com.camping_rental.server.config.csrf.CsrfExceptionFilter;
 import com.camping_rental.server.config.referer.RefererAuthenticationFilter;
 import com.camping_rental.server.config.referer.RefererExceptionFilter;
+import com.camping_rental.server.domain.refresh_token.repository.RefreshTokenRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -23,11 +24,7 @@ import org.springframework.security.web.firewall.HttpFirewall;
 @EnableWebSecurity
 @RequiredArgsConstructor
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
-    @Value("${app.jwt.access-token.secret}")
-    private String accessTokenSecret;
-
-    @Value("${app.jwt.refresh-token.secret}")
-    private String refreshTokenSecret;
+    private final RefreshTokenRepository refreshTokenRepository;
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
@@ -46,8 +43,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         http
                 .addFilterBefore(new RefererAuthenticationFilter(), CsrfFilter.class)
                 .addFilterAfter(new CsrfAuthenticationFilter(), RefererAuthenticationFilter.class)
-//                .addFilterAfter(new JwtAuthorizationFilter(userRepository, refreshTokenRepository, accessTokenSecret, refreshTokenSecret), CsrfAuthenticationFilter.class)
-//                .addFilterAfter(new JwtAuthenticationFilter(authenticationManager(), userRepository, refreshTokenRepository, accessTokenSecret, refreshTokenSecret), JwtAuthorizationFilter.class)
+                .addFilterAfter(new JwtAuthorizationFilter(refreshTokenRepository), CsrfAuthenticationFilter.class)
                 .addFilterBefore(new RefererExceptionFilter(), RefererAuthenticationFilter.class)
                 .addFilterBefore(new CsrfExceptionFilter(), CsrfAuthenticationFilter.class)
 //                .addFilterBefore(new JwtAuthorizationExceptionFilter(), JwtAuthorizationFilter.class)

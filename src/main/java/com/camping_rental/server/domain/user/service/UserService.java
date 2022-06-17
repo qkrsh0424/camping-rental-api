@@ -1,9 +1,14 @@
 package com.camping_rental.server.domain.user.service;
 
+import com.camping_rental.server.config.auth.PrincipalDetails;
+import com.camping_rental.server.domain.exception.dto.InvalidUserException;
 import com.camping_rental.server.domain.user.entity.UserEntity;
 import com.camping_rental.server.domain.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -23,5 +28,36 @@ public class UserService {
 
     public void saveAndModify(UserEntity userEntity){
         userRepository.save(userEntity);
+    }
+
+    public UserEntity searchByUsernameAndLoginType(String username, String loginType) {
+        UserEntity userEntity = userRepository.findByUsernameAndLoginType(username,loginType).orElse(null);
+        return userEntity;
+    }
+
+    public UUID getUserIdOrNull() {
+        try {
+            PrincipalDetails principalDetails = (PrincipalDetails) SecurityContextHolder.getContext()
+                    .getAuthentication().getPrincipal();
+
+            return principalDetails.getUser().getId();
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    public UUID getUserIdOrThrow() {
+        try {
+            PrincipalDetails principalDetails = (PrincipalDetails) SecurityContextHolder.getContext()
+                    .getAuthentication().getPrincipal();
+
+            return principalDetails.getUser().getId();
+        } catch (Exception e) {
+            throw new InvalidUserException("로그인이 필요한 서비스 입니다.");
+        }
+    }
+
+    public UserEntity searchById(UUID userId) {
+        return userRepository.findById(userId).orElse(null);
     }
 }

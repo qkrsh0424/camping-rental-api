@@ -1,5 +1,6 @@
 package com.camping_rental.server.domain.user.controller;
 
+import com.camping_rental.server.annotation.RequiredLogin;
 import com.camping_rental.server.domain.exception.dto.InvalidUserException;
 import com.camping_rental.server.domain.exception.dto.NotMatchedFormatException;
 import com.camping_rental.server.domain.message.dto.Message;
@@ -8,10 +9,8 @@ import com.camping_rental.server.domain.user.service.UserBusinessService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -23,6 +22,30 @@ import java.util.Map;
 public class UserApiV1 {
     private final UserBusinessService userBusinessService;
 
+//    @RequiredLogin
+    @GetMapping("/info")
+    public ResponseEntity<?> searchInfo(HttpServletRequest request){
+        Message message = new Message();
+
+        message.setStatus(HttpStatus.OK);
+        message.setMessage("success");
+        message.setData(userBusinessService.searchUserInfo(request));
+
+        return new ResponseEntity<>(message, message.getStatus());
+    }
+
+    // TODO : PostMapping 으로 변경해야됨.
+    @PostMapping("/reissue/access-token")
+    public ResponseEntity<?> reissueAccessToken(HttpServletRequest request, HttpServletResponse response){
+        Message message = new Message();
+
+        userBusinessService.reissueAccessToken(request, response);
+        message.setStatus(HttpStatus.OK);
+        message.setMessage("success");
+
+        return new ResponseEntity<>(message, message.getStatus());
+    }
+
     @PostMapping("/signup")
     public ResponseEntity<?> signup(
             HttpServletRequest request,
@@ -32,6 +55,35 @@ public class UserApiV1 {
         Message message = new Message();
 
         userBusinessService.signup(request, response, userSignupDto);
+        message.setStatus(HttpStatus.OK);
+        message.setMessage("success");
+
+        return new ResponseEntity<>(message, message.getStatus());
+    }
+
+    @PostMapping("/login")
+    public ResponseEntity<?> login(
+            HttpServletRequest request,
+            HttpServletResponse response,
+            @RequestBody UserDto.LocalLogin userLoginDto
+    ){
+        Message message = new Message();
+
+        userBusinessService.login(request, response, userLoginDto);
+        message.setStatus(HttpStatus.OK);
+        message.setMessage("success");
+
+        return new ResponseEntity<>(message, message.getStatus());
+    }
+
+    @PostMapping("/logout")
+    public ResponseEntity<?> logout(
+            HttpServletRequest request,
+            HttpServletResponse response
+    ){
+        Message message = new Message();
+
+        userBusinessService.logout(request, response);
         message.setStatus(HttpStatus.OK);
         message.setMessage("success");
 

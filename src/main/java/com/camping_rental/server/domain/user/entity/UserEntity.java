@@ -9,6 +9,9 @@ import org.hibernate.annotations.Type;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.UUID;
 
 @Data
@@ -68,4 +71,11 @@ public class UserEntity {
 
     @Column(name = "created_at")
     private LocalDateTime createdAt;
+
+    public List<String> getRoleList(){
+        if(this.roles.length() > 0){
+            return Arrays.asList(this.roles.replaceAll(" ","").split(","));
+        }
+        return new ArrayList<>();
+    }
 }

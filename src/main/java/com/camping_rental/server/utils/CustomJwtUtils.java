@@ -16,6 +16,8 @@ import java.util.Map;
 public class CustomJwtUtils {
     public static String JWT_ISSUER;
 
+    public final static Integer ACCESS_TOKEN_JWT_EXPIRATION = 10 * 60 * 1000;  // milliseconds - 10분
+    public final static Integer REFRESH_TOKEN_JWT_EXPIRATION = 5 * 24 * 60 * 60 * 1000;   // milliseconds - 5일/**/
     public final static Integer CSRF_TOKEN_JWT_EXPIRATION = 5 * 1000;  // milliseconds - 5000ms -> 5s
     public final static Integer PHONE_VALIDATION_TOKEN_JWT_EXPIRATION = 30 * 60 * 1000;   // milliseconds - 30분
 

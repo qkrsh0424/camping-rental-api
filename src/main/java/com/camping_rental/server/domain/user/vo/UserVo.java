@@ -1,4 +1,4 @@
-package com.camping_rental.server.domain.user.dto;
+package com.camping_rental.server.domain.user.vo;
 
 import com.camping_rental.server.domain.user.entity.UserEntity;
 import lombok.AllArgsConstructor;
@@ -6,7 +6,6 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import javax.persistence.Column;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
@@ -14,7 +13,7 @@ import java.util.UUID;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class UserDto {
+public class UserVo {
     private Integer cid;
     private UUID id;
     private String loginType;
@@ -36,27 +35,6 @@ public class UserDto {
     @AllArgsConstructor
     @NoArgsConstructor
     @Builder
-    public static class LocalSignup {
-        private String username;
-        private String password;
-        private String passwordChecker;
-        private String phoneNumber;
-        private String phoneNumberValidationCode;
-    }
-
-    @Data
-    @AllArgsConstructor
-    @NoArgsConstructor
-    @Builder
-    public static class LocalLogin {
-        private String username;
-        private String password;
-    }
-
-    @Data
-    @AllArgsConstructor
-    @NoArgsConstructor
-    @Builder
     public static class Basic {
         private UUID id;
         private String username;
@@ -66,12 +44,12 @@ public class UserDto {
         private String phoneNumber;
         private String roles;
 
-        public static Basic toDto(UserEntity entity) {
+        public static UserVo.Basic toVo(UserEntity entity) {
             if(entity == null){
                 return null;
             }
 
-            Basic dto = Basic.builder()
+            UserVo.Basic dto = UserVo.Basic.builder()
                     .id(entity.getId())
                     .username(entity.getUsername())
                     .email(entity.getEmail())
