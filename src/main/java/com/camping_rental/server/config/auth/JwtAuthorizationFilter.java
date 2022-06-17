@@ -25,11 +25,6 @@ import java.util.Optional;
 import java.util.UUID;
 
 public class JwtAuthorizationFilter extends OncePerRequestFilter {
-    private RefreshTokenRepository refreshTokenRepository;
-
-    public JwtAuthorizationFilter(RefreshTokenRepository refreshTokenRepository) {
-        this.refreshTokenRepository = refreshTokenRepository;
-    }
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)

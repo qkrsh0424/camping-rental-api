@@ -24,7 +24,6 @@ import org.springframework.security.web.firewall.HttpFirewall;
 @EnableWebSecurity
 @RequiredArgsConstructor
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
-    private final RefreshTokenRepository refreshTokenRepository;
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
@@ -43,7 +42,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         http
                 .addFilterBefore(new RefererAuthenticationFilter(), CsrfFilter.class)
                 .addFilterAfter(new CsrfAuthenticationFilter(), RefererAuthenticationFilter.class)
-                .addFilterAfter(new JwtAuthorizationFilter(refreshTokenRepository), CsrfAuthenticationFilter.class)
+                .addFilterAfter(new JwtAuthorizationFilter(), CsrfAuthenticationFilter.class)
                 .addFilterBefore(new RefererExceptionFilter(), RefererAuthenticationFilter.class)
                 .addFilterBefore(new CsrfExceptionFilter(), CsrfAuthenticationFilter.class)
 //                .addFilterBefore(new JwtAuthorizationExceptionFilter(), JwtAuthorizationFilter.class)
