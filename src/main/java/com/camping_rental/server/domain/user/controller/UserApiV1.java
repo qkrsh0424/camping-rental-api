@@ -76,6 +76,7 @@ public class UserApiV1 {
         return new ResponseEntity<>(message, message.getStatus());
     }
 
+    @RequiredLogin
     @PostMapping("/logout")
     public ResponseEntity<?> logout(
             HttpServletRequest request,

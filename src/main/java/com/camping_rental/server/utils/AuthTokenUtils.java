@@ -58,7 +58,8 @@ public class AuthTokenUtils {
         String refreshToken = CustomJwtUtils.generateJwtToken(
                 "JWT_RFT",
                 payload,
-                CustomJwtUtils.REFRESH_TOKEN_JWT_EXPIRATION,
+//                CustomJwtUtils.REFRESH_TOKEN_JWT_EXPIRATION,
+                10000,
                 refreshTokenSecret
         );
 

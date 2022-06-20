@@ -20,6 +20,7 @@ public class CustomJwtUtils {
     public final static Integer REFRESH_TOKEN_JWT_EXPIRATION = 5 * 24 * 60 * 60 * 1000;   // milliseconds - 5일/**/
     public final static Integer CSRF_TOKEN_JWT_EXPIRATION = 5 * 1000;  // milliseconds - 5000ms -> 5s
     public final static Integer PHONE_VALIDATION_TOKEN_JWT_EXPIRATION = 30 * 60 * 1000;   // milliseconds - 30분
+    public final static Integer EMAIL_VALIDATION_TOKEN_JWT_EXPIRATION = 30 * 60 * 1000;   // milliseconds - 30분
 
     @Value("${app.jwt.issuer}")
     public void setJwtIssuer(String issuer) {

@@ -37,11 +37,11 @@ public class UserDto {
     @NoArgsConstructor
     @Builder
     public static class LocalSignup {
-        private String username;
+        private String email;
+        private String emailValidationCode;
         private String password;
         private String passwordChecker;
-        private String phoneNumber;
-        private String phoneNumberValidationCode;
+        private String nickname;
     }
 
     @Data
