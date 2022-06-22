@@ -41,8 +41,7 @@ public class AuthTokenUtils {
         String accessToken = CustomJwtUtils.generateJwtToken(
                 "JWT_ACT",
                 payload,
-//                CustomJwtUtils.ACCESS_TOKEN_JWT_EXPIRATION,
-                2000,
+                CustomJwtUtils.ACCESS_TOKEN_JWT_EXPIRATION,
                 accessTokenSecret
         );
 
@@ -58,8 +57,7 @@ public class AuthTokenUtils {
         String refreshToken = CustomJwtUtils.generateJwtToken(
                 "JWT_RFT",
                 payload,
-//                CustomJwtUtils.REFRESH_TOKEN_JWT_EXPIRATION,
-                10000,
+                CustomJwtUtils.REFRESH_TOKEN_JWT_EXPIRATION,
                 refreshTokenSecret
         );
 

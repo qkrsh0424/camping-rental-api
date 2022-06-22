@@ -41,9 +41,9 @@ public class NaverEmailService {
             restTemplate.setRequestFactory(new HttpComponentsClientHttpRequestFactory());
             restTemplate.postForObject(new URI(naverEmailConfiguration.getMailRequestUrl() + naverEmailConfiguration.getMailApiUri()), body, HashMap.class);
         } catch (URISyntaxException e) {
-            throw new NotMatchedFormatException("이메일 전송이 불가능합니다.");
+            throw new NotMatchedFormatException("이메일 전송이 불가능 합니다.");
         } catch (JsonProcessingException e) {
-            throw new NotMatchedFormatException("이메일 전송이 불가능합니다.");
+            throw new NotMatchedFormatException("이메일 전송이 불가능 합니다.");
         }
     }
 
@@ -86,13 +86,13 @@ public class NaverEmailService {
             String encodeBase64String = Base64.getEncoder().encodeToString(rawHmac);
             return encodeBase64String;
         } catch (InvalidKeyException e) {
-            throw new NotMatchedFormatException("이메일 전송이 불가능합니다.");
+            throw new NotMatchedFormatException("이메일 전송이 불가능 합니다.");
         } catch (NoSuchAlgorithmException e) {
-            throw new NotMatchedFormatException("이메일 전송이 불가능합니다.");
+            throw new NotMatchedFormatException("이메일 전송이 불가능 합니다.");
         } catch (UnsupportedEncodingException e) {
-            throw new NotMatchedFormatException("이메일 전송이 불가능합니다.");
+            throw new NotMatchedFormatException("이메일 전송이 불가능 합니다.");
         } catch (Exception e) {
-            throw new NotMatchedFormatException("이메일 전송이 불가능합니다.");
+            throw new NotMatchedFormatException("이메일 전송이 불가능 합니다.");
         }
     }
 }

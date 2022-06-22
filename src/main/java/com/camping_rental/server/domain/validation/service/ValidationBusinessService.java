@@ -142,7 +142,6 @@ public class ValidationBusinessService {
                 .build();
 
         naverEmailService.sendEmail(mailRequestDto);
-        System.out.println("validationNum : " + validationNum);
 
         ResponseCookie emailAuthToken = ResponseCookie.from(CustomCookieUtils.COOKIE_NAME_EMAIL_VALIDATION_TOKEN, validationNumToken)
                 .secure(CustomCookieUtils.SECURE)
