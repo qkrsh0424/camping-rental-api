@@ -63,6 +63,12 @@ public class DataFormatUtils {
         }
     }
 
+    public static boolean isPhoneNumberFormatValid(String number) {
+        boolean isPhoneNumberFormatValid = Pattern.compile("^01(?:0|1|[6-9])([0-9]{3,4})([0-9]{4})$").matcher(number).find();
+
+        return isPhoneNumberFormatValid;
+    }
+
     public static void checkEmailFormat(String email) {
 //        boolean isEmailAddressFormat = Pattern.compile("^[0-9a-zA-Z]([-_.]?[0-9a-zA-Z])*@([0-9a-zA-Z]+\\.)+[0-9a-zA-Z]{2,8}$").matcher(email).find();
         boolean isEmailAddressFormat = Pattern.compile("^([\\w._-])*[a-zA-Z0-9]+([\\w._-])*([a-zA-Z0-9])+([\\w._-])+@([a-zA-Z0-9]+\\.)+[a-zA-Z0-9]{2,8}$").matcher(email).find();

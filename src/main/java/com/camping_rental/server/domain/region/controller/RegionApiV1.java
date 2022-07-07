@@ -18,12 +18,19 @@ import java.util.UUID;
 public class RegionApiV1 {
     private final RegionBusinessService regionBusinessService;
 
-    @GetMapping("")
+    @GetMapping("/rooms/{roomId}")
     @RequiredLogin
-    public ResponseEntity<?> searchList(){
+    public ResponseEntity<?> searchListBySelf(@PathVariable("roomId") Object roomIdObj){
         Message message = new Message();
 
-        message.setData(regionBusinessService.searchList());
+        UUID roomId = null;
+        try{
+            roomId = UUID.fromString(roomIdObj.toString());
+        } catch (IllegalArgumentException | NullPointerException e){
+            throw new NotMatchedFormatException("데이터를 찾을 수 없습니다.");
+        }
+
+        message.setData(regionBusinessService.searchListByRoomId(roomId));
         message.setStatus(HttpStatus.OK);
         message.setMessage("success");
 

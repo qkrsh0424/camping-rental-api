@@ -4,6 +4,8 @@ import com.camping_rental.server.domain.exception.dto.InvalidUserException;
 import com.camping_rental.server.domain.exception.dto.NotMatchedFormatException;
 import com.camping_rental.server.domain.refresh_token.entity.RefreshTokenEntity;
 import com.camping_rental.server.domain.refresh_token.service.RefreshTokenService;
+import com.camping_rental.server.domain.room.entity.RoomEntity;
+import com.camping_rental.server.domain.room.service.RoomSerivce;
 import com.camping_rental.server.domain.user.dto.UserDto;
 import com.camping_rental.server.domain.user.entity.UserEntity;
 import com.camping_rental.server.domain.user.enums.UserAllowedAccessCountEnum;
@@ -13,6 +15,7 @@ import com.camping_rental.server.domain.user.vo.UserVo;
 import com.camping_rental.server.utils.*;
 import io.jsonwebtoken.*;
 import lombok.RequiredArgsConstructor;
+import org.hibernate.annotations.Type;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseCookie;
@@ -21,9 +24,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.util.WebUtils;
 
+import javax.persistence.Column;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Service
@@ -33,6 +38,7 @@ public class UserBusinessService {
 
     private final UserService userService;
     private final RefreshTokenService refreshTokenService;
+    private final RoomSerivce roomSerivce;
 
     @Transactional(readOnly = true)
     public void checkDuplicateUsername(String username) {
@@ -156,6 +162,8 @@ public class UserBusinessService {
     이메일 인증번호 체크
     UserEntity setting
     DB save
+    RoomEntity 작성
+    RoomEntity save
     cp_email_validation_token cookie 삭제
      */
     @Transactional
@@ -195,7 +203,7 @@ public class UserBusinessService {
             throw new NotMatchedFormatException("입력하신 패스워드를 다시 확인하여 주세요.");
         }
 
-        if(!DataFormatUtils.isPassSignupNickname(NICKNAME)){
+        if (!DataFormatUtils.isPassSignupNickname(NICKNAME)) {
             throw new NotMatchedFormatException("입력하신 닉네임 형식이 정확한지 확인하여 주세요.");
         }
 
@@ -220,6 +228,7 @@ public class UserBusinessService {
         UUID userId = UUID.randomUUID();
         String salt = UUID.randomUUID().toString();
         String encPassword = passwordEncoder.encode(userSignupDto.getPassword() + salt);
+        UUID roomId = UUID.randomUUID();
 
         UserEntity userEntity = UserEntity.builder()
                 .cid(null)
@@ -238,12 +247,32 @@ public class UserBusinessService {
                 .allowedAccessCount(UserAllowedAccessCountEnum.DEFUALT.getValue())
                 .updatedAt(CustomDateUtils.getCurrentDateTime())
                 .createdAt(CustomDateUtils.getCurrentDateTime())
+                .roomId(roomId)
                 .build();
 
         /*
         DB save
          */
-        userService.saveAndModify(userEntity);
+        UserEntity returnedUserEntity = userService.saveAndGet(userEntity);
+
+        /*
+        RoomEntity 작성
+         */
+        RoomEntity roomEntity = RoomEntity.builder()
+                .cid(null)
+                .id(roomId)
+                .name(returnedUserEntity.getNickname())
+                .introduction("")
+                .createdAt(CustomDateUtils.getCurrentDateTime())
+                .updatedAt(CustomDateUtils.getCurrentDateTime())
+                .userCid(returnedUserEntity.getCid())
+                .userId(returnedUserEntity.getId())
+                .build();
+
+        /*
+        RoomEntity save
+         */
+        roomSerivce.saveAndModify(roomEntity);
 
         /*
         cp_email_validation_token cookie 삭제
@@ -340,13 +369,13 @@ public class UserBusinessService {
     @Transactional(readOnly = true)
     public Object searchUserInfo(HttpServletRequest request) {
         Cookie jwtTokenCookie = WebUtils.getCookie(request, CustomCookieUtils.COOKIE_NAME_ACCESS_TOKEN);
-        if(jwtTokenCookie == null){
+        if (jwtTokenCookie == null) {
             return null;
         }
 
         UUID userId = userService.getUserIdOrThrow();
 
-        if(userId == null){
+        if (userId == null) {
             return null;
         }
 

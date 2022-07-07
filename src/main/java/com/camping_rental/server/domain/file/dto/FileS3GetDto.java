@@ -1,5 +1,6 @@
 package com.camping_rental.server.domain.file.dto;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.ToString;
@@ -20,6 +21,7 @@ public class FileS3GetDto {
     private String serviceUrl;
     private String filePath;
     private String fileExtension;
+    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss'Z'")
     private LocalDateTime madeAt;
     private Long size;
 }

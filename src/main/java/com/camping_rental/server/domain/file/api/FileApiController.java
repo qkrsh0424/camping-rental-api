@@ -10,6 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.List;
 import java.util.Map;
 
 
@@ -35,7 +36,7 @@ public class FileApiController {
      * @return
      */
     @PostMapping(value = "/image/s3")
-    public ResponseEntity<?> postMethodName(@RequestParam("files") MultipartFile[] files, @RequestParam("password") String password) {
+    public ResponseEntity<?> postMethodName(@RequestParam("files") List<MultipartFile> files, @RequestParam("password") String password) {
         Message message = new Message();
 
         if(!password.equals(ADMIN_PASSWORD)){

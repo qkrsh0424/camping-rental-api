@@ -72,6 +72,10 @@ public class UserEntity {
     @Column(name = "created_at")
     private LocalDateTime createdAt;
 
+    @Column(name = "room_id")
+    @Type(type = "uuid-char")
+    private UUID roomId;
+
     public List<String> getRoleList(){
         if(this.roles.length() > 0){
             return Arrays.asList(this.roles.replaceAll(" ","").split(","));

@@ -30,4 +30,8 @@ public class RegionService {
     public void logicalDelete(RegionEntity regionEntity) {
         regionEntity.setDeletedFlag(RegionDeletedFlagEnum.DELETED.getValue());
     }
+
+    public List<RegionEntity> searchListByRoomId(UUID roomId) {
+        return regionRepository.findByRoomId(roomId);
+    }
 }

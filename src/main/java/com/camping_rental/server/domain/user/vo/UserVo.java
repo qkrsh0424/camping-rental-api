@@ -30,6 +30,7 @@ public class UserVo {
     private Integer allowedAccessCount;
     private LocalDateTime updatedAt;
     private LocalDateTime createdAt;
+    private UUID roomId;
 
     @Data
     @AllArgsConstructor
@@ -43,6 +44,7 @@ public class UserVo {
         private String nickname;
         private String phoneNumber;
         private String roles;
+        private UUID roomId;
 
         public static UserVo.Basic toVo(UserEntity entity) {
             if(entity == null){
@@ -57,6 +59,7 @@ public class UserVo {
                     .nickname(entity.getNickname())
                     .phoneNumber(entity.getPhoneNumber())
                     .roles(entity.getRoles())
+                    .roomId(entity.getRoomId())
                     .build();
             return dto;
         }

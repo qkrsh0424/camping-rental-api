@@ -5,6 +5,9 @@ import com.camping_rental.server.domain.exception.dto.NotMatchedFormatException;
 import com.camping_rental.server.domain.region.dto.RegionDto;
 import com.camping_rental.server.domain.region.entity.RegionEntity;
 import com.camping_rental.server.domain.region.enums.RegionDeletedFlagEnum;
+import com.camping_rental.server.domain.region.vo.RegionVo;
+import com.camping_rental.server.domain.room.entity.RoomEntity;
+import com.camping_rental.server.domain.room.service.RoomSerivce;
 import com.camping_rental.server.domain.user.service.UserService;
 import com.camping_rental.server.utils.CustomDateUtils;
 import lombok.RequiredArgsConstructor;
@@ -13,19 +16,26 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.Column;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 public class RegionBusinessService {
     private final UserService userService;
     private final RegionService regionService;
+    private final RoomSerivce roomSerivce;
 
     @Transactional(readOnly = true)
-    public Object searchList() {
-        UUID CREATED_BY = userService.getUserIdOrThrow();
+    public Object searchListByRoomId(UUID roomId) {
+        List<RegionEntity> regionEntities = regionService.searchListByRoomId(roomId);
 
-        return regionService.searchList(CREATED_BY);
+        List<RegionVo.Basic> regionVos = regionEntities.stream().map(entity->{
+            return RegionVo.Basic.toVo(entity);
+        }).collect(Collectors.toList());
+
+        return regionVos;
     }
 
     @Transactional
@@ -44,6 +54,8 @@ public class RegionBusinessService {
             FULL_ADDRESS.append(regionDto.getAddressDetail());
         }
 
+        RoomEntity roomEntity = roomSerivce.searchByUserIdOrThrow(USER_ID);
+
         RegionEntity regionEntity = RegionEntity.builder()
                 .cid(null)
                 .id(id)
@@ -58,7 +70,9 @@ public class RegionBusinessService {
                 .createdAt(CustomDateUtils.getCurrentDateTime())
                 .updatedAt(CustomDateUtils.getCurrentDateTime())
                 .deletedFlag(RegionDeletedFlagEnum.EXIST.getValue())
-                .createdBy(USER_ID)
+                .createdBy(roomEntity.getUserId())
+                .roomCid(roomEntity.getCid())
+                .roomId(roomEntity.getId())
                 .build();
 
         regionService.saveAndModify(regionEntity);

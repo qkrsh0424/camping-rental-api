@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.Type;
 
 import javax.persistence.Column;
 import java.time.LocalDateTime;
@@ -23,10 +24,13 @@ public class RegionDto {
     private String buildingName;
     private String address;
     private String addressDetail;
+    private String fullAddress;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
     private boolean deletedFlag;
     private UUID createdBy;
+    private Integer roomCid;
+    private UUID roomId;
 
     @Data
     @AllArgsConstructor

@@ -90,11 +90,11 @@ public class FileUploadService {
         return fileS3GetDto;
     }
 
-    public List<FileS3GetDto> uploadImagesToS3(MultipartFile[] files) {
+    public List<FileS3GetDto> uploadImagesToS3(List<MultipartFile> files) {
         List<FileS3GetDto> fileS3GetDtos = new ArrayList<>();
 
-        for (int i = 0; i < files.length; i++) {
-            fileS3GetDtos.add(this.uploadImageToS3(files[i]));
+        for (int i = 0; i < files.size(); i++) {
+            fileS3GetDtos.add(this.uploadImageToS3(files.get(i)));
         }
         return fileS3GetDtos;
     }

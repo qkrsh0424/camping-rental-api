@@ -69,4 +69,11 @@ public class RegionEntity {
     @Column(name = "created_by")
     @Type(type = "uuid-char")
     private UUID createdBy;
+
+    @Column(name = "room_cid")
+    private Integer roomCid;
+
+    @Column(name = "room_id")
+    @Type(type = "uuid-char")
+    private UUID roomId;
 }

@@ -9,8 +9,9 @@ import java.util.Optional;
 import java.util.UUID;
 
 @Repository
-public interface RegionRepository extends JpaRepository<RegionEntity, Long> {
+public interface RegionRepository extends JpaRepository<RegionEntity, Long>, RegionRepositoryCustom {
     List<RegionEntity> findByCreatedBy(UUID createdBy);
 
     Optional<RegionEntity> findById(UUID id);
+    List<RegionEntity> findByRoomId(UUID roomId);
 }

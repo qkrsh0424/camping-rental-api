@@ -60,4 +60,8 @@ public class UserService {
     public UserEntity searchById(UUID userId) {
         return userRepository.findById(userId).orElse(null);
     }
+
+    public UserEntity saveAndGet(UserEntity userEntity) {
+        return userRepository.save(userEntity);
+    }
 }
