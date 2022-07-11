@@ -21,7 +21,12 @@ public class RoomSerivce {
         return roomRepository.findByUserId(userId).orElseThrow(()-> new NotMatchedFormatException("룸 데이터를 찾을 수 없습니다."));
     }
 
+    public RoomEntity searchByUserIdOrNull(UUID userId) {
+        return roomRepository.findByUserId(userId).orElse(null);
+    }
+
     public RoomEntity searchByIdOrThrow(UUID id) {
         return roomRepository.findById(id).orElseThrow(() -> new NotMatchedFormatException("룸 데이터를 찾을 수 없습니다."));
     }
+
 }

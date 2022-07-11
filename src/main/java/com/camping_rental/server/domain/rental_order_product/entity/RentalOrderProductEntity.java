@@ -31,6 +31,9 @@ public class RentalOrderProductEntity {
     @Type(type="uuid-char")
     private UUID id;
 
+    @Column(name = "status")
+    private String status;
+
     @Column(name = "product_name")
     private String productName;
 

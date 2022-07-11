@@ -32,6 +32,9 @@ public class ProductImageEntity {
     @Type(type = "uuid-char")
     private UUID id;
 
+    @Column(name = "file_name")
+    private String fileName;
+
     @Column(name = "file_origin_name")
     private String fileOriginName;
 

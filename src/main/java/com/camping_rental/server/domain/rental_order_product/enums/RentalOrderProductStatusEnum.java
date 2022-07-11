@@ -1,4 +1,4 @@
-package com.camping_rental.server.domain.rental_order_info.enums;
+package com.camping_rental.server.domain.rental_order_product.enums;
 
 /**
  * 신규 주문 NEW_ORDER
@@ -9,7 +9,7 @@ package com.camping_rental.server.domain.rental_order_info.enums;
  * 종료됨 COMPLETED
  * 취소됨 CANCELLED
  */
-public enum RentalOrderInfoStatusEnum {
+public enum RentalOrderProductStatusEnum {
     NEW_ORDER("newOrder"),
     CONFIRM_ORDER("confirmOrder"),
     CONFIRM_RESERVATION("confirmReservation"),
@@ -20,7 +20,7 @@ public enum RentalOrderInfoStatusEnum {
 
     private String value;
 
-    RentalOrderInfoStatusEnum(String value) {
+    RentalOrderProductStatusEnum(String value) {
         this.value = value;
     }
 

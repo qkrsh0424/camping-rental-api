@@ -16,6 +16,7 @@ import java.util.UUID;
 public class ProductImageDto {
     private Long cid;
     private UUID id;
+    private String fileName;
     private String fileOriginName;
     private String fileStorageUri;
     private String fileFullUri;
@@ -34,6 +35,7 @@ public class ProductImageDto {
     @Builder
     public static class Create{
         private UUID id;
+        private String fileName;
         private String fileOriginName;
         private String fileStorageUri;
         private String fileFullUri;
@@ -50,6 +52,7 @@ public class ProductImageDto {
     @Builder
     public static class Update{
         private UUID id;
+        private String fileName;
         private String fileOriginName;
         private String fileStorageUri;
         private String fileFullUri;

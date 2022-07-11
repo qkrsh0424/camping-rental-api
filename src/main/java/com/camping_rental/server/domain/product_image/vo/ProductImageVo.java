@@ -17,6 +17,7 @@ import java.util.UUID;
 public class ProductImageVo {
     private Long cid;
     private UUID id;
+    private String fileName;
     private String fileOriginName;
     private String fileStorageUri;
     private String fileFullUri;
@@ -37,6 +38,7 @@ public class ProductImageVo {
     @Builder
     public static class Basic {
         private UUID id;
+        private String fileName;
         private String fileOriginName;
         private String fileStorageUri;
         private String fileFullUri;
@@ -51,6 +53,7 @@ public class ProductImageVo {
         public static Basic toVo(ProductImageEntity entity) {
             Basic vo = Basic.builder()
                     .id(entity.getId())
+                    .fileName(entity.getFileName())
                     .fileOriginName(entity.getFileOriginName())
                     .fileStorageUri(entity.getFileStorageUri())
                     .fileFullUri(entity.getFileFullUri())

@@ -20,7 +20,6 @@ import java.util.UUID;
 public class RentalOrderInfoDto {
     private Long cid;
     private UUID id;
-    private String status;
     private String orderer;
     private String ordererPhoneNumber;
     private LocalDateTime pickupDate;

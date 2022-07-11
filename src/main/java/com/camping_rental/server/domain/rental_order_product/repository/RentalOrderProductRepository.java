@@ -5,5 +5,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface RentalOrderProductRepository extends JpaRepository<RentalOrderProductEntity, Long> {
+public interface RentalOrderProductRepository extends JpaRepository<RentalOrderProductEntity, Long>, RentalOrderProductRepositoryCustom {
 }

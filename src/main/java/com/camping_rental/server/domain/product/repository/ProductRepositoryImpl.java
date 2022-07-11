@@ -115,7 +115,9 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
                 .where(eqCategoryId(params))
-                .where(eqRoomId(params));
+                .where(eqRoomId(params))
+                .where(eqDisplayYn(params))
+                ;
 
         sortPagedData(productProjectionsQuery, pageable);
 
@@ -225,6 +227,23 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
         }
 
         return qProductEntity.productCategoryId.eq(categoryId);
+    }
+
+    private BooleanExpression eqDisplayYn(Map<String, Object> params) {
+        Object displayYnObj = params.get("displayYn");
+
+        if (displayYnObj == null) {
+            return null;
+        }
+
+        String displayYn = null;
+        try {
+            displayYn = displayYnObj.toString();
+        } catch (IllegalArgumentException | NullPointerException e) {
+            return null;
+        }
+
+        return qProductEntity.displayYn.eq(displayYn);
     }
 
     private void sortPagedData(JPQLQuery customQuery, Pageable pageable) {

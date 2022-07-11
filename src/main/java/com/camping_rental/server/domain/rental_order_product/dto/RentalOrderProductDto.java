@@ -14,6 +14,7 @@ import java.util.UUID;
 public class RentalOrderProductDto {
     private Long cid;
     private UUID id;
+    private String status;
     private String productName;
     private String thumbnailUri;
     private Integer price;

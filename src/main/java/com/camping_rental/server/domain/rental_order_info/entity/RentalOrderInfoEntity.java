@@ -32,9 +32,6 @@ public class RentalOrderInfoEntity {
     @Type(type = "uuid-char")
     private UUID id;
 
-    @Column(name = "status")
-    private String status;
-
     @Column(name = "orderer")
     private String orderer;
 
