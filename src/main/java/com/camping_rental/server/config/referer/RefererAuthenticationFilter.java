@@ -20,7 +20,8 @@ import java.util.regex.Pattern;
 public class RefererAuthenticationFilter extends OncePerRequestFilter {
     final static List<String> refererWhiteList = Arrays.asList(
             "http://localhost:3000",
-            "https://www.sellertl.com"
+            "https://www.sellertl.com",
+            "http://www.campal.co.kr"
     );
 
 
