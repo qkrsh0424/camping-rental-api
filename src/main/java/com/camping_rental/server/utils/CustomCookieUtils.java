@@ -13,7 +13,7 @@ public class CustomCookieUtils {
     public final static Integer EMAIL_VALIDATION_COOKIE_EXPIRATION = 30 * 60; // seconds - 30분
     public final static Integer ACCESS_TOKEN_COOKIE_EXPIRATION = 5 * 24 * 60 * 60; // seconds - 5일
 
-    public final static boolean SECURE = true; // PROD : true | DEV : false
+    public final static boolean SECURE = false; // PROD : true | DEV : false
 
     public final static String COOKIE_NAME_ACCESS_TOKEN = "cp_ac_token";
     public final static String COOKIE_NAME_PHONE_VALIDATION_TOKEN = "cp_phone_validation_token";
