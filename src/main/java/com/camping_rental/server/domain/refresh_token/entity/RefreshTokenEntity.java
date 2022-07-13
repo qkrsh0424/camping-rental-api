@@ -4,7 +4,10 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.DynamicInsert;
+import org.hibernate.annotations.DynamicUpdate;
 import org.hibernate.annotations.Type;
+import org.hibernate.annotations.Where;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
@@ -16,6 +19,9 @@ import java.util.UUID;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
+@DynamicInsert
+@DynamicUpdate
+@Where(clause = "deleted_flag=0") // Soft Delete 적용
 public class RefreshTokenEntity {
 
     @Id
@@ -39,4 +45,7 @@ public class RefreshTokenEntity {
 
     @Column(name= "updated_at")
     private LocalDateTime updatedAt;
+
+    @Column(name = "deleted_flag")
+    private boolean deletedFlag;
 }

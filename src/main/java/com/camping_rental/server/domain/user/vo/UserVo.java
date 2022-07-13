@@ -30,6 +30,7 @@ public class UserVo {
     private Integer allowedAccessCount;
     private LocalDateTime updatedAt;
     private LocalDateTime createdAt;
+    private boolean deletedFlag;
     private UUID roomId;
 
     @Data

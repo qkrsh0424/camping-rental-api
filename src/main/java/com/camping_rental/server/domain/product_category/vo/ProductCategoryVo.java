@@ -17,6 +17,7 @@ public class ProductCategoryVo {
     private Integer cid;
     private UUID id;
     private String name;
+    private boolean deletedFlag;
     private Integer mainCategoryCid;
     private UUID mainCategoryId;
 

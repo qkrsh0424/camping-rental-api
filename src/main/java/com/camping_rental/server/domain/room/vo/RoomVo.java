@@ -22,6 +22,7 @@ public class RoomVo {
     private String introduction;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
+    private boolean deletedFlag;
     private Integer userCid;
     private UUID userId;
 

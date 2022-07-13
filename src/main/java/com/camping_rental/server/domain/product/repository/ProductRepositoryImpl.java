@@ -1,5 +1,6 @@
 package com.camping_rental.server.domain.product.repository;
 
+import com.camping_rental.server.domain.enums.DeletedFlagEnums;
 import com.camping_rental.server.domain.product.entity.QProductEntity;
 import com.camping_rental.server.domain.product.projection.ProductProjection;
 import com.camping_rental.server.domain.product_category.entity.QProductCategoryEntity;
@@ -48,7 +49,10 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
                                 qRoomEntity.as("roomEntity")
                         )
                 )
-                .join(qRoomEntity).on(qRoomEntity.id.eq(qProductEntity.roomId))
+                .join(qRoomEntity).on(
+                        qRoomEntity.id.eq(qProductEntity.roomId)
+                                .and(qRoomEntity.deletedFlag.eq(DeletedFlagEnums.EXIST.getValue()))
+                )
                 .where(qProductEntity.id.eq(id));
         ProductProjection.JoinRoomAndRegions result = (ProductProjection.JoinRoomAndRegions) customQuery.fetchOne();
 
@@ -58,8 +62,14 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
     @Override
     public List<ProductProjection.JoinRoomAndRegions> qSelectListJoinRoomAndRegions(UUID roomId, Map<String, Object> params) {
         List<ProductProjection.JoinRoomAndRegions> productProjections = query.from(qProductEntity)
-                .join(qRoomEntity).on(qRoomEntity.id.eq(qProductEntity.roomId))
-                .join(qRegionEntity).on(qRegionEntity.roomId.eq(qRoomEntity.id))
+                .join(qRoomEntity).on(
+                        qRoomEntity.id.eq(qProductEntity.roomId)
+                                .and(qRoomEntity.deletedFlag.eq(DeletedFlagEnums.EXIST.getValue()))
+                )
+                .join(qRegionEntity).on(
+                        qRegionEntity.roomId.eq(qRoomEntity.id)
+                                .and(qRegionEntity.deletedFlag.eq(DeletedFlagEnums.EXIST.getValue()))
+                )
                 .where(qRoomEntity.id.eq(roomId))
                 .where(eqCategoryId(params))
                 .transform(
@@ -82,8 +92,14 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
     @Override
     public List<ProductProjection.JoinRoomAndRegions> qSelectListJoinRoomAndRegions() {
         List<ProductProjection.JoinRoomAndRegions> productProjections = query.from(qProductEntity)
-                .join(qRoomEntity).on(qRoomEntity.id.eq(qProductEntity.roomId))
-                .join(qRegionEntity).on(qRegionEntity.roomId.eq(qRoomEntity.id))
+                .join(qRoomEntity).on(
+                        qRoomEntity.id.eq(qProductEntity.roomId)
+                                .and(qRoomEntity.deletedFlag.eq(DeletedFlagEnums.EXIST.getValue()))
+                )
+                .join(qRegionEntity).on(
+                        qRegionEntity.roomId.eq(qRoomEntity.id)
+                                .and(qRegionEntity.deletedFlag.eq(DeletedFlagEnums.EXIST.getValue()))
+                )
                 .transform(
                         GroupBy.groupBy(qProductEntity.cid)
                                 .list(
@@ -111,13 +127,15 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
                                 qRoomEntity.as("roomEntity")
                         )
                 )
-                .join(qRoomEntity).on(qRoomEntity.id.eq(qProductEntity.roomId))
+                .join(qRoomEntity).on(
+                        qRoomEntity.id.eq(qProductEntity.roomId)
+                                .and(qRoomEntity.deletedFlag.eq(DeletedFlagEnums.EXIST.getValue()))
+                )
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
                 .where(eqCategoryId(params))
                 .where(eqRoomId(params))
-                .where(eqDisplayYn(params))
-                ;
+                .where(eqDisplayYn(params));
 
         sortPagedData(productProjectionsQuery, pageable);
 
@@ -140,10 +158,22 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
     @Override
     public Optional<ProductProjection.FullJoin> qSelectOneFullJoin(UUID productId) {
         List<ProductProjection.FullJoin> productProjections = query.from(qProductImageEntity)
-                .join(qProductEntity).on(qProductEntity.id.eq(qProductImageEntity.productId))
-                .join(qProductCategoryEntity).on(qProductCategoryEntity.id.eq(qProductEntity.productCategoryId))
-                .join(qRoomEntity).on(qRoomEntity.id.eq(qProductEntity.roomId))
-                .join(qRegionEntity).on(qRegionEntity.roomId.eq(qRoomEntity.id))
+                .join(qProductEntity).on(
+                        qProductEntity.id.eq(qProductImageEntity.productId)
+                                .and(qProductEntity.deletedFlag.eq(DeletedFlagEnums.EXIST.getValue()))
+                )
+                .join(qProductCategoryEntity).on(
+                        qProductCategoryEntity.id.eq(qProductEntity.productCategoryId)
+                                .and(qProductCategoryEntity.deletedFlag.eq(DeletedFlagEnums.EXIST.getValue()))
+                )
+                .join(qRoomEntity).on(
+                        qRoomEntity.id.eq(qProductEntity.roomId)
+                                .and(qRoomEntity.deletedFlag.eq(DeletedFlagEnums.EXIST.getValue()))
+                )
+                .join(qRegionEntity).on(
+                        qRegionEntity.roomId.eq(qRoomEntity.id)
+                                .and(qRegionEntity.deletedFlag.eq(DeletedFlagEnums.EXIST.getValue()))
+                )
                 .where(qProductEntity.id.eq(productId))
                 .orderBy(qProductEntity.cid.asc())
                 .orderBy(qProductImageEntity.cid.asc())
@@ -181,7 +211,10 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
                                 qRoomEntity.as("roomEntity")
                         )
                 )
-                .join(qRoomEntity).on(qRoomEntity.id.eq(qProductEntity.roomId))
+                .join(qRoomEntity).on(
+                        qRoomEntity.id.eq(qProductEntity.roomId)
+                                .and(qRoomEntity.deletedFlag.eq(DeletedFlagEnums.EXIST.getValue()))
+                )
                 .where(qProductEntity.id.in(productIds));
 
         List<ProductProjection.JoinRoomAndRegions> productProjections = productProjectionsQuery.fetch();

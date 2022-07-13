@@ -1,5 +1,6 @@
 package com.camping_rental.server.domain.rental_order_product.repository;
 
+import com.camping_rental.server.domain.enums.DeletedFlagEnums;
 import com.camping_rental.server.domain.rental_order_info.entity.QRentalOrderInfoEntity;
 import com.camping_rental.server.domain.rental_order_product.entity.QRentalOrderProductEntity;
 import com.camping_rental.server.domain.rental_order_product.projection.RentalOrderProductProjection;
@@ -41,7 +42,10 @@ public class RentalOrderProductRepositoryImpl implements RentalOrderProductRepos
                                 qRentalOrderInfoEntity.as("rentalOrderInfoEntity")
                         )
                 )
-                .join(qRentalOrderInfoEntity).on(qRentalOrderInfoEntity.id.eq(qRentalOrderProductEntity.rentalOrderInfoId))
+                .join(qRentalOrderInfoEntity).on(
+                        qRentalOrderInfoEntity.id.eq(qRentalOrderProductEntity.rentalOrderInfoId)
+                                .and(qRentalOrderInfoEntity.deletedFlag.eq(DeletedFlagEnums.EXIST.getValue()))
+                )
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
                 .where(eqRoomId(params))
@@ -69,7 +73,10 @@ public class RentalOrderProductRepositoryImpl implements RentalOrderProductRepos
                                 qRentalOrderInfoEntity.as("rentalOrderInfoEntity")
                         )
                 )
-                .join(qRentalOrderInfoEntity).on(qRentalOrderInfoEntity.id.eq(qRentalOrderProductEntity.rentalOrderInfoId))
+                .join(qRentalOrderInfoEntity).on(
+                        qRentalOrderInfoEntity.id.eq(qRentalOrderProductEntity.rentalOrderInfoId)
+                                .and(qRentalOrderInfoEntity.deletedFlag.eq(DeletedFlagEnums.EXIST.getValue()))
+                )
                 .where(qRentalOrderProductEntity.id.in(ids))
                 ;
 

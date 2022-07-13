@@ -1,5 +1,6 @@
 package com.camping_rental.server.domain.region.repository;
 
+import com.camping_rental.server.domain.enums.DeletedFlagEnums;
 import com.camping_rental.server.domain.region.entity.QRegionEntity;
 import com.camping_rental.server.domain.region.entity.RegionEntity;
 import com.camping_rental.server.domain.room.entity.QRoomEntity;
@@ -25,7 +26,10 @@ public class RegionRepositoryImpl implements RegionRepositoryCustom{
     public List<RegionEntity> qSelectByUserId(UUID userId) {
         JPQLQuery customQuery = query.from(qRegionEntity)
                 .select(qRegionEntity)
-                .join(qRoomEntity).on(qRoomEntity.cid.eq(qRegionEntity.roomCid))
+                .join(qRoomEntity).on(
+                        qRoomEntity.cid.eq(qRegionEntity.roomCid)
+                                .and(qRoomEntity.deletedFlag.eq(DeletedFlagEnums.EXIST.getValue()))
+                )
                 .where(qRoomEntity.userId.eq(userId));
 
         return customQuery.fetch();

@@ -1,5 +1,6 @@
 package com.camping_rental.server.domain.user.service;
 
+import com.camping_rental.server.domain.enums.DeletedFlagEnums;
 import com.camping_rental.server.domain.exception.dto.InvalidUserException;
 import com.camping_rental.server.domain.exception.dto.NotMatchedFormatException;
 import com.camping_rental.server.domain.refresh_token.entity.RefreshTokenEntity;
@@ -247,6 +248,7 @@ public class UserBusinessService {
                 .allowedAccessCount(UserAllowedAccessCountEnum.DEFUALT.getValue())
                 .updatedAt(CustomDateUtils.getCurrentDateTime())
                 .createdAt(CustomDateUtils.getCurrentDateTime())
+                .deletedFlag(DeletedFlagEnums.EXIST.getValue())
                 .roomId(roomId)
                 .build();
 
@@ -265,6 +267,7 @@ public class UserBusinessService {
                 .introduction("")
                 .createdAt(CustomDateUtils.getCurrentDateTime())
                 .updatedAt(CustomDateUtils.getCurrentDateTime())
+                .deletedFlag(DeletedFlagEnums.EXIST.getValue())
                 .userCid(returnedUserEntity.getCid())
                 .userId(returnedUserEntity.getId())
                 .build();
@@ -342,6 +345,7 @@ public class UserBusinessService {
                 .refreshToken(refreshToken)
                 .createdAt(CustomDateUtils.getCurrentDateTime())
                 .updatedAt(CustomDateUtils.getCurrentDateTime())
+                .deletedFlag(DeletedFlagEnums.EXIST.getValue())
                 .build();
 
         /*

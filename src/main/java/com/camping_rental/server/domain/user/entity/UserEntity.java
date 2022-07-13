@@ -1,11 +1,13 @@
 package com.camping_rental.server.domain.user.entity;
 
-import com.camping_rental.server.domain.user.dto.UserDto;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.DynamicInsert;
+import org.hibernate.annotations.DynamicUpdate;
 import org.hibernate.annotations.Type;
+import org.hibernate.annotations.Where;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
@@ -20,6 +22,9 @@ import java.util.UUID;
 @Builder
 @Entity
 @Table(name = "user")
+@Where(clause = "deleted_flag=0")
+@DynamicInsert
+@DynamicUpdate
 public class UserEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -71,6 +76,9 @@ public class UserEntity {
 
     @Column(name = "created_at")
     private LocalDateTime createdAt;
+
+    @Column(name = "deleted_flag")
+    private boolean deletedFlag;
 
     @Column(name = "room_id")
     @Type(type = "uuid-char")

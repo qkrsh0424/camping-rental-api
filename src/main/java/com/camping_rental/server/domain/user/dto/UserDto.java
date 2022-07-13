@@ -31,6 +31,8 @@ public class UserDto {
     private Integer allowedAccessCount;
     private LocalDateTime updatedAt;
     private LocalDateTime createdAt;
+    private boolean deletedFlag;
+    private UUID roomId;
 
     @Data
     @AllArgsConstructor

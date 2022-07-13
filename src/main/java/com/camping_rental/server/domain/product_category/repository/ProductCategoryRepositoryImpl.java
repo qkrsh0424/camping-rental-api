@@ -1,5 +1,6 @@
 package com.camping_rental.server.domain.product_category.repository;
 
+import com.camping_rental.server.domain.enums.DeletedFlagEnums;
 import com.camping_rental.server.domain.order_info.projection.OrderInfoProjection;
 import com.camping_rental.server.domain.product.entity.QProductEntity;
 import com.camping_rental.server.domain.product_category.entity.ProductCategoryEntity;
@@ -29,8 +30,14 @@ public class ProductCategoryRepositoryImpl implements ProductCategoryRepositoryC
     public List<ProductCategoryEntity> qSelectListByRoomId(UUID roomId) {
         JPQLQuery customQuery = query.from(qProductEntity)
                 .select(qProductCategoryEntity)
-                .join(qRoomEntity).on(qRoomEntity.id.eq(qProductEntity.roomId))
-                .join(qProductCategoryEntity).on(qProductCategoryEntity.id.eq(qProductEntity.productCategoryId))
+                .join(qRoomEntity).on(
+                        qRoomEntity.id.eq(qProductEntity.roomId)
+                                .and(qRoomEntity.deletedFlag.eq(DeletedFlagEnums.EXIST.getValue()))
+                )
+                .join(qProductCategoryEntity).on(
+                        qProductCategoryEntity.id.eq(qProductEntity.productCategoryId)
+                                .and(qProductCategoryEntity.deletedFlag.eq(DeletedFlagEnums.EXIST.getValue()))
+                )
                 .where(qProductEntity.roomId.eq(roomId))
                 .groupBy(qProductCategoryEntity.cid)
                 ;

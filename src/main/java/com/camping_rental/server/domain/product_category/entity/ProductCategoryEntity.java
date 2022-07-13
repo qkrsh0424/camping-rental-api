@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
 import org.hibernate.annotations.Type;
+import org.hibernate.annotations.Where;
 
 import javax.persistence.*;
 import java.util.UUID;
@@ -19,6 +20,7 @@ import java.util.UUID;
 @Entity
 @DynamicInsert
 @DynamicUpdate
+@Where(clause = "deleted_flag=0")
 public class ProductCategoryEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -31,6 +33,9 @@ public class ProductCategoryEntity {
 
     @Column(name = "name")
     private String name;
+
+    @Column(name = "deleted_flag")
+    private boolean deletedFlag;
 
     @Column(name = "main_category_cid")
     private Integer mainCategoryCid;

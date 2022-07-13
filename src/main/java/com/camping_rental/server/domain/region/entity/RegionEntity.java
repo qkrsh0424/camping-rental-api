@@ -1,16 +1,14 @@
 package com.camping_rental.server.domain.region.entity;
 
-import com.camping_rental.server.domain.region.dto.RegionDto;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.hibernate.annotations.DynamicInsert;
-import org.hibernate.annotations.DynamicUpdate;
-import org.hibernate.annotations.Type;
-import org.hibernate.annotations.Where;
+import org.hibernate.annotations.*;
 
 import javax.persistence.*;
+import javax.persistence.Entity;
+import javax.persistence.Table;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
@@ -22,7 +20,7 @@ import java.util.UUID;
 @Entity
 @DynamicInsert
 @DynamicUpdate
-@Where(clause = "deleted_flag=0") // Sort Delete 적용
+@Where(clause = "deleted_flag=0") // Soft Delete 적용
 public class RegionEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

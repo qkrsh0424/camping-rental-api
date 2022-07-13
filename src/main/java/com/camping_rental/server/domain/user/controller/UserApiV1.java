@@ -34,7 +34,6 @@ public class UserApiV1 {
         return new ResponseEntity<>(message, message.getStatus());
     }
 
-    // TODO : PostMapping 으로 변경해야됨.
     @PostMapping("/reissue/access-token")
     public ResponseEntity<?> reissueAccessToken(HttpServletRequest request, HttpServletResponse response){
         Message message = new Message();
