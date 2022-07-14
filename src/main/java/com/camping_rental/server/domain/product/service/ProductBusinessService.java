@@ -92,7 +92,7 @@ public class ProductBusinessService {
             throw new AccessDeniedPermissionException("접근 권한이 없습니다.");
         }
 
-        List<ProductImageDto.Create> productImageDto = productDto.getImages();
+        List<ProductImageDto.Create> productImageDto = productDto.getProductImages();
 
         ProductImageDto.Create thumbnailImageDto = productImageDto.get(0);
 
@@ -104,6 +104,9 @@ public class ProductBusinessService {
                 .description(productDto.getDescription())
                 .thumbnailUri(thumbnailImageDto.getFileFullUri())
                 .price(productDto.getPrice())
+                .minimumRentalHour(productDto.getMinimumRentalHour())
+                .discountYn(productDto.getDiscountYn())
+                .discountMinimumHour(productDto.getDiscountMinimumHour())
                 .discountRate(productDto.getDiscountRate())
                 .displayYn(ProductDisplayYnEnum.Y.getValue())
                 .deletedFlag(ProductDeletedFlagEnum.EXIST.getValue())
@@ -225,6 +228,9 @@ public class ProductBusinessService {
         productEntity.setDescription(productDto.getDescription());
         productEntity.setThumbnailUri(thumbnailUri);
         productEntity.setPrice(productDto.getPrice());
+        productEntity.setMinimumRentalHour(productDto.getMinimumRentalHour());
+        productEntity.setDiscountYn(productDto.getDiscountYn());
+        productEntity.setDiscountMinimumHour(productDto.getDiscountMinimumHour());
         productEntity.setDiscountRate(productDto.getDiscountRate());
         productEntity.setDisplayYn(productDto.getDisplayYn());
         productEntity.setUpdatedAt(CustomDateUtils.getCurrentDateTime());

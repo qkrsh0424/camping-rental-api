@@ -43,6 +43,9 @@ public class RentalOrderProductEntity {
     @Column(name = "price")
     private Integer price;
 
+    @Column(name = "discount_minimum_hour")
+    private Integer discountMinimumHour;
+
     @Column(name = "discount_rate")
     private Integer discountRate;
 

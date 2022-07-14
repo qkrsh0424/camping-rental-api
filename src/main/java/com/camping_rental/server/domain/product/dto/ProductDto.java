@@ -21,6 +21,9 @@ public class ProductDto {
     private String description;
     private String thumbnailUri;
     private Integer price;
+    private Integer minimumRentalHour;
+    private String discountYn;
+    private Integer discountMinimumHour;
     private Integer discountRate;
     private String displayYn;
     private boolean deletedFlag;
@@ -37,10 +40,13 @@ public class ProductDto {
         private String name;
         private String description;
         private Integer price;
+        private Integer minimumRentalHour;
+        private String discountYn;
+        private Integer discountMinimumHour;
         private Integer discountRate;
         private UUID productCategoryId;
         private UUID roomId;
-        private List<ProductImageDto.Create> images;
+        private List<ProductImageDto.Create> productImages;
     }
 
     @Data
@@ -51,6 +57,9 @@ public class ProductDto {
         private String name;
         private String description;
         private Integer price;
+        private Integer minimumRentalHour;
+        private String discountYn;
+        private Integer discountMinimumHour;
         private Integer discountRate;
         private String displayYn;
         private UUID productCategoryId;

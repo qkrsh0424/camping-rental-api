@@ -27,6 +27,9 @@ public class ProductVo {
     private String description;
     private String thumbnailUri;
     private Integer price;
+    private Integer minimumRentalHour;
+    private String discountYn;
+    private Integer discountMinimumHour;
     private Integer discountRate;
     private String displayYn;
     private boolean deletedFlag;
@@ -45,6 +48,9 @@ public class ProductVo {
         private String description;
         private String thumbnailUri;
         private Integer price;
+        private Integer minimumRentalHour;
+        private String discountYn;
+        private Integer discountMinimumHour;
         private Integer discountRate;
         private String displayYn;
         private UUID productCategoryId;
@@ -57,6 +63,9 @@ public class ProductVo {
                     .description(entity.getDescription())
                     .thumbnailUri(entity.getThumbnailUri())
                     .price(entity.getPrice())
+                    .minimumRentalHour(entity.getMinimumRentalHour())
+                    .discountYn(entity.getDiscountYn())
+                    .discountMinimumHour(entity.getDiscountMinimumHour())
                     .discountRate(entity.getDiscountRate())
                     .displayYn(entity.getDisplayYn())
                     .productCategoryId(entity.getProductCategoryId())
@@ -76,6 +85,9 @@ public class ProductVo {
         private String description;
         private String thumbnailUri;
         private Integer price;
+        private Integer minimumRentalHour;
+        private String discountYn;
+        private Integer discountMinimumHour;
         private Integer discountRate;
         private String displayYn;
         private UUID productCategoryId;
@@ -90,12 +102,15 @@ public class ProductVo {
                     .description(proj.getProductEntity().getDescription())
                     .thumbnailUri(proj.getProductEntity().getThumbnailUri())
                     .price(proj.getProductEntity().getPrice())
+                    .minimumRentalHour(proj.getProductEntity().getMinimumRentalHour())
+                    .discountYn(proj.getProductEntity().getDiscountYn())
+                    .discountMinimumHour(proj.getProductEntity().getDiscountMinimumHour())
                     .discountRate(proj.getProductEntity().getDiscountRate())
                     .displayYn(proj.getProductEntity().getDisplayYn())
                     .productCategoryId(proj.getProductEntity().getProductCategoryId())
                     .roomId(proj.getProductEntity().getRoomId())
                     .room(RoomVo.Basic.toVo(proj.getRoomEntity()))
-                    .regions(proj.getRegionEntities().stream().map(r->RegionVo.Basic.toVo(r)).collect(Collectors.toList()))
+                    .regions(proj.getRegionEntities().stream().map(r -> RegionVo.Basic.toVo(r)).collect(Collectors.toList()))
                     .build();
             return vo;
         }
@@ -111,6 +126,9 @@ public class ProductVo {
         private String description;
         private String thumbnailUri;
         private Integer price;
+        private Integer minimumRentalHour;
+        private String discountYn;
+        private Integer discountMinimumHour;
         private Integer discountRate;
         private String displayYn;
         private UUID productCategoryId;
@@ -124,11 +142,14 @@ public class ProductVo {
                     .description(proj.getProductEntity().getDescription())
                     .thumbnailUri(proj.getProductEntity().getThumbnailUri())
                     .price(proj.getProductEntity().getPrice())
+                    .minimumRentalHour(proj.getProductEntity().getMinimumRentalHour())
+                    .discountYn(proj.getProductEntity().getDiscountYn())
+                    .discountMinimumHour(proj.getProductEntity().getDiscountMinimumHour())
                     .discountRate(proj.getProductEntity().getDiscountRate())
                     .displayYn(proj.getProductEntity().getDisplayYn())
                     .productCategoryId(proj.getProductEntity().getProductCategoryId())
                     .roomId(proj.getProductEntity().getRoomId())
-                    .regions(proj.getRegionEntities().stream().map(r->RegionVo.Basic.toVo(r)).collect(Collectors.toList()))
+                    .regions(proj.getRegionEntities().stream().map(r -> RegionVo.Basic.toVo(r)).collect(Collectors.toList()))
                     .build();
             return vo;
         }
@@ -144,6 +165,9 @@ public class ProductVo {
         private String description;
         private String thumbnailUri;
         private Integer price;
+        private Integer minimumRentalHour;
+        private String discountYn;
+        private Integer discountMinimumHour;
         private Integer discountRate;
         private String displayYn;
         private UUID productCategoryId;
@@ -160,14 +184,17 @@ public class ProductVo {
                     .description(proj.getProductEntity().getDescription())
                     .thumbnailUri(proj.getProductEntity().getThumbnailUri())
                     .price(proj.getProductEntity().getPrice())
+                    .minimumRentalHour(proj.getProductEntity().getMinimumRentalHour())
+                    .discountYn(proj.getProductEntity().getDiscountYn())
+                    .discountMinimumHour(proj.getProductEntity().getDiscountMinimumHour())
                     .discountRate(proj.getProductEntity().getDiscountRate())
                     .displayYn(proj.getProductEntity().getDisplayYn())
                     .productCategoryId(proj.getProductEntity().getProductCategoryId())
                     .roomId(proj.getProductEntity().getRoomId())
                     .room(RoomVo.Basic.toVo(proj.getRoomEntity()))
                     .productCategory(ProductCategoryVo.Basic.toVo(proj.getProductCategoryEntity()))
-                    .productImages(proj.getProductImageEntities().stream().map(r->ProductImageVo.Basic.toVo(r)).collect(Collectors.toList()))
-                    .regions(proj.getRegionEntities().stream().map(r->RegionVo.Basic.toVo(r)).collect(Collectors.toList()))
+                    .productImages(proj.getProductImageEntities().stream().map(r -> ProductImageVo.Basic.toVo(r)).collect(Collectors.toList()))
+                    .regions(proj.getRegionEntities().stream().map(r -> RegionVo.Basic.toVo(r)).collect(Collectors.toList()))
                     .build();
             return vo;
         }

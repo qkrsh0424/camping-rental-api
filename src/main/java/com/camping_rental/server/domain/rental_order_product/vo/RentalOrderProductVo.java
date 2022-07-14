@@ -20,6 +20,7 @@ public class RentalOrderProductVo {
     private String productName;
     private String thumbnailUri;
     private Integer price;
+    private Integer discountMinimumHour;
     private Integer discountRate;
     private Integer unit;
     private boolean deletedFlag;
@@ -36,6 +37,7 @@ public class RentalOrderProductVo {
         private String productName;
         private String thumbnailUri;
         private Integer price;
+        private Integer discountMinimumHour;
         private Integer discountRate;
         private Integer unit;
         private UUID rentalOrderInfoId;
@@ -50,6 +52,7 @@ public class RentalOrderProductVo {
                     .productName(proj.getRentalOrderProductEntity().getProductName())
                     .thumbnailUri(proj.getRentalOrderProductEntity().getThumbnailUri())
                     .price(proj.getRentalOrderProductEntity().getPrice())
+                    .discountMinimumHour(proj.getRentalOrderProductEntity().getDiscountMinimumHour())
                     .discountRate(proj.getRentalOrderProductEntity().getDiscountRate())
                     .unit(proj.getRentalOrderProductEntity().getUnit())
                     .rentalOrderInfoId(proj.getRentalOrderProductEntity().getRentalOrderInfoId())

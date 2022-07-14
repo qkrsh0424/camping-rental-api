@@ -22,7 +22,9 @@ public class RefererAuthenticationFilter extends OncePerRequestFilter {
             "http://localhost:3000",
             "https://www.sellertl.com",
             "http://www.campal.co.kr",
-            "https://www.campal.co.kr"
+            "https://www.campal.co.kr",
+            "http://dev.www.campal.co.kr",
+            "https://dev.www.campal.co.kr"
     );
 
 

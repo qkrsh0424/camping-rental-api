@@ -23,7 +23,9 @@ public class CorsFilterConfig {
                 "http://www.multranslator.com",
                 "https://www.multranslator.com",
                 "http://www.campal.co.kr",
-                "https://www.campal.co.kr"
+                "https://www.campal.co.kr",
+                "http://dev.www.campal.co.kr",
+                "https://dev.www.campal.co.kr"
         ));
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
         config.setAllowedHeaders(List.of("*"));

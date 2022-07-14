@@ -18,6 +18,7 @@ public class RentalOrderProductDto {
     private String productName;
     private String thumbnailUri;
     private Integer price;
+    private Integer discountMinimumHour;
     private Integer discountRate;
     private Integer unit;
     private boolean deletedFlag;
@@ -32,6 +33,7 @@ public class RentalOrderProductDto {
         private String productName;
         private String thumbnailUri;
         private Integer price;
+        private Integer discountMinimumHour;
         private Integer discountRate;
         private Integer unit;
         private UUID productId;

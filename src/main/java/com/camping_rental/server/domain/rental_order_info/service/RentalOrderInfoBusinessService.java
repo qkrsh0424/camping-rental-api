@@ -90,6 +90,7 @@ public class RentalOrderInfoBusinessService {
                     .productName(productEntity.getName())
                     .thumbnailUri(productEntity.getThumbnailUri())
                     .price(productEntity.getPrice())
+                    .discountMinimumHour(productEntity.getDiscountMinimumHour())
                     .discountRate(productEntity.getDiscountRate())
                     .unit(rentalOrderProductDto.getUnit())
                     .deletedFlag(RentalOrderProductDeletedFlagEnum.EXIST.getValue())
