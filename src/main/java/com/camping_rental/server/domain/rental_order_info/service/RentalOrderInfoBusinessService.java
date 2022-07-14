@@ -90,6 +90,7 @@ public class RentalOrderInfoBusinessService {
                     .productName(productEntity.getName())
                     .thumbnailUri(productEntity.getThumbnailUri())
                     .price(productEntity.getPrice())
+                    .discountYn(productEntity.getDiscountYn())
                     .discountMinimumHour(productEntity.getDiscountMinimumHour())
                     .discountRate(productEntity.getDiscountRate())
                     .unit(rentalOrderProductDto.getUnit())

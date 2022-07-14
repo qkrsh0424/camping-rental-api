@@ -37,6 +37,7 @@ public class RentalOrderProductVo {
         private String productName;
         private String thumbnailUri;
         private Integer price;
+        private String discountYn;
         private Integer discountMinimumHour;
         private Integer discountRate;
         private Integer unit;
@@ -52,6 +53,7 @@ public class RentalOrderProductVo {
                     .productName(proj.getRentalOrderProductEntity().getProductName())
                     .thumbnailUri(proj.getRentalOrderProductEntity().getThumbnailUri())
                     .price(proj.getRentalOrderProductEntity().getPrice())
+                    .discountYn(proj.getRentalOrderProductEntity().getDiscountYn())
                     .discountMinimumHour(proj.getRentalOrderProductEntity().getDiscountMinimumHour())
                     .discountRate(proj.getRentalOrderProductEntity().getDiscountRate())
                     .unit(proj.getRentalOrderProductEntity().getUnit())
