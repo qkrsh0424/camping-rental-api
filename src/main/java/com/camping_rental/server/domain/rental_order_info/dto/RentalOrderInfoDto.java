@@ -20,6 +20,7 @@ import java.util.UUID;
 public class RentalOrderInfoDto {
     private Long cid;
     private UUID id;
+    private String orderNumber;
     private String orderer;
     private String ordererPhoneNumber;
     private LocalDateTime pickupDate;
@@ -41,6 +42,7 @@ public class RentalOrderInfoDto {
     @NoArgsConstructor
     @Builder
     public static class Create{
+        private String orderNumber;
         private String orderer;
         private String ordererPhoneNumber;
         private LocalDateTime pickupDate;

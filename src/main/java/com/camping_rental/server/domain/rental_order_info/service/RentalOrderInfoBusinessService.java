@@ -7,6 +7,8 @@ import com.camping_rental.server.domain.rental_order_info.dto.RentalOrderInfoDto
 import com.camping_rental.server.domain.rental_order_info.entity.RentalOrderInfoEntity;
 import com.camping_rental.server.domain.rental_order_info.enums.RentalOrderInfoDeletedFlagEnum;
 import com.camping_rental.server.domain.rental_order_info.enums.RentalOrderInfoOrdererTypeEnum;
+import com.camping_rental.server.domain.rental_order_info.projection.RentalOrderInfoProjection;
+import com.camping_rental.server.domain.rental_order_info.vo.RentalOrderInfoVo;
 import com.camping_rental.server.domain.rental_order_product.dto.RentalOrderProductDto;
 import com.camping_rental.server.domain.rental_order_product.entity.RentalOrderProductEntity;
 import com.camping_rental.server.domain.rental_order_product.enums.RentalOrderProductDeletedFlagEnum;
@@ -16,6 +18,7 @@ import com.camping_rental.server.domain.twilio.dto.TwilioSmsRequestDto;
 import com.camping_rental.server.domain.twilio.service.TwilioSmsService;
 import com.camping_rental.server.domain.user.service.UserService;
 import com.camping_rental.server.utils.CustomDateUtils;
+import com.camping_rental.server.utils.CustomUniqueKeyUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -61,9 +64,12 @@ public class RentalOrderInfoBusinessService {
         UUID lenderRoomId = productProjections.stream().findFirst().get().getRoomEntity().getId();
 
         UUID rentalOrderInfoId = UUID.randomUUID();
+        String orderNumber = CustomUniqueKeyUtils.generateOrderNumber18();
+
         RentalOrderInfoEntity rentalOrderInfoEntity = RentalOrderInfoEntity.builder()
                 .cid(null)
                 .id(rentalOrderInfoId)
+                .orderNumber(orderNumber)
                 .orderer(rentalOrderInfoDto.getOrderer())
                 .ordererPhoneNumber(rentalOrderInfoDto.getOrdererPhoneNumber())
                 .pickupDate(rentalOrderInfoDto.getPickupDate())
@@ -82,7 +88,7 @@ public class RentalOrderInfoBusinessService {
                 .build();
 
         List<RentalOrderProductEntity> rentalOrderProductEntities = rentalOrderProductDtos.stream().map(rentalOrderProductDto -> {
-            ProductEntity productEntity = productProjections.stream().filter(r->r.getProductEntity().getId().equals(rentalOrderProductDto.getProductId())).findFirst().get().getProductEntity();
+            ProductEntity productEntity = productProjections.stream().filter(r -> r.getProductEntity().getId().equals(rentalOrderProductDto.getProductId())).findFirst().get().getProductEntity();
             RentalOrderProductEntity rentalOrderProductEntity = RentalOrderProductEntity.builder()
                     .cid(null)
                     .id(UUID.randomUUID())
@@ -109,32 +115,53 @@ public class RentalOrderInfoBusinessService {
          */
         List<TwilioSmsRequestDto> twilioSmsRequestDtos = new ArrayList<>();
 
-        StringBuilder smsMessage = new StringBuilder();
-        smsMessage.append("[Campal | 캠핑 렌탈]\n\n");
-        smsMessage.append("신규 주문이 있습니다.\n\n");
-        smsMessage.append("주문자 성함 : " + rentalOrderInfoDto.getOrderer() + "\n");
-        smsMessage.append("주문자 전화번호 : " + rentalOrderInfoDto.getOrdererPhoneNumber() + "\n\n");
-        smsMessage.append("조회 링크 바로가기 : " + "http://www.campal.co.kr/myadmin");
+        StringBuilder ordererSmsMessage = new StringBuilder();
+        ordererSmsMessage.append("[Campal | 캠핑 렌탈]\n")
+                .append("주문이 정상적으로 접수 되었습니다.\n\n")
+                .append("주문번호: " + orderNumber + "\n\n")
+                .append("주문 내역 조회 바로가기: http://www.campal.co.kr/search/order")
+        ;
+
+
+        StringBuilder lenderSmsMessage = new StringBuilder();
+        lenderSmsMessage.append("[Campal | 캠핑 렌탈]\n\n");
+        lenderSmsMessage.append("신규 주문이 있습니다.\n\n");
+        lenderSmsMessage.append("주문자 성함 : " + rentalOrderInfoDto.getOrderer() + "\n");
+        lenderSmsMessage.append("주문자 전화번호 : " + rentalOrderInfoDto.getOrdererPhoneNumber() + "\n\n");
+        lenderSmsMessage.append("조회 링크 바로가기 : " + "http://www.campal.co.kr/myadmin");
 
 //        TODO SETTING : 운영시 주석 풀어줘야함.
         twilioSmsRequestDtos.add(
                 TwilioSmsRequestDto.toDto(
-                        "01085356112",
-                        smsMessage.toString()
+                        rentalOrderInfoDto.getOrdererPhoneNumber(),
+                        ordererSmsMessage.toString()
                 )
         );
-        twilioSmsRequestDtos.add(
-                TwilioSmsRequestDto.toDto(
-                        "01050036206",
-                        smsMessage.toString()
-                )
-        );
-        twilioSmsRequestDtos.add(
-                TwilioSmsRequestDto.toDto(
-                        "01063760015",
-                        smsMessage.toString()
-                )
-        );
+//        twilioSmsRequestDtos.add(
+//                TwilioSmsRequestDto.toDto(
+//                        "01085356112",
+//                        lenderSmsMessage.toString()
+//                )
+//        );
+//        twilioSmsRequestDtos.add(
+//                TwilioSmsRequestDto.toDto(
+//                        "01050036206",
+//                        lenderSmsMessage.toString()
+//                )
+//        );
+//        twilioSmsRequestDtos.add(
+//                TwilioSmsRequestDto.toDto(
+//                        "01063760015",
+//                        lenderSmsMessage.toString()
+//                )
+//        );
         twilioSmsService.sendMultipleSms(twilioSmsRequestDtos);
+    }
+
+    public Object searchOneByOrderNumberAndOrdererAndOrderPhoneNumber(String orderNumber, String orderer, String ordererPhoneNumber) {
+        RentalOrderInfoProjection.FullJoin rentalOrderInfoProjection = rentalOrderInfoService.qSearchOneFullJoinByOrderNumberAndOrdererAndOrdererPhoneNumber(orderNumber, orderer, ordererPhoneNumber);
+
+        RentalOrderInfoVo.FullJoin vo = RentalOrderInfoVo.FullJoin.toVo(rentalOrderInfoProjection);
+        return vo;
     }
 }
