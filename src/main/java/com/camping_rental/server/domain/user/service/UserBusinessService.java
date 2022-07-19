@@ -258,26 +258,6 @@ public class UserBusinessService {
         UserEntity returnedUserEntity = userService.saveAndGet(userEntity);
 
         /*
-        RoomEntity 작성
-         */
-        RoomEntity roomEntity = RoomEntity.builder()
-                .cid(null)
-                .id(roomId)
-                .name(returnedUserEntity.getNickname())
-                .introduction("")
-                .createdAt(CustomDateUtils.getCurrentDateTime())
-                .updatedAt(CustomDateUtils.getCurrentDateTime())
-                .deletedFlag(DeletedFlagEnums.EXIST.getValue())
-                .userCid(returnedUserEntity.getCid())
-                .userId(returnedUserEntity.getId())
-                .build();
-
-        /*
-        RoomEntity save
-         */
-        roomSerivce.saveAndModify(roomEntity);
-
-        /*
         cp_email_validation_token cookie 삭제
          */
         ResponseCookie emailValidationTokenCookie = ResponseCookie.from(CustomCookieUtils.COOKIE_NAME_EMAIL_VALIDATION_TOKEN, null)
