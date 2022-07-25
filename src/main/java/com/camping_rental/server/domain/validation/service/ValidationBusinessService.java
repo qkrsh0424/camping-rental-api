@@ -79,7 +79,7 @@ public class ValidationBusinessService {
         /*
         인증 코드를 담은 smsMessage를 트윌리오를 통해 전송한다.
          */
-        String smsMessage = "[Campal | 캠핑 렌탈] 본인확인 인증번호[" + validationNum + "]입니다. \"타인 노출 금지\"";
+        String smsMessage = "[Campal | 캠핑 렌탈] 본인확인 인증번호 [" + validationNum + "] 입니다. \"타인 노출 금지\"";
 
         TwilioSmsRequestDto smsRequestDto = TwilioSmsRequestDto.builder()
                 .phoneNumber(phoneNumber)

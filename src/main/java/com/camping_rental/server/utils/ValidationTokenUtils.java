@@ -26,6 +26,10 @@ public class ValidationTokenUtils {
         return JWT_EMAIL_VALIDATION_SECRET;
     }
 
+    public static String getJwtPhoneValidationSecret(){
+        return JWT_PHONE_VALIDATION_SECRET;
+    }
+
     public static String generatePhoneValidationNumberJwtToken(String authNumber, String phoneNumber) {
         String secret = phoneNumber + authNumber + JWT_PHONE_VALIDATION_SECRET;
 

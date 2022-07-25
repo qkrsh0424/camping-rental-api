@@ -49,7 +49,7 @@ public class RentalOrderInfoApiV1 {
     ) {
         Message message = new Message();
 
-        rentalOrderInfoBusinessService.createOne(rentalOrderInfoDto);
+        message.setData(rentalOrderInfoBusinessService.createOne(rentalOrderInfoDto));
         message.setStatus(HttpStatus.OK);
         message.setMessage("success");
 

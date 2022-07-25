@@ -34,6 +34,9 @@ public class RoomEntity {
     @Column(name = "name")
     private String name;
 
+    @Column(name = "phone_number")
+    private String phoneNumber;
+
     @Column(name = "introduction")
     private String introduction;
 
@@ -45,9 +48,6 @@ public class RoomEntity {
 
     @Column(name = "deleted_flag")
     private boolean deletedFlag;
-
-    @Column(name = "user_cid")
-    private Integer userCid;
 
     @Column(name = "user_id")
     @Type(type = "uuid-char")

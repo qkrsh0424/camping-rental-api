@@ -12,4 +12,8 @@ public interface RoomRepository extends JpaRepository<RoomEntity, Integer> {
     Optional<RoomEntity> findByUserId(UUID userId);
 
     Optional<RoomEntity> findById(UUID id);
+
+    Optional<RoomEntity> findByPhoneNumber(String phoneNumber);
+
+    Optional<RoomEntity> findByName(String name);
 }

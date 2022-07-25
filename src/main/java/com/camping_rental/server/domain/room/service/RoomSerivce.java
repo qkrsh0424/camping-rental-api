@@ -29,4 +29,11 @@ public class RoomSerivce {
         return roomRepository.findById(id).orElseThrow(() -> new NotMatchedFormatException("룸 데이터를 찾을 수 없습니다."));
     }
 
+    public RoomEntity searchByPhoneNumber(String phoneNumber) {
+        return roomRepository.findByPhoneNumber(phoneNumber).orElse(null);
+    }
+
+    public RoomEntity searchByName(String name) {
+        return roomRepository.findByName(name).orElse(null);
+    }
 }

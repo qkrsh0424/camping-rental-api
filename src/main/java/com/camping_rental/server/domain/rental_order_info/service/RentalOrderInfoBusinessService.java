@@ -14,6 +14,7 @@ import com.camping_rental.server.domain.rental_order_product.entity.RentalOrderP
 import com.camping_rental.server.domain.rental_order_product.enums.RentalOrderProductDeletedFlagEnum;
 import com.camping_rental.server.domain.rental_order_product.enums.RentalOrderProductStatusEnum;
 import com.camping_rental.server.domain.rental_order_product.service.RentalOrderProductService;
+import com.camping_rental.server.domain.room.entity.RoomEntity;
 import com.camping_rental.server.domain.twilio.dto.TwilioSmsRequestDto;
 import com.camping_rental.server.domain.twilio.service.TwilioSmsService;
 import com.camping_rental.server.domain.user.service.UserService;
@@ -23,9 +24,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -38,7 +37,7 @@ public class RentalOrderInfoBusinessService {
     private final TwilioSmsService twilioSmsService;
 
     @Transactional
-    public void createOne(RentalOrderInfoDto.Create rentalOrderInfoDto) {
+    public Map<String, Object> createOne(RentalOrderInfoDto.Create rentalOrderInfoDto) {
         /*
         필드값 validation check
          */
@@ -61,7 +60,9 @@ public class RentalOrderInfoBusinessService {
         상품 데이터중 첫번째 데이터의 room 을 가져와서 lenderRoomId로 지정한다.
         어차피 room 데이터는 모든 상품에 동일하다.
          */
-        UUID lenderRoomId = productProjections.stream().findFirst().get().getRoomEntity().getId();
+        RoomEntity lenderRoomEntity = productProjections.stream().findFirst().get().getRoomEntity();
+        UUID lenderRoomId = lenderRoomEntity.getId();
+        String lenderRoomPhoneNumber = lenderRoomEntity.getPhoneNumber();
 
         UUID rentalOrderInfoId = UUID.randomUUID();
         String orderNumber = CustomUniqueKeyUtils.generateOrderNumber18();
@@ -122,13 +123,20 @@ public class RentalOrderInfoBusinessService {
                 .append("주문 내역 조회 바로가기: http://www.campal.co.kr/search/order")
         ;
 
-
         StringBuilder lenderSmsMessage = new StringBuilder();
-        lenderSmsMessage.append("[Campal | 캠핑 렌탈]\n\n");
-        lenderSmsMessage.append("신규 주문이 있습니다.\n\n");
-        lenderSmsMessage.append("주문자 성함 : " + rentalOrderInfoDto.getOrderer() + "\n");
-        lenderSmsMessage.append("주문자 전화번호 : " + rentalOrderInfoDto.getOrdererPhoneNumber() + "\n\n");
-        lenderSmsMessage.append("조회 링크 바로가기 : " + "http://www.campal.co.kr/myadmin");
+        lenderSmsMessage.append("[Campal | 캠핑 렌탈]\n\n")
+                .append("신규 주문이 있습니다.\n\n")
+                .append("주문자 성함 : " + rentalOrderInfoDto.getOrderer() + "\n")
+                .append("주문자 전화번호 : " + rentalOrderInfoDto.getOrdererPhoneNumber() + "\n\n")
+                .append("조회 링크 바로가기 : " + "http://www.campal.co.kr/myadmin")
+        ;
+
+        StringBuilder adminSmsMessage = new StringBuilder();
+        adminSmsMessage.append("[Campal | 캠핑 렌탈] for Admin\n\n")
+                .append(lenderRoomEntity.getName() + " 님에게 신규 주문이 있습니다.\n\n")
+                .append("주문자 성함 : " + rentalOrderInfoDto.getOrderer() + "\n")
+                .append("주문자 전화번호 : " + rentalOrderInfoDto.getOrdererPhoneNumber() + "\n\n")
+        ;
 
 //        TODO SETTING : 운영시 주석 풀어줘야함.
         twilioSmsRequestDtos.add(
@@ -137,12 +145,18 @@ public class RentalOrderInfoBusinessService {
                         ordererSmsMessage.toString()
                 )
         );
-//        twilioSmsRequestDtos.add(
-//                TwilioSmsRequestDto.toDto(
-//                        "01085356112",
-//                        lenderSmsMessage.toString()
-//                )
-//        );
+        twilioSmsRequestDtos.add(
+                TwilioSmsRequestDto.toDto(
+                        lenderRoomPhoneNumber,
+                        lenderSmsMessage.toString()
+                )
+        );
+        twilioSmsRequestDtos.add(
+                TwilioSmsRequestDto.toDto(
+                        "01085356112",
+                        adminSmsMessage.toString()
+                )
+        );
 //        twilioSmsRequestDtos.add(
 //                TwilioSmsRequestDto.toDto(
 //                        "01050036206",
@@ -156,6 +170,16 @@ public class RentalOrderInfoBusinessService {
 //                )
 //        );
         twilioSmsService.sendMultipleSms(twilioSmsRequestDtos);
+
+        Map<String, Object> resultMap = new HashMap<>();
+
+        resultMap.put("orderNumber", orderNumber);
+        resultMap.put("orderer", rentalOrderInfoEntity.getOrderer());
+        resultMap.put("ordererPhoneNumber", rentalOrderInfoEntity.getOrdererPhoneNumber());
+        resultMap.put("lender", lenderRoomEntity.getName());
+        resultMap.put("lenderPhoneNumber", lenderRoomPhoneNumber);
+
+        return resultMap;
     }
 
     public Object searchOneByOrderNumberAndOrdererAndOrderPhoneNumber(String orderNumber, String orderer, String ordererPhoneNumber) {

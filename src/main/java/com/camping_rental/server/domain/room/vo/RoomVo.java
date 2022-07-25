@@ -19,11 +19,11 @@ public class RoomVo {
     private Integer cid;
     private UUID id;
     private String name;
+    private String phoneNumber;
     private String introduction;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
     private boolean deletedFlag;
-    private Integer userCid;
     private UUID userId;
 
     @Data
@@ -33,12 +33,14 @@ public class RoomVo {
     public static class Basic{
         private UUID id;
         private String name;
+        private String phoneNumber;
         private String introduction;
 
         public static Basic toVo(RoomEntity entity){
             Basic vo = Basic.builder()
                     .id(entity.getId())
                     .name(entity.getName())
+                    .phoneNumber(entity.getPhoneNumber())
                     .introduction(entity.getIntroduction())
                     .build();
             return vo;

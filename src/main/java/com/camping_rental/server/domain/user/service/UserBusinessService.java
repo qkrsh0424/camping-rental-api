@@ -229,7 +229,6 @@ public class UserBusinessService {
         UUID userId = UUID.randomUUID();
         String salt = UUID.randomUUID().toString();
         String encPassword = passwordEncoder.encode(userSignupDto.getPassword() + salt);
-        UUID roomId = UUID.randomUUID();
 
         UserEntity userEntity = UserEntity.builder()
                 .cid(null)
@@ -249,7 +248,7 @@ public class UserBusinessService {
                 .updatedAt(CustomDateUtils.getCurrentDateTime())
                 .createdAt(CustomDateUtils.getCurrentDateTime())
                 .deletedFlag(DeletedFlagEnums.EXIST.getValue())
-                .roomId(roomId)
+                .roomId(null)
                 .build();
 
         /*
