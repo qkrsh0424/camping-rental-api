@@ -7,15 +7,13 @@ import com.camping_rental.server.domain.region.entity.RegionEntity;
 import com.camping_rental.server.domain.region.enums.RegionDeletedFlagEnum;
 import com.camping_rental.server.domain.region.vo.RegionVo;
 import com.camping_rental.server.domain.room.entity.RoomEntity;
-import com.camping_rental.server.domain.room.service.RoomSerivce;
+import com.camping_rental.server.domain.room.service.RoomService;
 import com.camping_rental.server.domain.user.service.UserService;
 import com.camping_rental.server.utils.CustomDateUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.persistence.Column;
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -25,7 +23,7 @@ import java.util.stream.Collectors;
 public class RegionBusinessService {
     private final UserService userService;
     private final RegionService regionService;
-    private final RoomSerivce roomSerivce;
+    private final RoomService roomService;
 
     @Transactional(readOnly = true)
     public Object searchListByRoomId(UUID roomId) {
@@ -54,7 +52,7 @@ public class RegionBusinessService {
             FULL_ADDRESS.append(regionDto.getAddressDetail());
         }
 
-        RoomEntity roomEntity = roomSerivce.searchByUserIdOrThrow(USER_ID);
+        RoomEntity roomEntity = roomService.searchByUserIdOrThrow(USER_ID);
 
         RegionEntity regionEntity = RegionEntity.builder()
                 .cid(null)

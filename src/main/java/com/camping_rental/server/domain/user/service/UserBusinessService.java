@@ -5,8 +5,7 @@ import com.camping_rental.server.domain.exception.dto.InvalidUserException;
 import com.camping_rental.server.domain.exception.dto.NotMatchedFormatException;
 import com.camping_rental.server.domain.refresh_token.entity.RefreshTokenEntity;
 import com.camping_rental.server.domain.refresh_token.service.RefreshTokenService;
-import com.camping_rental.server.domain.room.entity.RoomEntity;
-import com.camping_rental.server.domain.room.service.RoomSerivce;
+import com.camping_rental.server.domain.room.service.RoomService;
 import com.camping_rental.server.domain.user.dto.UserDto;
 import com.camping_rental.server.domain.user.entity.UserEntity;
 import com.camping_rental.server.domain.user.enums.UserAllowedAccessCountEnum;
@@ -16,8 +15,6 @@ import com.camping_rental.server.domain.user.vo.UserVo;
 import com.camping_rental.server.utils.*;
 import io.jsonwebtoken.*;
 import lombok.RequiredArgsConstructor;
-import org.hibernate.annotations.Type;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseCookie;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -25,11 +22,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.util.WebUtils;
 
-import javax.persistence.Column;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Service
@@ -39,7 +34,7 @@ public class UserBusinessService {
 
     private final UserService userService;
     private final RefreshTokenService refreshTokenService;
-    private final RoomSerivce roomSerivce;
+    private final RoomService roomService;
 
     @Transactional(readOnly = true)
     public void checkDuplicateUsername(String username) {

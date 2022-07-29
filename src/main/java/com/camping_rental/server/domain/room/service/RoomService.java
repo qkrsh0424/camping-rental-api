@@ -10,7 +10,7 @@ import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
-public class RoomSerivce {
+public class RoomService {
     private final RoomRepository roomRepository;
 
     public void saveAndModify(RoomEntity roomEntity){

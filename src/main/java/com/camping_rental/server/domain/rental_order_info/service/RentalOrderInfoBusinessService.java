@@ -1,5 +1,6 @@
 package com.camping_rental.server.domain.rental_order_info.service;
 
+import com.camping_rental.server.domain.exception.dto.AccessDeniedPermissionException;
 import com.camping_rental.server.domain.product.entity.ProductEntity;
 import com.camping_rental.server.domain.product.projection.ProductProjection;
 import com.camping_rental.server.domain.product.service.ProductService;
@@ -15,12 +16,16 @@ import com.camping_rental.server.domain.rental_order_product.enums.RentalOrderPr
 import com.camping_rental.server.domain.rental_order_product.enums.RentalOrderProductStatusEnum;
 import com.camping_rental.server.domain.rental_order_product.service.RentalOrderProductService;
 import com.camping_rental.server.domain.room.entity.RoomEntity;
+import com.camping_rental.server.domain.room.service.RoomService;
 import com.camping_rental.server.domain.twilio.dto.TwilioSmsRequestDto;
 import com.camping_rental.server.domain.twilio.service.TwilioSmsService;
 import com.camping_rental.server.domain.user.service.UserService;
 import com.camping_rental.server.utils.CustomDateUtils;
 import com.camping_rental.server.utils.CustomUniqueKeyUtils;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -35,6 +40,7 @@ public class RentalOrderInfoBusinessService {
     private final RentalOrderInfoService rentalOrderInfoService;
     private final RentalOrderProductService rentalOrderProductService;
     private final TwilioSmsService twilioSmsService;
+    private final RoomService roomService;
 
     @Transactional
     public Map<String, Object> createOne(RentalOrderInfoDto.Create rentalOrderInfoDto) {
@@ -187,5 +193,40 @@ public class RentalOrderInfoBusinessService {
 
         RentalOrderInfoVo.FullJoin vo = RentalOrderInfoVo.FullJoin.toVo(rentalOrderInfoProjection);
         return vo;
+    }
+
+    public Object searchPage(Pageable pageable) {
+        UUID userId = userService.getUserIdOrThrow();
+
+        RoomEntity roomEntity = roomService.searchByUserIdOrThrow(userId);
+
+        Page<RentalOrderInfoProjection.FullJoin> rentalOrderInfoProjectionPage = rentalOrderInfoService.qSearchPageFullJoinByRoomId(roomEntity.getId(), pageable);
+        List<RentalOrderInfoVo.FullJoin> vos = rentalOrderInfoProjectionPage.getContent().stream().map(r -> {
+            return RentalOrderInfoVo.FullJoin.toVo(r);
+        }).collect(Collectors.toList());
+
+        return new PageImpl<>(vos, pageable, rentalOrderInfoProjectionPage.getTotalElements());
+    }
+
+    public void sendSms(UUID rentalOrderInfoId, String smsMessage) {
+        UUID userId = userService.getUserIdOrThrow();
+        RoomEntity roomEntity = roomService.searchByUserIdOrThrow(userId);
+
+        RentalOrderInfoEntity rentalOrderInfoEntity = rentalOrderInfoService.searchByIdOrThrow(rentalOrderInfoId);
+
+        if (!rentalOrderInfoEntity.getLenderRoomId().equals(roomEntity.getId())) {
+            throw new AccessDeniedPermissionException("접근 권한이 없습니다.");
+        }
+
+        List<TwilioSmsRequestDto> twilioSmsRequestDtos = new ArrayList<>();
+
+        twilioSmsRequestDtos.add(
+                TwilioSmsRequestDto.toDto(
+                        rentalOrderInfoEntity.getOrdererPhoneNumber(),
+                        smsMessage
+                )
+        );
+
+        twilioSmsService.sendMultipleSms(twilioSmsRequestDtos);
     }
 }

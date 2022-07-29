@@ -1,12 +1,11 @@
 package com.camping_rental.server.domain.rental_order_product.service;
 
 import com.camping_rental.server.domain.exception.dto.AccessDeniedPermissionException;
-import com.camping_rental.server.domain.rental_order_product.entity.RentalOrderProductEntity;
 import com.camping_rental.server.domain.rental_order_product.enums.RentalOrderProductStatusEnum;
 import com.camping_rental.server.domain.rental_order_product.projection.RentalOrderProductProjection;
 import com.camping_rental.server.domain.rental_order_product.vo.RentalOrderProductVo;
 import com.camping_rental.server.domain.room.entity.RoomEntity;
-import com.camping_rental.server.domain.room.service.RoomSerivce;
+import com.camping_rental.server.domain.room.service.RoomService;
 import com.camping_rental.server.domain.user.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -15,7 +14,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -26,12 +24,12 @@ import java.util.stream.Collectors;
 public class RentalOrderProductBusinessService {
     private final RentalOrderProductService rentalOrderProductService;
     private final UserService userService;
-    private final RoomSerivce roomSerivce;
+    private final RoomService roomService;
 
     public Object searchPageByPrivate(Map<String, Object> params, Pageable pageable) {
         UUID userId = userService.getUserIdOrThrow();
 
-        RoomEntity roomEntity = roomSerivce.searchByUserIdOrThrow(userId);
+        RoomEntity roomEntity = roomService.searchByUserIdOrThrow(userId);
 
         params.put("roomId", roomEntity.getId());
 
@@ -49,7 +47,7 @@ public class RentalOrderProductBusinessService {
     public void changeStatusToConfirmOrder(List<UUID> productIds) {
         UUID userId = userService.getUserIdOrThrow();
 
-        RoomEntity roomEntity = roomSerivce.searchByUserIdOrThrow(userId);
+        RoomEntity roomEntity = roomService.searchByUserIdOrThrow(userId);
         List<RentalOrderProductProjection.JoinRentalOrderInfo> rentalOrderProductProjections = rentalOrderProductService.qSearchListByIdsJoinRentalOrderInfo(productIds);
 
         /*
@@ -69,7 +67,7 @@ public class RentalOrderProductBusinessService {
     public void changeStatusToConfirmReservation(List<UUID> productIds) {
         UUID userId = userService.getUserIdOrThrow();
 
-        RoomEntity roomEntity = roomSerivce.searchByUserIdOrThrow(userId);
+        RoomEntity roomEntity = roomService.searchByUserIdOrThrow(userId);
         List<RentalOrderProductProjection.JoinRentalOrderInfo> rentalOrderProductProjections = rentalOrderProductService.qSearchListByIdsJoinRentalOrderInfo(productIds);
 
         /*
@@ -89,7 +87,7 @@ public class RentalOrderProductBusinessService {
     public void changeStatusToPickedUp(List<UUID> productIds) {
         UUID userId = userService.getUserIdOrThrow();
 
-        RoomEntity roomEntity = roomSerivce.searchByUserIdOrThrow(userId);
+        RoomEntity roomEntity = roomService.searchByUserIdOrThrow(userId);
         List<RentalOrderProductProjection.JoinRentalOrderInfo> rentalOrderProductProjections = rentalOrderProductService.qSearchListByIdsJoinRentalOrderInfo(productIds);
 
         /*
@@ -109,7 +107,7 @@ public class RentalOrderProductBusinessService {
     public void changeStatusToReturned(List<UUID> productIds) {
         UUID userId = userService.getUserIdOrThrow();
 
-        RoomEntity roomEntity = roomSerivce.searchByUserIdOrThrow(userId);
+        RoomEntity roomEntity = roomService.searchByUserIdOrThrow(userId);
         List<RentalOrderProductProjection.JoinRentalOrderInfo> rentalOrderProductProjections = rentalOrderProductService.qSearchListByIdsJoinRentalOrderInfo(productIds);
 
         /*
@@ -129,7 +127,7 @@ public class RentalOrderProductBusinessService {
     public void changeStatusToCompleted(List<UUID> productIds) {
         UUID userId = userService.getUserIdOrThrow();
 
-        RoomEntity roomEntity = roomSerivce.searchByUserIdOrThrow(userId);
+        RoomEntity roomEntity = roomService.searchByUserIdOrThrow(userId);
         List<RentalOrderProductProjection.JoinRentalOrderInfo> rentalOrderProductProjections = rentalOrderProductService.qSearchListByIdsJoinRentalOrderInfo(productIds);
 
         /*
@@ -149,7 +147,7 @@ public class RentalOrderProductBusinessService {
     public void changeStatusToCancelled(List<UUID> productIds) {
         UUID userId = userService.getUserIdOrThrow();
 
-        RoomEntity roomEntity = roomSerivce.searchByUserIdOrThrow(userId);
+        RoomEntity roomEntity = roomService.searchByUserIdOrThrow(userId);
         List<RentalOrderProductProjection.JoinRentalOrderInfo> rentalOrderProductProjections = rentalOrderProductService.qSearchListByIdsJoinRentalOrderInfo(productIds);
 
         /*

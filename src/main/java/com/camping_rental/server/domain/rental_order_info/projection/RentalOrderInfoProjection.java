@@ -8,6 +8,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.HashSet;
 import java.util.Set;
 
 @Data
@@ -17,7 +18,7 @@ import java.util.Set;
 public class RentalOrderInfoProjection {
     private RoomEntity roomEntity;
     private RentalOrderInfoEntity rentalOrderInfoEntity;
-    private Set<RentalOrderProductEntity> rentalOrderProductEntities;
+    private Set<RentalOrderProductEntity> rentalOrderProductEntities = new HashSet<>();
 
     @Data
     @AllArgsConstructor
@@ -26,6 +27,6 @@ public class RentalOrderInfoProjection {
     public static class FullJoin{
         private RoomEntity roomEntity;
         private RentalOrderInfoEntity rentalOrderInfoEntity;
-        private Set<RentalOrderProductEntity> rentalOrderProductEntities;
+        private Set<RentalOrderProductEntity> rentalOrderProductEntities = new HashSet<>();
     }
 }

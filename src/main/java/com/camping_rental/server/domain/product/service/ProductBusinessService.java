@@ -13,22 +13,18 @@ import com.camping_rental.server.domain.product_image.entity.ProductImageEntity;
 import com.camping_rental.server.domain.product_image.enums.ProductImageDeletedFlagEnum;
 import com.camping_rental.server.domain.product_image.service.ProductImageService;
 import com.camping_rental.server.domain.room.entity.RoomEntity;
-import com.camping_rental.server.domain.room.service.RoomSerivce;
+import com.camping_rental.server.domain.room.service.RoomService;
 import com.camping_rental.server.domain.user.service.UserService;
 import com.camping_rental.server.utils.CustomDateUtils;
 import lombok.RequiredArgsConstructor;
-import org.hibernate.annotations.Type;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.persistence.Column;
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -36,7 +32,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class ProductBusinessService {
     private final UserService userService;
-    private final RoomSerivce roomSerivce;
+    private final RoomService roomService;
     private final ProductService productService;
     private final ProductImageService productImageService;
 
@@ -86,7 +82,7 @@ public class ProductBusinessService {
     public void createOne(UUID roomId, ProductDto.Create productDto) {
         UUID userId = userService.getUserIdOrThrow();
 
-        RoomEntity roomEntity = roomSerivce.searchByIdOrThrow(roomId);
+        RoomEntity roomEntity = roomService.searchByIdOrThrow(roomId);
 
         if (!userId.equals(roomEntity.getUserId())) {
             throw new AccessDeniedPermissionException("접근 권한이 없습니다.");

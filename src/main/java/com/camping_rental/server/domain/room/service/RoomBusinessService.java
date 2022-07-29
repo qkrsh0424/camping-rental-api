@@ -9,22 +9,18 @@ import com.camping_rental.server.domain.room.vo.RoomVo;
 import com.camping_rental.server.domain.twilio.dto.TwilioSmsRequestDto;
 import com.camping_rental.server.domain.twilio.service.TwilioSmsService;
 import com.camping_rental.server.domain.user.entity.UserEntity;
-import com.camping_rental.server.domain.user.enums.UserLoginTypeEnum;
 import com.camping_rental.server.domain.user.service.UserService;
 import com.camping_rental.server.utils.*;
 import lombok.RequiredArgsConstructor;
-import org.hibernate.annotations.Type;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseCookie;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.util.WebUtils;
 
-import javax.persistence.Column;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.time.LocalDateTime;
 import java.util.UUID;
 import java.util.regex.Pattern;
 
@@ -32,12 +28,12 @@ import java.util.regex.Pattern;
 @RequiredArgsConstructor
 public class RoomBusinessService {
     private final UserService userService;
-    private final RoomSerivce roomSerivce;
+    private final RoomService roomService;
     private final TwilioSmsService twilioSmsService;
 
     @Transactional(readOnly = true)
     public Object searchOne(UUID id) {
-        RoomEntity roomEntity = roomSerivce.searchByIdOrThrow(id);
+        RoomEntity roomEntity = roomService.searchByIdOrThrow(id);
 
         RoomVo.Basic roomVo = RoomVo.Basic.toVo(roomEntity);
         return roomVo;
@@ -59,7 +55,7 @@ public class RoomBusinessService {
         /*
         룸 중복 생성 여부 확인
          */
-        RoomEntity duplicatedChecker = roomSerivce.searchByUserIdOrNull(USER_ID);
+        RoomEntity duplicatedChecker = roomService.searchByUserIdOrNull(USER_ID);
         if (duplicatedChecker != null) {
             throw new NotMatchedFormatException("룸의 중복 생성은 불가능 합니다.");
         }
@@ -82,7 +78,7 @@ public class RoomBusinessService {
         /*
         룸 이름 중복 체크
          */
-        RoomEntity roomDuplicateChecker = roomSerivce.searchByName(name);
+        RoomEntity roomDuplicateChecker = roomService.searchByName(name);
         if (roomDuplicateChecker != null) {
             throw new NotMatchedFormatException("이미 사용중인 룸 이름 입니다.");
         }
@@ -100,7 +96,7 @@ public class RoomBusinessService {
                 .userId(USER_ID)
                 .build();
 
-        roomSerivce.saveAndModify(roomEntity);
+        roomService.saveAndModify(roomEntity);
 
         /*
         UserEntity 의 roomId를 업데이트 해준다.
@@ -123,7 +119,7 @@ public class RoomBusinessService {
     @Transactional
     public void changeIntroduction(UUID roomId, String introduction) {
         UUID USER_ID = userService.getUserIdOrThrow();
-        RoomEntity roomEntity = roomSerivce.searchByIdOrThrow(roomId);
+        RoomEntity roomEntity = roomService.searchByIdOrThrow(roomId);
 
         if (introduction.length() > 400) {
             throw new NotMatchedFormatException("소개말은 최대 400자 까지 작성할 수 있습니다.");
@@ -143,7 +139,7 @@ public class RoomBusinessService {
     @Transactional
     public void changeName(UUID roomId, String name) {
         UUID USER_ID = userService.getUserIdOrThrow();
-        RoomEntity roomEntity = roomSerivce.searchByIdOrThrow(roomId);
+        RoomEntity roomEntity = roomService.searchByIdOrThrow(roomId);
         /*
         룸네임 체크
          */
@@ -166,7 +162,7 @@ public class RoomBusinessService {
         /*
         룸네임 중복 체크
          */
-        RoomEntity duplicateChecker = roomSerivce.searchByName(name);
+        RoomEntity duplicateChecker = roomService.searchByName(name);
         if (duplicateChecker != null) {
             throw new NotMatchedFormatException("이미 사용중인 이름 입니다.");
         }
@@ -181,7 +177,7 @@ public class RoomBusinessService {
     @Transactional
     public void changePhoneNumber(HttpServletRequest request, HttpServletResponse response, UUID roomId, String phoneNumber, String phoneValidationCode) {
         UUID USER_ID = userService.getUserIdOrThrow();
-        RoomEntity roomEntity = roomSerivce.searchByIdOrThrow(roomId);
+        RoomEntity roomEntity = roomService.searchByIdOrThrow(roomId);
 
         /*
         권한 체크
@@ -215,7 +211,7 @@ public class RoomBusinessService {
         /*
         휴대폰 번호 중복 체크
          */
-        RoomEntity duplicateChecker = roomSerivce.searchByPhoneNumber(phoneNumber);
+        RoomEntity duplicateChecker = roomService.searchByPhoneNumber(phoneNumber);
         if(duplicateChecker != null){
             throw new NotMatchedFormatException("이미 사용중인 휴대폰 번호 입니다.");
         }
@@ -238,7 +234,7 @@ public class RoomBusinessService {
         /*
         입력받은 phoneNumber 와 일치하는 RoomEntity 찾는다. 만약에 해당 데이터가 있다면 return
          */
-        RoomEntity roomEntity = roomSerivce.searchByPhoneNumber(phoneNumber);
+        RoomEntity roomEntity = roomService.searchByPhoneNumber(phoneNumber);
         if (roomEntity != null) {
             return;
         }
@@ -273,7 +269,6 @@ public class RoomBusinessService {
                 .message(smsMessage)
                 .build();
 
-        System.out.println(smsMessage);
-//        twilioSmsService.sendSmsAsync(smsRequestDto);
+        twilioSmsService.sendSmsAsync(smsRequestDto);
     }
 }
