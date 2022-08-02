@@ -5,6 +5,7 @@ import com.camping_rental.server.domain.exception.dto.NotMatchedFormatException;
 import com.camping_rental.server.domain.message.dto.Message;
 import com.camping_rental.server.domain.product.dto.ProductDto;
 import com.camping_rental.server.domain.product.service.ProductBusinessService;
+import com.camping_rental.server.domain.product_count_info.service.ProductCountInfoBusinessService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -24,6 +25,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class ProductApiV1 {
     private final ProductBusinessService productBusinessService;
+    private final ProductCountInfoBusinessService productCountInfoBusinessService;
 
     @GetMapping("/{productId}")
     public ResponseEntity<?> searchOne(
@@ -39,6 +41,7 @@ public class ProductApiV1 {
             throw new NotMatchedFormatException("요청 데이터를 찾을 수 없습니다.");
         }
 
+        productCountInfoBusinessService.increseViewCount(productId);
         message.setData(productBusinessService.searchOne(productId));
         message.setStatus(HttpStatus.OK);
         message.setMessage("success");

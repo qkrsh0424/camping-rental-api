@@ -8,6 +8,8 @@ import com.camping_rental.server.domain.room.entity.RoomEntity;
 import com.camping_rental.server.domain.room.vo.RoomVo;
 import com.camping_rental.server.domain.twilio.dto.TwilioSmsRequestDto;
 import com.camping_rental.server.domain.twilio.service.TwilioSmsService;
+import com.camping_rental.server.domain.twilio.strategy.RoomSms;
+import com.camping_rental.server.domain.twilio.strategy.TwilioSmsRequestFactory;
 import com.camping_rental.server.domain.user.entity.UserEntity;
 import com.camping_rental.server.domain.user.service.UserService;
 import com.camping_rental.server.utils.*;
@@ -21,6 +23,7 @@ import org.springframework.web.util.WebUtils;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.util.Map;
 import java.util.UUID;
 import java.util.regex.Pattern;
 
@@ -262,12 +265,11 @@ public class RoomBusinessService {
         /*
         인증 코드를 담은 smsMessage를 트윌리오를 통해 전송한다.
          */
-        String smsMessage = "[Campal | 캠핑 렌탈] 본인확인 인증번호 [" + validationNum + "] 입니다. \"타인 노출 금지\"";
-
-        TwilioSmsRequestDto smsRequestDto = TwilioSmsRequestDto.builder()
-                .phoneNumber(phoneNumber)
-                .message(smsMessage)
-                .build();
+        TwilioSmsRequestFactory twilioSmsRequestFactory = new TwilioSmsRequestFactory(new RoomSms.ValidationCode());
+        TwilioSmsRequestDto smsRequestDto = twilioSmsRequestFactory.make(Map.of(
+                "validationNum", validationNum,
+                "smsReceiverPhoneNumber", phoneNumber
+        ));
 
         twilioSmsService.sendSmsAsync(smsRequestDto);
     }

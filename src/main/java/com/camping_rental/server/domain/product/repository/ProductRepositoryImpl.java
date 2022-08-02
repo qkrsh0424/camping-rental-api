@@ -4,9 +4,11 @@ import com.camping_rental.server.domain.enums.DeletedFlagEnums;
 import com.camping_rental.server.domain.product.entity.QProductEntity;
 import com.camping_rental.server.domain.product.projection.ProductProjection;
 import com.camping_rental.server.domain.product_category.entity.QProductCategoryEntity;
+import com.camping_rental.server.domain.product_count_info.entity.QProductCountInfoEntity;
 import com.camping_rental.server.domain.product_image.entity.QProductImageEntity;
 import com.camping_rental.server.domain.region.entity.QRegionEntity;
 import com.camping_rental.server.domain.region.entity.RegionEntity;
+import com.camping_rental.server.domain.rental_order_product.entity.QRentalOrderProductEntity;
 import com.camping_rental.server.domain.room.entity.QRoomEntity;
 import com.camping_rental.server.utils.CustomFieldUtils;
 import com.querydsl.core.QueryException;
@@ -38,6 +40,8 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
     private final QRegionEntity qRegionEntity = QRegionEntity.regionEntity;
     private final QProductImageEntity qProductImageEntity = QProductImageEntity.productImageEntity;
     private final QProductCategoryEntity qProductCategoryEntity = QProductCategoryEntity.productCategoryEntity;
+    private final QRentalOrderProductEntity qRentalOrderProductEntity = QRentalOrderProductEntity.rentalOrderProductEntity;
+    private final QProductCountInfoEntity qProductCountInfoEntity = QProductCountInfoEntity.productCountInfoEntity;
 
     @Override
     public Optional<ProductProjection.JoinRoomAndRegions> qSelectOneByIdJoinRoomAndRegion(UUID id) {
@@ -138,6 +142,57 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
                 .where(eqDisplayYn(params));
 
         sortPagedData(productProjectionsQuery, pageable);
+
+        long totalCount = productProjectionsQuery.fetchCount();
+        List<ProductProjection.JoinRoomAndRegions> productProjections = productProjectionsQuery.fetch();
+
+        JPQLQuery regionsQuery = query.from(qRegionEntity)
+                .select(qRegionEntity)
+                .where(qRegionEntity.roomId.in(productProjections.stream().map(r -> r.getRoomEntity().getId()).collect(Collectors.toList())));
+
+        List<RegionEntity> allRegionEntities = regionsQuery.fetch();
+        productProjections.forEach(proj -> {
+            List<RegionEntity> regionEntites = allRegionEntities.stream().filter(r -> r.getRoomId().equals(proj.getRoomEntity().getId())).collect(Collectors.toList());
+            proj.setRegionEntities(regionEntites);
+        });
+
+        return new PageImpl<>(productProjections, pageable, totalCount);
+    }
+
+    @Override
+    public Page<ProductProjection.JoinRoomAndRegions> qSelectPageJoinRoomAndRegions2(Map<String, Object> params, Pageable pageable) {
+        JPQLQuery productProjectionsQuery = query.from(qProductEntity)
+                .select(
+                        Projections.fields(
+                                ProductProjection.JoinRoomAndRegions.class,
+                                qProductEntity.as("productEntity"),
+                                qRoomEntity.as("roomEntity")
+                        )
+                )
+                .join(qRoomEntity).on(
+                        qRoomEntity.id.eq(qProductEntity.roomId)
+                                .and(qRoomEntity.deletedFlag.eq(DeletedFlagEnums.EXIST.getValue()))
+                )
+                .leftJoin(qRentalOrderProductEntity).on(qRentalOrderProductEntity.productId.eq(qProductEntity.id))
+                .leftJoin(qProductCountInfoEntity).on(qProductCountInfoEntity.productId.eq(qProductEntity.id))
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize())
+                .where(eqCategoryId(params))
+                .where(eqRoomId(params))
+                .where(eqDisplayYn(params))
+                .groupBy(qProductEntity.cid)
+                .orderBy(
+                        qRentalOrderProductEntity.cid.count()
+                                .multiply(10)
+                                .add(
+                                        qProductCountInfoEntity.viewCount.coalesce(0).multiply(1)
+                                )
+                                .desc(),
+                        qProductEntity.cid.asc()
+                )
+                ;
+
+//        sortPagedData(productProjectionsQuery, pageable);
 
         long totalCount = productProjectionsQuery.fetchCount();
         List<ProductProjection.JoinRoomAndRegions> productProjections = productProjectionsQuery.fetch();

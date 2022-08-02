@@ -32,7 +32,7 @@ public class ProductService {
     }
 
     public Page<ProductProjection.JoinRoomAndRegions> qSearchPageJoinRoomAndRegions(Map<String, Object> params, Pageable pageable) {
-        return productRepository.qSelectPageJoinRoomAndRegions(params, pageable);
+        return productRepository.qSelectPageJoinRoomAndRegions2(params, pageable);
     }
 
     public ProductProjection.JoinRoomAndRegions qSearchOneByIdJoinRoomAndRegionOrThrow(UUID productId) {

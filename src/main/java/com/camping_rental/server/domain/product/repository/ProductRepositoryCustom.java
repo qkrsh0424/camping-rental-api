@@ -17,6 +17,7 @@ public interface ProductRepositoryCustom {
     List<ProductProjection.JoinRoomAndRegions> qSelectListJoinRoomAndRegions(UUID roomId, Map<String, Object> params);
     List<ProductProjection.JoinRoomAndRegions> qSelectListJoinRoomAndRegions();
     Page<ProductProjection.JoinRoomAndRegions> qSelectPageJoinRoomAndRegions(Map<String, Object> params, Pageable pageable);
+    Page<ProductProjection.JoinRoomAndRegions> qSelectPageJoinRoomAndRegions2(Map<String, Object> params, Pageable pageable);
 
     Optional<ProductProjection.FullJoin> qSelectOneFullJoin(UUID productId);
 

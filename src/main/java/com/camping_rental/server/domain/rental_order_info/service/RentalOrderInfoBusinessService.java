@@ -19,6 +19,9 @@ import com.camping_rental.server.domain.room.entity.RoomEntity;
 import com.camping_rental.server.domain.room.service.RoomService;
 import com.camping_rental.server.domain.twilio.dto.TwilioSmsRequestDto;
 import com.camping_rental.server.domain.twilio.service.TwilioSmsService;
+import com.camping_rental.server.domain.twilio.strategy.RentalOrderInfoSms;
+import com.camping_rental.server.domain.twilio.strategy.TwilioSmsRequestFactory;
+import com.camping_rental.server.domain.twilio.strategy.TwilioSmsRequestStrategy;
 import com.camping_rental.server.domain.user.service.UserService;
 import com.camping_rental.server.utils.CustomDateUtils;
 import com.camping_rental.server.utils.CustomUniqueKeyUtils;
@@ -121,60 +124,32 @@ public class RentalOrderInfoBusinessService {
         twilio 메세지 전송
          */
         List<TwilioSmsRequestDto> twilioSmsRequestDtos = new ArrayList<>();
+        TwilioSmsRequestFactory twilioSmsRequestFactory = new TwilioSmsRequestFactory(new RentalOrderInfoSms.Orderer());
 
-        StringBuilder ordererSmsMessage = new StringBuilder();
-        ordererSmsMessage.append("[Campal | 캠핑 렌탈]\n")
-                .append("주문이 정상적으로 접수 되었습니다.\n\n")
-                .append("주문번호: " + orderNumber + "\n\n")
-                .append("주문 내역 조회 바로가기: http://www.campal.co.kr/search/order")
-        ;
+        TwilioSmsRequestDto ordererSms = twilioSmsRequestFactory.make(Map.of(
+                "smsReceiverPhoneNumber", rentalOrderInfoDto.getOrdererPhoneNumber(),
+                "orderNumber", orderNumber
+        ));
 
-        StringBuilder lenderSmsMessage = new StringBuilder();
-        lenderSmsMessage.append("[Campal | 캠핑 렌탈]\n\n")
-                .append("신규 주문이 있습니다.\n\n")
-                .append("주문자 성함 : " + rentalOrderInfoDto.getOrderer() + "\n")
-                .append("주문자 전화번호 : " + rentalOrderInfoDto.getOrdererPhoneNumber() + "\n\n")
-                .append("조회 링크 바로가기 : " + "http://www.campal.co.kr/myadmin")
-        ;
+        twilioSmsRequestFactory.setTwilioSmsRequestStrategy(new RentalOrderInfoSms.Lender());
+        TwilioSmsRequestDto lenderSms = twilioSmsRequestFactory.make(Map.of(
+                "smsReceiverPhoneNumber", lenderRoomPhoneNumber,
+                "orderer", rentalOrderInfoDto.getOrderer(),
+                "ordererPhoneNumber", rentalOrderInfoDto.getOrdererPhoneNumber()
+        ));
 
-        StringBuilder adminSmsMessage = new StringBuilder();
-        adminSmsMessage.append("[Campal | 캠핑 렌탈] for Admin\n\n")
-                .append(lenderRoomEntity.getName() + " 님에게 신규 주문이 있습니다.\n\n")
-                .append("주문자 성함 : " + rentalOrderInfoDto.getOrderer() + "\n")
-                .append("주문자 전화번호 : " + rentalOrderInfoDto.getOrdererPhoneNumber() + "\n\n")
-        ;
+        twilioSmsRequestFactory.setTwilioSmsRequestStrategy(new RentalOrderInfoSms.Admin());
+        TwilioSmsRequestDto adminSms = twilioSmsRequestFactory.make(Map.of(
+                "smsReceiverPhoneNumber", "01085356112",
+                "lender", lenderRoomEntity.getName(),
+                "orderer", rentalOrderInfoDto.getOrderer(),
+                "ordererPhoneNumber", rentalOrderInfoDto.getOrdererPhoneNumber()
+        ));
 
-//        TODO SETTING : 운영시 주석 풀어줘야함.
-        twilioSmsRequestDtos.add(
-                TwilioSmsRequestDto.toDto(
-                        rentalOrderInfoDto.getOrdererPhoneNumber(),
-                        ordererSmsMessage.toString()
-                )
-        );
-        twilioSmsRequestDtos.add(
-                TwilioSmsRequestDto.toDto(
-                        lenderRoomPhoneNumber,
-                        lenderSmsMessage.toString()
-                )
-        );
-        twilioSmsRequestDtos.add(
-                TwilioSmsRequestDto.toDto(
-                        "01085356112",
-                        adminSmsMessage.toString()
-                )
-        );
-//        twilioSmsRequestDtos.add(
-//                TwilioSmsRequestDto.toDto(
-//                        "01050036206",
-//                        lenderSmsMessage.toString()
-//                )
-//        );
-//        twilioSmsRequestDtos.add(
-//                TwilioSmsRequestDto.toDto(
-//                        "01063760015",
-//                        lenderSmsMessage.toString()
-//                )
-//        );
+        twilioSmsRequestDtos.add(ordererSms);
+        twilioSmsRequestDtos.add(lenderSms);
+        twilioSmsRequestDtos.add(adminSms);
+
         twilioSmsService.sendMultipleSms(twilioSmsRequestDtos);
 
         Map<String, Object> resultMap = new HashMap<>();
