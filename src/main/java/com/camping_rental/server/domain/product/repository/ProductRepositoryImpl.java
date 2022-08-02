@@ -64,64 +64,6 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
     }
 
     @Override
-    public List<ProductProjection.JoinRoomAndRegions> qSelectListJoinRoomAndRegions(UUID roomId, Map<String, Object> params) {
-        List<ProductProjection.JoinRoomAndRegions> productProjections = query.from(qProductEntity)
-                .join(qRoomEntity).on(
-                        qRoomEntity.id.eq(qProductEntity.roomId)
-                                .and(qRoomEntity.deletedFlag.eq(DeletedFlagEnums.EXIST.getValue()))
-                )
-                .join(qRegionEntity).on(
-                        qRegionEntity.roomId.eq(qRoomEntity.id)
-                                .and(qRegionEntity.deletedFlag.eq(DeletedFlagEnums.EXIST.getValue()))
-                )
-                .where(qRoomEntity.id.eq(roomId))
-                .where(eqCategoryId(params))
-                .transform(
-                        GroupBy.groupBy(qProductEntity.cid)
-                                .list(
-                                        Projections.fields(
-                                                ProductProjection.JoinRoomAndRegions.class,
-                                                qProductEntity.as("productEntity"),
-                                                qRoomEntity.as("roomEntity"),
-                                                GroupBy.list(
-                                                        qRegionEntity
-                                                ).as("regionEntities")
-                                        )
-                                )
-                );
-
-        return productProjections;
-    }
-
-    @Override
-    public List<ProductProjection.JoinRoomAndRegions> qSelectListJoinRoomAndRegions() {
-        List<ProductProjection.JoinRoomAndRegions> productProjections = query.from(qProductEntity)
-                .join(qRoomEntity).on(
-                        qRoomEntity.id.eq(qProductEntity.roomId)
-                                .and(qRoomEntity.deletedFlag.eq(DeletedFlagEnums.EXIST.getValue()))
-                )
-                .join(qRegionEntity).on(
-                        qRegionEntity.roomId.eq(qRoomEntity.id)
-                                .and(qRegionEntity.deletedFlag.eq(DeletedFlagEnums.EXIST.getValue()))
-                )
-                .transform(
-                        GroupBy.groupBy(qProductEntity.cid)
-                                .list(
-                                        Projections.fields(
-                                                ProductProjection.JoinRoomAndRegions.class,
-                                                qProductEntity.as("productEntity"),
-                                                qRoomEntity.as("roomEntity"),
-                                                GroupBy.list(
-                                                        qRegionEntity
-                                                ).as("regionEntities")
-                                        )
-                                )
-                );
-
-        return productProjections;
-    }
-
-    @Override
     public Page<ProductProjection.JoinRoomAndRegions> qSelectPageJoinRoomAndRegions(Map<String, Object> params, Pageable pageable) {
         JPQLQuery productProjectionsQuery = query.from(qProductEntity)
                 .select(
@@ -160,7 +102,7 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
     }
 
     @Override
-    public Page<ProductProjection.JoinRoomAndRegions> qSelectPageJoinRoomAndRegions2(Map<String, Object> params, Pageable pageable) {
+    public Page<ProductProjection.JoinRoomAndRegions> qSelectPageJoinRoomAndRegionsOrderByRank(Map<String, Object> params, Pageable pageable) {
         JPQLQuery productProjectionsQuery = query.from(qProductEntity)
                 .select(
                         Projections.fields(

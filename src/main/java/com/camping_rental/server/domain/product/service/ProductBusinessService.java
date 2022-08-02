@@ -7,6 +7,9 @@ import com.camping_rental.server.domain.product.entity.ProductEntity;
 import com.camping_rental.server.domain.product.enums.ProductDeletedFlagEnum;
 import com.camping_rental.server.domain.product.enums.ProductDisplayYnEnum;
 import com.camping_rental.server.domain.product.projection.ProductProjection;
+import com.camping_rental.server.domain.product.strategy.ProductSearchPageFactory;
+import com.camping_rental.server.domain.product.strategy.ProductSearchPageStrategy;
+import com.camping_rental.server.domain.product.strategy.ProductSearchPageStrategyName;
 import com.camping_rental.server.domain.product.vo.ProductVo;
 import com.camping_rental.server.domain.product_image.dto.ProductImageDto;
 import com.camping_rental.server.domain.product_image.entity.ProductImageEntity;
@@ -35,6 +38,7 @@ public class ProductBusinessService {
     private final RoomService roomService;
     private final ProductService productService;
     private final ProductImageService productImageService;
+    private final ProductSearchPageFactory productSearchPageFactory;
 
     @Transactional
     public Object searchOne(UUID productId) {
@@ -44,17 +48,17 @@ public class ProductBusinessService {
     }
 
     @Transactional(readOnly = true)
-    public Object searchListByRoomId(UUID roomId, Map<String, Object> params) {
-        List<ProductProjection.JoinRoomAndRegions> productProjections = productService.qSearchListJoinRoomAndRegions(roomId, params);
-
-        List<ProductVo.JoinRegions> productVos = productProjections.stream().map(ProductVo.JoinRegions::toVo).collect(Collectors.toList());
-
-        return productVos;
-    }
-
-    @Transactional(readOnly = true)
     public Object searchPage(Map<String, Object> params, Pageable pageable) {
-        Page<ProductProjection.JoinRoomAndRegions> productProjectionPage = productService.qSearchPageJoinRoomAndRegions(params, pageable);
+        String orderType = null;
+        try {
+            orderType = params.get("orderType").toString();
+        } catch (IllegalArgumentException | NullPointerException e) {
+            orderType = "order_rank";
+        }
+
+        ProductSearchPageStrategy productSearchPageStrategy = productSearchPageFactory.findStrategy(ProductSearchPageStrategyName.fromString(orderType));
+
+        Page<ProductProjection.JoinRoomAndRegions> productProjectionPage = productSearchPageStrategy.search(params, pageable);
         List<ProductProjection.JoinRoomAndRegions> productProjections = productProjectionPage.getContent();
 
         List<ProductVo.JoinRegions> productVos = productProjections.stream().map(ProductVo.JoinRegions::toVo).collect(Collectors.toList());

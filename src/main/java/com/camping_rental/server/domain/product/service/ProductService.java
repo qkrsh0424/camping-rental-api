@@ -27,12 +27,12 @@ public class ProductService {
         return productRepository.qSelectOneFullJoin(productId).orElseThrow(()->new NotMatchedFormatException("요청 데이터를 찾을 수 없습니다."));
     }
 
-    public List<ProductProjection.JoinRoomAndRegions> qSearchListJoinRoomAndRegions(UUID roomId, Map<String, Object> params){
-        return productRepository.qSelectListJoinRoomAndRegions(roomId, params);
+    public Page<ProductProjection.JoinRoomAndRegions> qSearchPageJoinRoomAndRegionsOrderByRank(Map<String, Object> params, Pageable pageable) {
+        return productRepository.qSelectPageJoinRoomAndRegionsOrderByRank(params, pageable);
     }
 
-    public Page<ProductProjection.JoinRoomAndRegions> qSearchPageJoinRoomAndRegions(Map<String, Object> params, Pageable pageable) {
-        return productRepository.qSelectPageJoinRoomAndRegions2(params, pageable);
+    public Page<ProductProjection.JoinRoomAndRegions> qSearchPageJoinRoomAndRegionsOrderByNew(Map<String, Object> params, Pageable pageable) {
+        return productRepository.qSelectPageJoinRoomAndRegions(params, pageable);
     }
 
     public ProductProjection.JoinRoomAndRegions qSearchOneByIdJoinRoomAndRegionOrThrow(UUID productId) {
