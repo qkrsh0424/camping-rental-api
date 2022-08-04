@@ -61,7 +61,7 @@ public class ProductBusinessService {
         Page<ProductProjection.JoinRoomAndRegions> productProjectionPage = productSearchPageStrategy.search(params, pageable);
         List<ProductProjection.JoinRoomAndRegions> productProjections = productProjectionPage.getContent();
 
-        List<ProductVo.JoinRegions> productVos = productProjections.stream().map(ProductVo.JoinRegions::toVo).collect(Collectors.toList());
+        List<ProductVo.JoinRoomAndRegions> productVos = productProjections.stream().map(ProductVo.JoinRoomAndRegions::toVo).collect(Collectors.toList());
         return new PageImpl<>(productVos, productProjectionPage.getPageable(), productProjectionPage.getTotalElements());
     }
 
