@@ -98,4 +98,31 @@ public class RentalOrderInfoApiV1 {
 
         return new ResponseEntity<>(message, message.getStatus());
     }
+
+    @PatchMapping("{rentalOrderInfoId}/target:cs-memo")
+    @RequiredLogin
+    public ResponseEntity<?> changeCsMemo(
+            @PathVariable("rentalOrderInfoId") Object rentalOrderInfoIdObj,
+            @RequestBody Map<String, Object> body
+    ){
+        Message message = new Message();
+
+        String csMemo = null;
+        UUID rentalOrderInfoId = null;
+
+        try{
+            csMemo = body.get("csMemo").toString();
+            rentalOrderInfoId = UUID.fromString(rentalOrderInfoIdObj.toString());
+        } catch (IllegalArgumentException | NullPointerException e){
+            throw new NotMatchedFormatException("해당 데이터를 찾을 수 없습니다.");
+        }
+
+        System.out.println(csMemo);
+        System.out.println(rentalOrderInfoId);
+        rentalOrderInfoBusinessService.changeCsMemo(rentalOrderInfoId, csMemo);
+        message.setStatus(HttpStatus.OK);
+        message.setMessage("success");
+
+        return new ResponseEntity<>(message, message.getStatus());
+    }
 }

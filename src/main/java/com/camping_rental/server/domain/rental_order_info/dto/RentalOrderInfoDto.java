@@ -30,6 +30,7 @@ public class RentalOrderInfoDto {
     private String returnTime;
     private String returnPlace;
     private String ordererType;
+    private String csMemo;
     private String serviceAgreementYn;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
@@ -51,6 +52,7 @@ public class RentalOrderInfoDto {
         private LocalDateTime returnDate;
         private String returnTime;
         private String returnPlace;
+        private String csMemo;
         private String serviceAgreementYn;
 
         private List<RentalOrderProductDto.Create> rentalOrderProducts;

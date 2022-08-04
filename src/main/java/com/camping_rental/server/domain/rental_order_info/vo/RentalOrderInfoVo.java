@@ -34,6 +34,7 @@ public class RentalOrderInfoVo {
     private String returnTime;
     private String returnPlace;
     private String ordererType;
+    private String csMemo;
     private String serviceAgreementYn;
     @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss'Z'")
     private LocalDateTime createdAt;
@@ -61,6 +62,7 @@ public class RentalOrderInfoVo {
         private String returnTime;
         private String returnPlace;
         private String ordererType;
+        private String csMemo;
         @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss'Z'")
         private LocalDateTime createdAt;
         private UUID ordererId;
@@ -79,6 +81,7 @@ public class RentalOrderInfoVo {
                     .returnTime(entity.getReturnTime())
                     .returnPlace(entity.getReturnPlace())
                     .ordererType(entity.getOrdererType())
+                    .csMemo(entity.getCsMemo())
                     .createdAt(entity.getCreatedAt())
                     .ordererId(entity.getOrdererId())
                     .lenderRoomId(entity.getLenderRoomId())
@@ -105,6 +108,7 @@ public class RentalOrderInfoVo {
         private String returnTime;
         private String returnPlace;
         private String ordererType;
+        private String csMemo;
         @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss'Z'")
         private LocalDateTime createdAt;
         private UUID ordererId;
@@ -126,6 +130,7 @@ public class RentalOrderInfoVo {
                     .returnTime(proj.getRentalOrderInfoEntity().getReturnTime())
                     .returnPlace(proj.getRentalOrderInfoEntity().getReturnPlace())
                     .ordererType(proj.getRentalOrderInfoEntity().getOrdererType())
+                    .csMemo(proj.getRentalOrderInfoEntity().getCsMemo())
                     .createdAt(proj.getRentalOrderInfoEntity().getCreatedAt())
                     .ordererId(proj.getRentalOrderInfoEntity().getOrdererId())
                     .lenderRoomId(proj.getRentalOrderInfoEntity().getLenderRoomId())

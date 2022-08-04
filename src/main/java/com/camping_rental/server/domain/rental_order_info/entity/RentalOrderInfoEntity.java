@@ -62,6 +62,9 @@ public class RentalOrderInfoEntity {
     @Column(name = "orderer_type")
     private String ordererType;
 
+    @Column(name = "cs_memo")
+    private String csMemo;
+
     @Column(name = "service_agreement_yn")
     private String serviceAgreementYn;
 

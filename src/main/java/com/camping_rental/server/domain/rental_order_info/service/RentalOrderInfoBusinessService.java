@@ -88,6 +88,7 @@ public class RentalOrderInfoBusinessService {
                 .returnDate(rentalOrderInfoDto.getReturnDate())
                 .returnTime(rentalOrderInfoDto.getReturnTime())
                 .returnPlace(rentalOrderInfoDto.getReturnPlace())
+                .csMemo("")
                 .serviceAgreementYn(rentalOrderInfoDto.getServiceAgreementYn())
                 .createdAt(CustomDateUtils.getCurrentDateTime())
                 .updatedAt(CustomDateUtils.getCurrentDateTime())
@@ -203,5 +204,22 @@ public class RentalOrderInfoBusinessService {
         );
 
         twilioSmsService.sendMultipleSms(twilioSmsRequestDtos);
+    }
+
+    @Transactional
+    public void changeCsMemo(UUID rentalOrderInfoId, String csMemo) {
+        UUID userId = userService.getUserIdOrThrow();
+        RoomEntity roomEntity = roomService.searchByUserIdOrThrow(userId);
+
+        RentalOrderInfoEntity rentalOrderInfoEntity = rentalOrderInfoService.searchByIdOrThrow(rentalOrderInfoId);
+
+        if (!rentalOrderInfoEntity.getLenderRoomId().equals(roomEntity.getId())) {
+            throw new AccessDeniedPermissionException("접근 권한이 없습니다.");
+        }
+
+        /*
+        Dirty checking update
+         */
+        rentalOrderInfoEntity.setCsMemo(csMemo);
     }
 }
