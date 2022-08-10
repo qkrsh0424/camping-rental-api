@@ -101,9 +101,8 @@ public class UserApiV1 {
             throw new NotMatchedFormatException("아이디 형식을 다시 한번 확인해 주세요.");
         }
 
-        userBusinessService.checkDuplicateUsername(username);
         message.setStatus(HttpStatus.OK);
-        message.setMessage("success");
+        message.setMessage(userBusinessService.checkDuplicateUsername(username));
 
         return new ResponseEntity<>(message, message.getStatus());
     }

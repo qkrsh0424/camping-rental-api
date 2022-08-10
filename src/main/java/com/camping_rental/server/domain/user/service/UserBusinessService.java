@@ -12,6 +12,8 @@ import com.camping_rental.server.domain.user.enums.UserAllowedAccessCountEnum;
 import com.camping_rental.server.domain.user.enums.UserLoginTypeEnum;
 import com.camping_rental.server.domain.user.enums.UserRoleEnum;
 import com.camping_rental.server.domain.user.vo.UserVo;
+import com.camping_rental.server.domain.user_consent.entity.UserConsentEntity;
+import com.camping_rental.server.domain.user_consent.service.UserConsentService;
 import com.camping_rental.server.utils.*;
 import io.jsonwebtoken.*;
 import lombok.RequiredArgsConstructor;
@@ -33,16 +35,20 @@ public class UserBusinessService {
     private final PasswordEncoder passwordEncoder;
 
     private final UserService userService;
+    private final UserConsentService userConsentService;
     private final RefreshTokenService refreshTokenService;
     private final RoomService roomService;
 
     @Transactional(readOnly = true)
-    public void checkDuplicateUsername(String username) {
+    public String checkDuplicateUsername(String username) {
         UserEntity userEntity = userService.searchByUsername(username);
 
         if (userEntity != null) {
-            throw new NotMatchedFormatException("이미 사용중인 아이디 입니다.");
+//            throw new NotMatchedFormatException("이미 사용중인 아이디 입니다.");
+            return "duplicated";
         }
+
+        return "not_duplicated";
     }
 
     /*
@@ -164,66 +170,20 @@ public class UserBusinessService {
      */
     @Transactional
     public void signup(HttpServletRequest request, HttpServletResponse response, UserDto.LocalSignup userSignupDto) {
-        String USERNAME = userSignupDto.getEmail();
-        String EMAIL = userSignupDto.getEmail();
-        String EMAIL_VALIDATION_CODE = userSignupDto.getEmailValidationCode();
-        String PASSWORD = userSignupDto.getPassword();
-        String PASSWORD_CHECKER = userSignupDto.getPasswordChecker();
+        String USERNAME = userSignupDto.getUsername();
         String NICKNAME = userSignupDto.getNickname();
+        String PHONE_NUMBER = userSignupDto.getPhoneNumber();
+        String PASSWORD = userSignupDto.getPassword();
 
-        /*
-        email | username 형식 체크
-         */
-        if (!DataFormatUtils.isPassSignupEmail(EMAIL)) {
-            throw new NotMatchedFormatException("입력하신 이메일 형식이 정확한지 확인하여 주세요.");
-        }
-
-        /*
-        username 중복 체크
-         */
-        if (userService.searchByUsername(USERNAME) != null) {
-            throw new NotMatchedFormatException("이미 사용중인 아이디 입니다.");
-        }
-
-        /*
-        password 형식 체크
-         */
-        if (!DataFormatUtils.isPassSignupPassword(PASSWORD)) {
-            throw new NotMatchedFormatException("입력하신 패스워드 형식이 정확한지 확인하여 주세요.");
-        }
-
-        /*
-        password, passwordChecker 동일성 체크
-         */
-        if (!PASSWORD.equals(PASSWORD_CHECKER)) {
-            throw new NotMatchedFormatException("입력하신 패스워드를 다시 확인하여 주세요.");
-        }
-
-        if (!DataFormatUtils.isPassSignupNickname(NICKNAME)) {
-            throw new NotMatchedFormatException("입력하신 닉네임 형식이 정확한지 확인하여 주세요.");
-        }
-
-        /*
-        이메일 인증번호 체크
-         */
-        Cookie emailValidationCookie = WebUtils.getCookie(request, CustomCookieUtils.COOKIE_NAME_EMAIL_VALIDATION_TOKEN);
-
-        String emailValidationToken = null;
-        if (emailValidationCookie == null) {
-            throw new NotMatchedFormatException("인증번호가 정확하지 않습니다.");
-        }
-
-        emailValidationToken = emailValidationCookie.getValue();
-
-        String jwtSecret = EMAIL + EMAIL_VALIDATION_CODE + ValidationTokenUtils.getJwtEmailValidationSecret();
-        CustomJwtUtils.parseJwt(jwtSecret, emailValidationToken, "인증번호가 정확하지 않습니다.");
+        UserDto.LocalSignup.checkFormValid(request, userSignupDto, userService);
 
         /*
         UserEntity setting
          */
         UUID userId = UUID.randomUUID();
         String salt = UUID.randomUUID().toString();
-        String encPassword = passwordEncoder.encode(userSignupDto.getPassword() + salt);
+        String encPassword = passwordEncoder.encode(PASSWORD + salt);
+        UUID userConsentId = UUID.randomUUID();
 
         UserEntity userEntity = UserEntity.builder()
                 .cid(null)
@@ -234,10 +194,10 @@ public class UserBusinessService {
                 .username(USERNAME)
                 .password(encPassword)
                 .salt(salt)
-                .email(EMAIL)
+                .email(null)
                 .name(null)
                 .nickname(NICKNAME)
-                .phoneNumber(null)
+                .phoneNumber(PHONE_NUMBER)
                 .roles(UserRoleEnum.USER.getValue())
                 .allowedAccessCount(UserAllowedAccessCountEnum.DEFUALT.getValue())
                 .updatedAt(CustomDateUtils.getCurrentDateTime())
@@ -246,15 +206,25 @@ public class UserBusinessService {
                 .roomId(null)
                 .build();
 
+        UserConsentEntity userConsentEntity = UserConsentEntity.builder()
+                .cid(null)
+                .id(userConsentId)
+                .serviceTermsYn(userSignupDto.getServiceTermsYn())
+                .privacyPolicyYn(userSignupDto.getPrivacyPolicyYn())
+                .marketingYn(userSignupDto.getMarketingYn())
+                .deletedFlag(DeletedFlagEnums.EXIST.getValue())
+                .userId(userId)
+                .build();
         /*
         DB save
          */
-        UserEntity returnedUserEntity = userService.saveAndGet(userEntity);
+        userService.saveAndGet(userEntity);
+        userConsentService.saveAndModify(userConsentEntity);
 
         /*
         cp_email_validation_token cookie 삭제
          */
-        ResponseCookie emailValidationTokenCookie = ResponseCookie.from(CustomCookieUtils.COOKIE_NAME_EMAIL_VALIDATION_TOKEN, null)
+        ResponseCookie emailValidationTokenCookie = ResponseCookie.from(CustomCookieUtils.COOKIE_NAME_PHONE_VALIDATION_TOKEN, null)
                 .domain(CustomCookieUtils.COOKIE_DOMAIN)
                 .sameSite("Strict")
                 .path("/")

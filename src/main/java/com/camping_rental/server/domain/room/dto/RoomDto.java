@@ -22,6 +22,7 @@ public class RoomDto {
     private String name;
     private String phoneNumber;
     private String introduction;
+    private String profileImageUri;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
     private boolean deletedFlag;

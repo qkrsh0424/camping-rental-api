@@ -40,6 +40,9 @@ public class RoomEntity {
     @Column(name = "introduction")
     private String introduction;
 
+    @Column(name = "profile_image_uri")
+    private String profileImageUri;
+
     @Column(name = "createdAt")
     private LocalDateTime createdAt;
 

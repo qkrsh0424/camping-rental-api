@@ -117,8 +117,6 @@ public class RentalOrderInfoApiV1 {
             throw new NotMatchedFormatException("해당 데이터를 찾을 수 없습니다.");
         }
 
-        System.out.println(csMemo);
-        System.out.println(rentalOrderInfoId);
         rentalOrderInfoBusinessService.changeCsMemo(rentalOrderInfoId, csMemo);
         message.setStatus(HttpStatus.OK);
         message.setMessage("success");

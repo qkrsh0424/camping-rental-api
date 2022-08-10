@@ -1,14 +1,10 @@
 package com.camping_rental.server.config.auth;
 
-import com.camping_rental.server.domain.refresh_token.entity.RefreshTokenEntity;
-import com.camping_rental.server.domain.refresh_token.repository.RefreshTokenRepository;
 import com.camping_rental.server.domain.user.entity.UserEntity;
 import com.camping_rental.server.utils.AuthTokenUtils;
 import com.camping_rental.server.utils.CustomCookieUtils;
 import com.camping_rental.server.utils.CustomJwtUtils;
 import io.jsonwebtoken.*;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.ResponseCookie;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -21,7 +17,6 @@ import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.Optional;
 import java.util.UUID;
 
 public class JwtAuthorizationFilter extends OncePerRequestFilter {

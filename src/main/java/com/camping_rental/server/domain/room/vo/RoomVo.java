@@ -21,6 +21,7 @@ public class RoomVo {
     private String name;
     private String phoneNumber;
     private String introduction;
+    private String profileImageUri;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
     private boolean deletedFlag;
@@ -35,6 +36,7 @@ public class RoomVo {
         private String name;
         private String phoneNumber;
         private String introduction;
+        private String profileImageUri;
 
         public static Basic toVo(RoomEntity entity){
             Basic vo = Basic.builder()
@@ -42,6 +44,7 @@ public class RoomVo {
                     .name(entity.getName())
                     .phoneNumber(entity.getPhoneNumber())
                     .introduction(entity.getIntroduction())
+                    .profileImageUri(entity.getProfileImageUri())
                     .build();
             return vo;
         }

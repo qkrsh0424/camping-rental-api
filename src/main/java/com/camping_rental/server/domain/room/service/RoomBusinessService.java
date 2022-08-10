@@ -93,6 +93,7 @@ public class RoomBusinessService {
                 .name(name)
                 .phoneNumber(phoneNumber)
                 .introduction("")
+                .profileImageUri(null)
                 .createdAt(CustomDateUtils.getCurrentDateTime())
                 .updatedAt(CustomDateUtils.getCurrentDateTime())
                 .deletedFlag(DeletedFlagEnums.EXIST.getValue())
@@ -224,6 +225,24 @@ public class RoomBusinessService {
          */
         roomEntity.setPhoneNumber(phoneNumber);
         roomEntity.setUpdatedAt(CustomDateUtils.getCurrentDateTime());
+    }
+
+    @Transactional
+    public void changeProfileImageUri(UUID roomId, String profileImageUri) {
+        UUID USER_ID = userService.getUserIdOrThrow();
+        RoomEntity roomEntity = roomService.searchByIdOrThrow(roomId);
+
+        /*
+        권한 체크
+         */
+        if (!roomEntity.getUserId().equals(USER_ID)) {
+            throw new AccessDeniedPermissionException("접근 권한이 없습니다.");
+        }
+
+        /*
+        Dirty checking update
+         */
+        roomEntity.setProfileImageUri(profileImageUri);
     }
 
     @Transactional(readOnly = true)

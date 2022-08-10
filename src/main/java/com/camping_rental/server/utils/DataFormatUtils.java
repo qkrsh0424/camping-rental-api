@@ -8,7 +8,7 @@ import java.util.regex.Pattern;
 public class DataFormatUtils {
 
     public static boolean isPassSignupUsername(String username) {
-        boolean bool = Pattern.compile("^[a-z]([._a-z0-9]){3,18}[._a-z0-9]$").matcher(username).find();
+        boolean bool = Pattern.compile("^[a-z]([._a-z0-9]){4,19}$").matcher(username).find();
 
         return bool;
     }

@@ -143,6 +143,31 @@ public class RoomApiV1 {
         return new ResponseEntity<>(message, message.getStatus());
     }
 
+    @RequiredLogin
+    @PatchMapping("/{roomId}/target:profileImageUri")
+    public ResponseEntity<?> changeProfileImageUri(
+            @PathVariable("roomId") Object roomIdObj,
+            @RequestBody Map<String, Object> body
+    ) {
+        Message message = new Message();
+
+        UUID roomId = null;
+        String profileImageUri = null;
+
+        try {
+            roomId = UUID.fromString(roomIdObj.toString());
+            profileImageUri = body.get("profileImageUri").toString();
+        } catch (IllegalArgumentException | NullPointerException e) {
+            throw new NotMatchedFormatException("룸 데이터를 찾을 수 없습니다.");
+        }
+
+        roomBusinessService.changeProfileImageUri(roomId, profileImageUri);
+        message.setStatus(HttpStatus.OK);
+        message.setMessage("success");
+
+        return new ResponseEntity<>(message, message.getStatus());
+    }
+
     @PostMapping("/phone/validation-code/action:send")
     @RequiredLogin
     public ResponseEntity<?> sendPhoneValidationCode(

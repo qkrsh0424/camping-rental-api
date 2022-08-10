@@ -55,7 +55,6 @@ public class RentalOrderProductApiV1 {
         }
 
         rentalOrderProductBusinessService.changeStatusToConfirmOrder(productIds);
-        System.out.println(productIds);
         message.setStatus(HttpStatus.OK);
         message.setMessage("success");
 
@@ -81,7 +80,6 @@ public class RentalOrderProductApiV1 {
         }
 
         rentalOrderProductBusinessService.changeStatusToConfirmReservation(productIds);
-        System.out.println(productIds);
         message.setStatus(HttpStatus.OK);
         message.setMessage("success");
 
@@ -107,7 +105,6 @@ public class RentalOrderProductApiV1 {
         }
 
         rentalOrderProductBusinessService.changeStatusToPickedUp(productIds);
-        System.out.println(productIds);
         message.setStatus(HttpStatus.OK);
         message.setMessage("success");
 
@@ -133,7 +130,6 @@ public class RentalOrderProductApiV1 {
         }
 
         rentalOrderProductBusinessService.changeStatusToReturned(productIds);
-        System.out.println(productIds);
         message.setStatus(HttpStatus.OK);
         message.setMessage("success");
 
@@ -159,7 +155,6 @@ public class RentalOrderProductApiV1 {
         }
 
         rentalOrderProductBusinessService.changeStatusToCompleted(productIds);
-        System.out.println(productIds);
         message.setStatus(HttpStatus.OK);
         message.setMessage("success");
 
@@ -185,7 +180,6 @@ public class RentalOrderProductApiV1 {
         }
 
         rentalOrderProductBusinessService.changeStatusToCancelled(productIds);
-        System.out.println(productIds);
         message.setStatus(HttpStatus.OK);
         message.setMessage("success");
 

@@ -117,7 +117,6 @@ public class ItemApiV1 {
         }
 
         itemBusinessService.updateOne(itemDto);
-        System.out.println(itemDto);
         message.setStatus(HttpStatus.OK);
         message.setMessage("success");
 
