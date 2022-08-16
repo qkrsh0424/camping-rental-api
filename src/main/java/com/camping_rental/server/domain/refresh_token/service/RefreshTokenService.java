@@ -23,4 +23,8 @@ public class RefreshTokenService {
     public RefreshTokenEntity searchById(UUID refreshTokenId) {
         return refreshTokenRepository.findById(refreshTokenId).orElse(null);
     }
+
+    public void deleteAllByUserId(UUID userId) {
+        refreshTokenRepository.deleteAllByUserId(userId.toString());
+    }
 }

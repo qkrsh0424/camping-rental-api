@@ -3,6 +3,7 @@ package com.camping_rental.server.domain.user.service;
 import com.camping_rental.server.config.auth.PrincipalDetails;
 import com.camping_rental.server.domain.exception.dto.InvalidUserException;
 import com.camping_rental.server.domain.user.entity.UserEntity;
+import com.camping_rental.server.domain.user.enums.UserLoginTypeEnum;
 import com.camping_rental.server.domain.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -15,9 +16,14 @@ import java.util.UUID;
 public class UserService {
     private final UserRepository userRepository;
 
-    public UserEntity searchByUsername(String username){
+    public UserEntity searchByUsernameOrNull(String username){
         UserEntity userEntity = userRepository.findByUsername(username).orElse(null);
         return userEntity;
+    }
+
+    public UserEntity searchByUsernameAndPhoneNumberAndLoginType(String username, String phoneNumber, String loginType) {
+        UserEntity entity = userRepository.findByUsernameAndPhoneNumberAndLoginType(username, phoneNumber, loginType).orElse(null);
+        return entity;
     }
 
     public UserEntity searchByPhoneNumberAndLoginType(String phoneNumber, String loginType) {

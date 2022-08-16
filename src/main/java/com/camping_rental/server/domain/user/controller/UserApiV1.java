@@ -22,9 +22,9 @@ import java.util.Map;
 public class UserApiV1 {
     private final UserBusinessService userBusinessService;
 
-//    @RequiredLogin
+    //    @RequiredLogin
     @GetMapping("/info")
-    public ResponseEntity<?> searchInfo(HttpServletRequest request){
+    public ResponseEntity<?> searchInfo(HttpServletRequest request) {
         Message message = new Message();
 
         message.setStatus(HttpStatus.OK);
@@ -35,7 +35,7 @@ public class UserApiV1 {
     }
 
     @PostMapping("/reissue/access-token")
-    public ResponseEntity<?> reissueAccessToken(HttpServletRequest request, HttpServletResponse response){
+    public ResponseEntity<?> reissueAccessToken(HttpServletRequest request, HttpServletResponse response) {
         Message message = new Message();
 
         userBusinessService.reissueAccessToken(request, response);
@@ -65,7 +65,7 @@ public class UserApiV1 {
             HttpServletRequest request,
             HttpServletResponse response,
             @RequestBody UserDto.LocalLogin userLoginDto
-    ){
+    ) {
         Message message = new Message();
 
         userBusinessService.login(request, response, userLoginDto);
@@ -80,7 +80,7 @@ public class UserApiV1 {
     public ResponseEntity<?> logout(
             HttpServletRequest request,
             HttpServletResponse response
-    ){
+    ) {
         Message message = new Message();
 
         userBusinessService.logout(request, response);
@@ -103,6 +103,42 @@ public class UserApiV1 {
 
         message.setStatus(HttpStatus.OK);
         message.setMessage(userBusinessService.checkDuplicateUsername(username));
+
+        return new ResponseEntity<>(message, message.getStatus());
+    }
+
+    @PostMapping("/target:username_and_phoneNumber/action:check-duplicate")
+    public ResponseEntity<?> checkDuplicateUsernameAndPhoneNumber(
+            @RequestBody Map<String, Object> body
+    ) {
+        Message message = new Message();
+
+        String username = null;
+        String phoneNumber = null;
+        try {
+            username = body.get("username").toString();
+            phoneNumber = body.get("phoneNumber").toString();
+        } catch (NullPointerException e) {
+            throw new NotMatchedFormatException("아이디 형식을 다시 한번 확인해 주세요.");
+        }
+
+        message.setStatus(HttpStatus.OK);
+        message.setMessage(userBusinessService.checkDuplicateUsernameAndPhoneNumber(username, phoneNumber));
+
+        return new ResponseEntity<>(message, message.getStatus());
+    }
+
+    @PostMapping("/action:find-username")
+    public ResponseEntity<?> findUsername(
+            HttpServletRequest request,
+            HttpServletResponse response,
+            @RequestBody UserDto.FindUsername userDto
+    ){
+        Message message = new Message();
+
+        message.setData(userBusinessService.findUsername(request, response, userDto));
+        message.setStatus(HttpStatus.OK);
+        message.setMessage("success");
 
         return new ResponseEntity<>(message, message.getStatus());
     }

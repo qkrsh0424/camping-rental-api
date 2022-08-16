@@ -27,6 +27,9 @@ import org.springframework.web.util.WebUtils;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 @Service
@@ -41,10 +44,21 @@ public class UserBusinessService {
 
     @Transactional(readOnly = true)
     public String checkDuplicateUsername(String username) {
-        UserEntity userEntity = userService.searchByUsername(username);
+        UserEntity userEntity = userService.searchByUsernameOrNull(username);
 
         if (userEntity != null) {
 //            throw new NotMatchedFormatException("이미 사용중인 아이디 입니다.");
+            return "duplicated";
+        }
+
+        return "not_duplicated";
+    }
+
+    @Transactional(readOnly = true)
+    public String checkDuplicateUsernameAndPhoneNumber(String username, String phoneNumber) {
+        UserEntity userEntity = userService.searchByUsernameAndPhoneNumberAndLoginType(username, phoneNumber, UserLoginTypeEnum.LOCAL.getValue());
+
+        if (userEntity != null) {
             return "duplicated";
         }
 
@@ -155,19 +169,6 @@ public class UserBusinessService {
         response.addHeader(HttpHeaders.SET_COOKIE, tokenCookie.toString());
     }
 
-    /*
-    email | username 형식 체크
-    username 중복 체크
-    password 형식 체크
-    password, passwordChecker 동일성 체크
-    nickname 형식 체크
-    이메일 인증번호 체크
-    UserEntity setting
-    DB save
-    RoomEntity 작성
-    RoomEntity save
-    cp_email_validation_token cookie 삭제
-     */
     @Transactional
     public void signup(HttpServletRequest request, HttpServletResponse response, UserDto.LocalSignup userSignupDto) {
         String USERNAME = userSignupDto.getUsername();
@@ -222,15 +223,15 @@ public class UserBusinessService {
         userConsentService.saveAndModify(userConsentEntity);
 
         /*
-        cp_email_validation_token cookie 삭제
+        cp_phone_validation_token cookie 삭제
          */
-        ResponseCookie emailValidationTokenCookie = ResponseCookie.from(CustomCookieUtils.COOKIE_NAME_PHONE_VALIDATION_TOKEN, null)
+        ResponseCookie phoneValidationTokenCookie = ResponseCookie.from(CustomCookieUtils.COOKIE_NAME_PHONE_VALIDATION_TOKEN, null)
                 .domain(CustomCookieUtils.COOKIE_DOMAIN)
                 .sameSite("Strict")
                 .path("/")
                 .maxAge(0)
                 .build();
-        response.addHeader(HttpHeaders.SET_COOKIE, emailValidationTokenCookie.toString());
+        response.addHeader(HttpHeaders.SET_COOKIE, phoneValidationTokenCookie.toString());
     }
 
     /*
@@ -338,6 +339,7 @@ public class UserBusinessService {
         return userDto;
     }
 
+    @Transactional(readOnly = true)
     public void logout(HttpServletRequest request, HttpServletResponse response) {
         ResponseCookie tokenCookie = ResponseCookie.from(CustomCookieUtils.COOKIE_NAME_ACCESS_TOKEN, null)
                 .httpOnly(true)
@@ -349,5 +351,32 @@ public class UserBusinessService {
                 .build();
 
         response.addHeader(HttpHeaders.SET_COOKIE, tokenCookie.toString());
+    }
+
+    @Transactional(readOnly = true)
+    public Object findUsername(HttpServletRequest request, HttpServletResponse response, UserDto.FindUsername userDto) {
+        UserDto.FindUsername.checkFormValid(request, userDto);
+
+        UserEntity userEntity = userService.searchByPhoneNumberAndLoginType(userDto.getPhoneNumber(), UserLoginTypeEnum.LOCAL.getValue());
+
+        String username = userEntity.getUsername();
+        String encUsername = UserDto.FindUsername.returnEncUsername(username);
+
+        UserVo.FindUsername userVo = UserVo.FindUsername.builder()
+                .username(encUsername)
+                .createdAt(userEntity.getCreatedAt())
+                .build();
+
+        /*
+        cp_phone_validation_token cookie 삭제
+         */
+        ResponseCookie phoneValidationTokenCookie = ResponseCookie.from(CustomCookieUtils.COOKIE_NAME_PHONE_VALIDATION_TOKEN, null)
+                .domain(CustomCookieUtils.COOKIE_DOMAIN)
+                .sameSite("Strict")
+                .path("/")
+                .maxAge(0)
+                .build();
+        response.addHeader(HttpHeaders.SET_COOKIE, phoneValidationTokenCookie.toString());
+        return userVo;
     }
 }

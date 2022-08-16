@@ -1,6 +1,7 @@
 package com.camping_rental.server.domain.user.repository;
 
 import com.camping_rental.server.domain.user.entity.UserEntity;
+import com.camping_rental.server.domain.user.enums.UserLoginTypeEnum;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -16,4 +17,6 @@ public interface UserRepository extends JpaRepository<UserEntity, Integer> {
     Optional<UserEntity> findByUsernameAndLoginType(String username, String loginType);
 
     Optional<UserEntity> findById(UUID id);
+
+    Optional<UserEntity> findByUsernameAndPhoneNumberAndLoginType(String username, String phoneNumber, String loginType);
 }

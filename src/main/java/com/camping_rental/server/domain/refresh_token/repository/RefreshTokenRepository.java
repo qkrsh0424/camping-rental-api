@@ -19,4 +19,8 @@ public interface RefreshTokenRepository extends JpaRepository<RefreshTokenEntity
     @Transactional
     @Query(value = "DELETE FROM refresh_token WHERE user_id=:userId AND cid NOT IN (SELECT tmp.* FROM (SELECT rt2.cid FROM refresh_token AS rt2 WHERE rt2.user_id=:userId ORDER BY rt2.updated_at DESC LIMIT :allowedAccessCount) AS tmp)", nativeQuery = true)
     void deleteOldRefreshTokenForUser(String userId, Integer allowedAccessCount);
+
+    @Modifying
+    @Query(value = "DELETE FROM refresh_token WHERE user_id=:userId", nativeQuery = true)
+    void deleteAllByUserId(String userId);
 }

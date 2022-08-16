@@ -15,7 +15,7 @@ import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.time.LocalDateTime;
-import java.util.UUID;
+import java.util.*;
 
 @Data
 @AllArgsConstructor
@@ -78,25 +78,25 @@ public class UserDto {
             /*
             password 형식 체크
              */
-            if (!DataFormatUtils.isPassSignupPassword(dto.password)) {
+            if (!DataFormatUtils.isPassSignupPassword(dto.getPassword())) {
                 throw new NotMatchedFormatException("입력하신 패스워드 형식이 정확한지 확인하여 주세요.");
             }
 
             /*
             password, passwordChecker 동일성 체크
              */
-            if (!dto.password.equals(dto.passwordChecker)) {
+            if (!dto.getPassword().equals(dto.getPasswordChecker())) {
                 throw new NotMatchedFormatException("입력하신 패스워드를 다시 확인하여 주세요.");
             }
 
-            if (!DataFormatUtils.isPassSignupNickname(dto.nickname)) {
+            if (!DataFormatUtils.isPassSignupNickname(dto.getNickname())) {
                 throw new NotMatchedFormatException("입력하신 닉네임 형식이 정확한지 확인하여 주세요.");
             }
 
             /*
             휴대전화 형식 체크
              */
-            if (!DataFormatUtils.isPassSignupPhoneNumber(dto.phoneNumber)) {
+            if (!DataFormatUtils.isPassSignupPhoneNumber(dto.getPhoneNumber())) {
                 throw new NotMatchedFormatException("입력하신 휴대전화 형식이 정확한지 확인하여 주세요.");
             }
 
@@ -112,13 +112,13 @@ public class UserDto {
 
             phoneValidationToken = phoneValidationCookie.getValue();
 
-            String jwtSecret = dto.phoneNumber + dto.phoneNumberValidationCode + ValidationTokenUtils.getJwtEmailValidationSecret();
+            String jwtSecret = dto.getPhoneNumber() + dto.getPhoneNumberValidationCode() + ValidationTokenUtils.getJwtEmailValidationSecret();
             CustomJwtUtils.parseJwt(jwtSecret, phoneValidationToken, "인증번호가 정확하지 않습니다.");
 
             /*
             username 중복 체크
              */
-            if (userService.searchByUsername(dto.username) != null) {
+            if (userService.searchByUsernameOrNull(dto.getUsername()) != null) {
                 throw new NotMatchedFormatException("이미 사용중인 아이디 입니다.");
             }
         }
@@ -131,6 +131,61 @@ public class UserDto {
     public static class LocalLogin {
         private String username;
         private String password;
+    }
+
+    @Data
+    @AllArgsConstructor
+    @NoArgsConstructor
+    @Builder
+    public static class FindUsername {
+        private String phoneNumber;
+        private String phoneNumberValidationCode;
+
+        public static void checkFormValid(HttpServletRequest request, FindUsername dto){
+            /*
+            휴대전화 인증번호 체크
+             */
+            Cookie phoneValidationCookie = WebUtils.getCookie(request, CustomCookieUtils.COOKIE_NAME_PHONE_VALIDATION_TOKEN);
+
+            String phoneValidationToken = null;
+            if (phoneValidationCookie == null) {
+                throw new NotMatchedFormatException("인증번호가 정확하지 않습니다.");
+            }
+
+            phoneValidationToken = phoneValidationCookie.getValue();
+
+            String jwtSecret = dto.phoneNumber + dto.phoneNumberValidationCode + ValidationTokenUtils.getJwtEmailValidationSecret();
+            CustomJwtUtils.parseJwt(jwtSecret, phoneValidationToken, "인증번호가 정확하지 않습니다.");
+        }
+
+        public static String returnEncUsername(String username){
+            Integer usernameLength = username.length();
+            Integer starCount = (int) Math.floor(usernameLength / 2) - 1;
+            Set<Integer> starIndex = new HashSet<>();
+            List<String> usernameList = Arrays.asList(username.split(""));
+            StringBuilder encUsername = new StringBuilder();
+
+            if(starCount < 2){
+                starCount = 2;
+            }
+
+            for(int i = 0; i < starCount; i++){
+                Integer idx = (int) (Math.random()*usernameLength);
+                while(!starIndex.add(idx)){
+                    idx = (int) (Math.random()*usernameLength);
+                }
+            }
+
+            for(int i = 0; i< usernameLength; i++){
+                if(starIndex.contains(i)){
+                    encUsername.append("*");
+                }else{
+                    encUsername.append(usernameList.get(i));
+                }
+            }
+
+            return encUsername.toString();
+        }
     }
 
     @Data
