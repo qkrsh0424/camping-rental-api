@@ -4,11 +4,12 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.hibernate.annotations.*;
+import org.hibernate.annotations.DynamicInsert;
+import org.hibernate.annotations.DynamicUpdate;
+import org.hibernate.annotations.Type;
+import org.hibernate.annotations.Where;
 
 import javax.persistence.*;
-import javax.persistence.Entity;
-import javax.persistence.Table;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
@@ -49,11 +50,23 @@ public class RegionEntity {
     @Column(name = "address")
     private String address;
 
+    @Column(name = "user_selected_address")
+    private String userSelectedAddress;
+
     @Column(name = "address_detail")
     private String addressDetail;
 
     @Column(name = "full_address")
     private String fullAddress;
+
+    @Column(name = "bname")
+    private String bname;
+
+    @Column(name = "bname1")
+    private String bname1;
+
+    @Column(name = "bname2")
+    private String bname2;
 
     @Column(name = "created_at")
     private LocalDateTime createdAt;

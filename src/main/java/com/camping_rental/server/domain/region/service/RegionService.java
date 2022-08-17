@@ -34,4 +34,8 @@ public class RegionService {
     public List<RegionEntity> searchListByRoomId(UUID roomId) {
         return regionRepository.findByRoomId(roomId);
     }
+
+    public long countByRoomId(UUID roomId) {
+        return regionRepository.countByRoomId(roomId.toString());
+    }
 }

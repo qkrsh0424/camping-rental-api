@@ -11,6 +11,7 @@ import com.camping_rental.server.domain.room.service.RoomService;
 import com.camping_rental.server.domain.user.service.UserService;
 import com.camping_rental.server.utils.CustomDateUtils;
 import lombok.RequiredArgsConstructor;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -41,18 +42,23 @@ public class RegionBusinessService {
         UUID id = UUID.randomUUID();
         UUID USER_ID = userService.getUserIdOrThrow();
         StringBuilder FULL_ADDRESS = new StringBuilder();
-        FULL_ADDRESS.append(regionDto.getAddress());
+        FULL_ADDRESS.append(regionDto.getUserSelectedAddress());
 
-        if (regionDto.getSido().isEmpty() || regionDto.getSigungu().isEmpty() || regionDto.getAddress().isEmpty()) {
+        if (regionDto.getSido().isEmpty() || regionDto.getSigungu().isEmpty() || regionDto.getUserSelectedAddress().isEmpty()) {
             throw new NotMatchedFormatException("장소를 정확하게 입력해 주세요.");
         }
 
-        if (!regionDto.getAddressDetail().isEmpty()) {
+        if (!StringUtils.isBlank(regionDto.getAddressDetail())) {
             FULL_ADDRESS.append(" ");
             FULL_ADDRESS.append(regionDto.getAddressDetail());
         }
 
         RoomEntity roomEntity = roomService.searchByUserIdOrThrow(USER_ID);
+        long regionCount = regionService.countByRoomId(roomEntity.getId());
+
+        if(regionCount >= 3){
+            throw new NotMatchedFormatException("장소는 최대 3개 까지만 등록 가능합니다.");
+        }
 
         RegionEntity regionEntity = RegionEntity.builder()
                 .cid(null)
@@ -63,8 +69,12 @@ public class RegionBusinessService {
                 .roadAddress(regionDto.getRoadAddress())
                 .buildingName(regionDto.getBuildingName())
                 .address(regionDto.getAddress())
+                .userSelectedAddress(regionDto.getUserSelectedAddress())
                 .addressDetail(regionDto.getAddressDetail())
                 .fullAddress(FULL_ADDRESS.toString())
+                .bname(regionDto.getBname())
+                .bname1(regionDto.getBname1())
+                .bname2(regionDto.getBname2())
                 .createdAt(CustomDateUtils.getCurrentDateTime())
                 .updatedAt(CustomDateUtils.getCurrentDateTime())
                 .deletedFlag(RegionDeletedFlagEnum.EXIST.getValue())
@@ -103,9 +113,9 @@ public class RegionBusinessService {
         }
 
         StringBuilder FULL_ADDRESS = new StringBuilder();
-        FULL_ADDRESS.append(regionDto.getAddress());
+        FULL_ADDRESS.append(regionDto.getUserSelectedAddress());
 
-        if (regionDto.getSido().isEmpty() || regionDto.getSigungu().isEmpty() || regionDto.getAddress().isEmpty()) {
+        if (regionDto.getSido().isEmpty() || regionDto.getSigungu().isEmpty() || regionDto.getUserSelectedAddress().isEmpty()) {
             throw new NotMatchedFormatException("장소를 정확하게 입력해 주세요.");
         }
 
@@ -123,8 +133,12 @@ public class RegionBusinessService {
         regionEntity.setRoadAddress(regionDto.getRoadAddress());
         regionEntity.setBuildingName(regionDto.getBuildingName());
         regionEntity.setAddress(regionDto.getAddress());
+        regionEntity.setUserSelectedAddress(regionDto.getUserSelectedAddress());
         regionEntity.setAddressDetail(regionDto.getAddressDetail());
         regionEntity.setFullAddress(FULL_ADDRESS.toString());
+        regionEntity.setBname(regionDto.getBname());
+        regionEntity.setBname1(regionDto.getBname1());
+        regionEntity.setBname2(regionDto.getBname2());
         regionEntity.setUpdatedAt(CustomDateUtils.getCurrentDateTime());
     }
 }

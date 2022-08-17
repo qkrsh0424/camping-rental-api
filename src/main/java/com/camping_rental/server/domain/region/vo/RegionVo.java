@@ -22,8 +22,12 @@ public class RegionVo {
     private String roadAddress;
     private String buildingName;
     private String address;
+    private String userSelectedAddress;
     private String addressDetail;
     private String fullAddress;
+    private String bname;
+    private String bname1;
+    private String bname2;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
     private boolean deletedFlag;
@@ -43,8 +47,12 @@ public class RegionVo {
         private String roadAddress;
         private String buildingName;
         private String address;
+        private String userSelectedAddress;
         private String addressDetail;
         private String fullAddress;
+        private String bname;
+        private String bname1;
+        private String bname2;
 
         public static Basic toVo(RegionEntity entity) {
             Basic vo = Basic.builder()
@@ -55,8 +63,12 @@ public class RegionVo {
                     .roadAddress(entity.getRoadAddress())
                     .buildingName(entity.getBuildingName())
                     .address(entity.getAddress())
+                    .userSelectedAddress(entity.getUserSelectedAddress())
                     .addressDetail(entity.getAddressDetail())
                     .fullAddress(entity.getFullAddress())
+                    .bname(entity.getBname())
+                    .bname1(entity.getBname1())
+                    .bname2(entity.getBname2())
                     .build();
             return vo;
         }

@@ -90,7 +90,9 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
 
         JPQLQuery regionsQuery = query.from(qRegionEntity)
                 .select(qRegionEntity)
-                .where(qRegionEntity.roomId.in(productProjections.stream().map(r -> r.getRoomEntity().getId()).collect(Collectors.toList())));
+                .where(qRegionEntity.roomId.in(productProjections.stream().map(r -> r.getRoomEntity().getId()).collect(Collectors.toList())))
+                .limit(2)
+                ;
 
         List<RegionEntity> allRegionEntities = regionsQuery.fetch();
         productProjections.forEach(proj -> {
@@ -141,7 +143,9 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
 
         JPQLQuery regionsQuery = query.from(qRegionEntity)
                 .select(qRegionEntity)
-                .where(qRegionEntity.roomId.in(productProjections.stream().map(r -> r.getRoomEntity().getId()).collect(Collectors.toList())));
+                .where(qRegionEntity.roomId.in(productProjections.stream().map(r -> r.getRoomEntity().getId()).collect(Collectors.toList())))
+                .limit(2)
+                ;
 
         List<RegionEntity> allRegionEntities = regionsQuery.fetch();
         productProjections.forEach(proj -> {
