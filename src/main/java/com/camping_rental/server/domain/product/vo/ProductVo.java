@@ -79,7 +79,46 @@ public class ProductVo {
     @AllArgsConstructor
     @NoArgsConstructor
     @Builder
-    public static class JoinRoomAndRegions {
+    public static class RelatedRoom {
+        private UUID id;
+        private String name;
+        private String description;
+        private String thumbnailUri;
+        private Integer price;
+        private Integer minimumRentalHour;
+        private String discountYn;
+        private Integer discountMinimumHour;
+        private Integer discountRate;
+        private String displayYn;
+        private UUID productCategoryId;
+        private UUID roomId;
+        private RoomVo.Basic room;
+
+        public static RelatedRoom toVo(ProductProjection.RelatedRoom proj) {
+            RelatedRoom vo = RelatedRoom.builder()
+                    .id(proj.getProductEntity().getId())
+                    .name(proj.getProductEntity().getName())
+                    .description(proj.getProductEntity().getDescription())
+                    .thumbnailUri(proj.getProductEntity().getThumbnailUri())
+                    .price(proj.getProductEntity().getPrice())
+                    .minimumRentalHour(proj.getProductEntity().getMinimumRentalHour())
+                    .discountYn(proj.getProductEntity().getDiscountYn())
+                    .discountMinimumHour(proj.getProductEntity().getDiscountMinimumHour())
+                    .discountRate(proj.getProductEntity().getDiscountRate())
+                    .displayYn(proj.getProductEntity().getDisplayYn())
+                    .productCategoryId(proj.getProductEntity().getProductCategoryId())
+                    .roomId(proj.getProductEntity().getRoomId())
+                    .room(RoomVo.Basic.toVo(proj.getRoomEntity()))
+                    .build();
+            return vo;
+        }
+    }
+
+    @Data
+    @AllArgsConstructor
+    @NoArgsConstructor
+    @Builder
+    public static class RelatedRoomAndRegions {
         private UUID id;
         private String name;
         private String description;
@@ -95,8 +134,8 @@ public class ProductVo {
         private RoomVo.Basic room;
         private List<RegionVo.Basic> regions;
 
-        public static JoinRoomAndRegions toVo(ProductProjection.JoinRoomAndRegions proj) {
-            JoinRoomAndRegions vo = JoinRoomAndRegions.builder()
+        public static RelatedRoomAndRegions toVo(ProductProjection.RelatedRoomAndRegions proj) {
+            RelatedRoomAndRegions vo = RelatedRoomAndRegions.builder()
                     .id(proj.getProductEntity().getId())
                     .name(proj.getProductEntity().getName())
                     .description(proj.getProductEntity().getDescription())
@@ -135,7 +174,7 @@ public class ProductVo {
         private UUID roomId;
         private List<RegionVo.Basic> regions;
 
-        public static JoinRegions toVo(ProductProjection.JoinRoomAndRegions proj) {
+        public static JoinRegions toVo(ProductProjection.RelatedRoomAndRegions proj) {
             JoinRegions vo = JoinRegions.builder()
                     .id(proj.getProductEntity().getId())
                     .name(proj.getProductEntity().getName())
@@ -159,7 +198,7 @@ public class ProductVo {
     @AllArgsConstructor
     @NoArgsConstructor
     @Builder
-    public static class FullJoin {
+    public static class RelatedProductCategoryAndRoomAndRegionsAndProductImages {
         private UUID id;
         private String name;
         private String description;
@@ -177,8 +216,8 @@ public class ProductVo {
         private List<ProductImageVo.Basic> productImages;
         private List<RegionVo.Basic> regions;
 
-        public static FullJoin toVo(ProductProjection.FullJoin proj) {
-            FullJoin vo = FullJoin.builder()
+        public static RelatedProductCategoryAndRoomAndRegionsAndProductImages toVo(ProductProjection.RelatedProductCategoryAndRoomAndRegionsAndProductImages proj) {
+            RelatedProductCategoryAndRoomAndRegionsAndProductImages vo = RelatedProductCategoryAndRoomAndRegionsAndProductImages.builder()
                     .id(proj.getProductEntity().getId())
                     .name(proj.getProductEntity().getName())
                     .description(proj.getProductEntity().getDescription())

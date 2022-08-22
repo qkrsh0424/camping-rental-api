@@ -12,12 +12,10 @@ import java.util.UUID;
 
 @Repository
 public interface ProductRepositoryCustom {
-    Optional<ProductProjection.JoinRoomAndRegions> qSelectOneByIdJoinRoomAndRegion(UUID id);
+    Optional<ProductProjection.RelatedRoomAndRegions> qSelectOneByIdJoinRoomAndRegion(UUID id);
+    Optional<ProductProjection.RelatedProductCategoryAndRoomAndRegionsAndProductImages> qSelectByIdRelatedProductCategoryAndRoomAndRegionsAndProductImages(UUID productId);
+    Page<ProductProjection.RelatedRoom> qSelectPageRelatedRoom(Map<String, Object> params, Pageable pageable);
+    Page<ProductProjection.RelatedRoomAndRegions> qSelectPageRelatedRoomAndRegions(Map<String, Object> params, Pageable pageable);
+    List<ProductProjection.RelatedRoomAndRegions> qSelectListByIdsRelatedRoomAndRegions(List<UUID> productIds);
 
-    Page<ProductProjection.JoinRoomAndRegions> qSelectPageJoinRoomAndRegions(Map<String, Object> params, Pageable pageable);
-    Page<ProductProjection.JoinRoomAndRegions> qSelectPageJoinRoomAndRegionsOrderByRank(Map<String, Object> params, Pageable pageable);
-
-    Optional<ProductProjection.FullJoin> qSelectOneFullJoin(UUID productId);
-
-    List<ProductProjection.JoinRoomAndRegions> qSelectListByIdsJoinRoomAndRegions(List<UUID> productIds);
 }

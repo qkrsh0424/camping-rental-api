@@ -24,21 +24,30 @@ public class ProductProjection {
     @AllArgsConstructor
     @NoArgsConstructor
     @Builder
-    public static class JoinRoomAndRegions{
+    public static class RelatedRoom{
         private ProductEntity productEntity;
         private RoomEntity roomEntity;
-        private List<RegionEntity> regionEntities;
     }
 
     @Data
     @AllArgsConstructor
     @NoArgsConstructor
     @Builder
-    public static class FullJoin {
+    public static class RelatedRoomAndRegions{
+        private ProductEntity productEntity;
+        private RoomEntity roomEntity;
+        private Set<RegionEntity> regionEntities;
+    }
+
+    @Data
+    @AllArgsConstructor
+    @NoArgsConstructor
+    @Builder
+    public static class RelatedProductCategoryAndRoomAndRegionsAndProductImages {
         private ProductEntity productEntity;
         private ProductCategoryEntity productCategoryEntity;
         private RoomEntity roomEntity;
-        private Set<ProductImageEntity> productImageEntities;
         private Set<RegionEntity> regionEntities;
+        private Set<ProductImageEntity> productImageEntities;
     }
 }

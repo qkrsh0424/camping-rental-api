@@ -23,24 +23,24 @@ public class ProductService {
         productRepository.save(entity);
     }
 
-    public ProductProjection.FullJoin qSearchOneFullJoin(UUID productId) {
-        return productRepository.qSelectOneFullJoin(productId).orElseThrow(()->new NotMatchedFormatException("요청 데이터를 찾을 수 없습니다."));
+    public ProductProjection.RelatedProductCategoryAndRoomAndRegionsAndProductImages qSearchByIdRelatedCategoryAndRoomAndRegionsAndImagesElseThrow(UUID productId) {
+        return productRepository.qSelectByIdRelatedProductCategoryAndRoomAndRegionsAndProductImages(productId).orElseThrow(()->new NotMatchedFormatException("요청 데이터를 찾을 수 없습니다."));
     }
 
-    public Page<ProductProjection.JoinRoomAndRegions> qSearchPageJoinRoomAndRegionsOrderByRank(Map<String, Object> params, Pageable pageable) {
-        return productRepository.qSelectPageJoinRoomAndRegionsOrderByRank(params, pageable);
+    public Page<ProductProjection.RelatedRoom> qSearchPageRelatedRoom(Map<String, Object> params, Pageable pageable) {
+        return productRepository.qSelectPageRelatedRoom(params, pageable);
     }
 
-    public Page<ProductProjection.JoinRoomAndRegions> qSearchPageJoinRoomAndRegionsOrderByNew(Map<String, Object> params, Pageable pageable) {
-        return productRepository.qSelectPageJoinRoomAndRegions(params, pageable);
+    public Page<ProductProjection.RelatedRoomAndRegions> qSearchPageRelatedRoomAndRegions(Map<String, Object> params, Pageable pageable) {
+        return productRepository.qSelectPageRelatedRoomAndRegions(params, pageable);
     }
 
-    public ProductProjection.JoinRoomAndRegions qSearchOneByIdJoinRoomAndRegionOrThrow(UUID productId) {
+    public ProductProjection.RelatedRoomAndRegions qSearchOneByIdJoinRoomAndRegionOrThrow(UUID productId) {
         return productRepository.qSelectOneByIdJoinRoomAndRegion(productId).orElseThrow(() -> new NotMatchedFormatException("요청 데이터를 찾을 수 없습니다."));
     }
 
-    public List<ProductProjection.JoinRoomAndRegions> qSearchListByIdsJoinRoomAndRegions(List<UUID> productIds) {
-        return productRepository.qSelectListByIdsJoinRoomAndRegions(productIds);
+    public List<ProductProjection.RelatedRoomAndRegions> qSearchListByIdsRelatedRoomAndRegions(List<UUID> productIds) {
+        return productRepository.qSelectListByIdsRelatedRoomAndRegions(productIds);
     }
 
     public void logicalDelete(ProductEntity entity) {

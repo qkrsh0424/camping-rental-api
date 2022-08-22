@@ -16,6 +16,6 @@ public interface RegionRepository extends JpaRepository<RegionEntity, Long>, Reg
     Optional<RegionEntity> findById(UUID id);
     List<RegionEntity> findByRoomId(UUID roomId);
 
-    @Query(value = "SELECT count(cid) FROM region WHERE room_id=:roomId", nativeQuery = true)
+    @Query(value = "SELECT count(cid) FROM region WHERE room_id=:roomId AND deleted_flag=0", nativeQuery = true)
     long countByRoomId(String roomId);
 }

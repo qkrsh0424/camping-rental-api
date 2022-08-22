@@ -10,6 +10,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Map;
 import java.util.UUID;
 
 @RestController
@@ -31,6 +32,17 @@ public class RegionApiV1 {
         }
 
         message.setData(regionBusinessService.searchListByRoomId(roomId));
+        message.setStatus(HttpStatus.OK);
+        message.setMessage("success");
+
+        return new ResponseEntity<>(message, message.getStatus());
+    }
+
+    @GetMapping("/sidos/sigungus")
+    public ResponseEntity<?> searchListSidoAndSigungus(){
+        Message message = new Message();
+
+        message.setData(regionBusinessService.searchListSidoAndSigungus());
         message.setStatus(HttpStatus.OK);
         message.setMessage("success");
 

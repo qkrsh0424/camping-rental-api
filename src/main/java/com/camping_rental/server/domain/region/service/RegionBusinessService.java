@@ -15,7 +15,9 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -30,11 +32,16 @@ public class RegionBusinessService {
     public Object searchListByRoomId(UUID roomId) {
         List<RegionEntity> regionEntities = regionService.searchListByRoomId(roomId);
 
-        List<RegionVo.Basic> regionVos = regionEntities.stream().map(entity->{
+        List<RegionVo.Basic> regionVos = regionEntities.stream().map(entity -> {
             return RegionVo.Basic.toVo(entity);
         }).collect(Collectors.toList());
 
         return regionVos;
+    }
+
+    @Transactional(readOnly = true)
+    public Object searchListSidoAndSigungus() {
+        return regionService.qSearchListSidoWithSigungus();
     }
 
     @Transactional
@@ -56,7 +63,7 @@ public class RegionBusinessService {
         RoomEntity roomEntity = roomService.searchByUserIdOrThrow(USER_ID);
         long regionCount = regionService.countByRoomId(roomEntity.getId());
 
-        if(regionCount >= 3){
+        if (regionCount >= 3) {
             throw new NotMatchedFormatException("장소는 최대 3개 까지만 등록 가능합니다.");
         }
 

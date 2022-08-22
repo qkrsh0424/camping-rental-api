@@ -3,6 +3,7 @@ package com.camping_rental.server.domain.region.service;
 import com.camping_rental.server.domain.exception.dto.NotMatchedFormatException;
 import com.camping_rental.server.domain.region.entity.RegionEntity;
 import com.camping_rental.server.domain.region.enums.RegionDeletedFlagEnum;
+import com.camping_rental.server.domain.region.projection.RegionProjection;
 import com.camping_rental.server.domain.region.repository.RegionRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -37,5 +38,10 @@ public class RegionService {
 
     public long countByRoomId(UUID roomId) {
         return regionRepository.countByRoomId(roomId.toString());
+    }
+
+    public List<RegionProjection.SidoAndSigungus> qSearchListSidoWithSigungus() {
+        List<RegionProjection.SidoAndSigungus> sidoAndSigungusProjections = regionRepository.qSelectListSidoAndSigungus();
+        return sidoAndSigungusProjections;
     }
 }

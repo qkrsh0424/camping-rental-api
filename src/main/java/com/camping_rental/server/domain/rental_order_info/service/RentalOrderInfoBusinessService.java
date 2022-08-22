@@ -63,7 +63,7 @@ public class RentalOrderInfoBusinessService {
         /*
         상품 데이터 가져오기
          */
-        List<ProductProjection.JoinRoomAndRegions> productProjections = productService.qSearchListByIdsJoinRoomAndRegions(productIds);
+        List<ProductProjection.RelatedRoomAndRegions> productProjections = productService.qSearchListByIdsRelatedRoomAndRegions(productIds);
 
         /*
         상품 데이터중 첫번째 데이터의 room 을 가져와서 lenderRoomId로 지정한다.

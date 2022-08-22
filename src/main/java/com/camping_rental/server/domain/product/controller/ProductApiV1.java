@@ -5,6 +5,7 @@ import com.camping_rental.server.domain.exception.dto.NotMatchedFormatException;
 import com.camping_rental.server.domain.message.dto.Message;
 import com.camping_rental.server.domain.product.dto.ProductDto;
 import com.camping_rental.server.domain.product.service.ProductBusinessService;
+import com.camping_rental.server.domain.product.strategy.ProductSearchStrategyName;
 import com.camping_rental.server.domain.product_count_info.service.ProductCountInfoBusinessService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
@@ -29,7 +30,8 @@ public class ProductApiV1 {
 
     @GetMapping("/{productId}")
     public ResponseEntity<?> searchOne(
-            @PathVariable("productId") Object productIdObj
+            @PathVariable("productId") Object productIdObj,
+            @RequestParam Map<String, Object> params
     ) {
         Message message = new Message();
 
@@ -42,7 +44,7 @@ public class ProductApiV1 {
         }
 
         productCountInfoBusinessService.increseViewCount(productId);
-        message.setData(productBusinessService.searchOne(productId));
+        message.setData(productBusinessService.searchOne(productId, params));
         message.setStatus(HttpStatus.OK);
         message.setMessage("success");
 
@@ -71,22 +73,22 @@ public class ProductApiV1 {
 
         Object productIdsObj = params.get("productIds");
 
-        if(productIdsObj.toString().isEmpty()){
+        if (productIdsObj.toString().isEmpty()) {
             message.setStatus(HttpStatus.OK);
             message.setMessage("success");
             message.setData(new ArrayList<>());
             return new ResponseEntity<>(message, message.getStatus());
         }
 
-        List<UUID> productIds = List.of(productIdsObj.toString().split(",")).stream().map(r->{
-            try{
+        List<UUID> productIds = List.of(productIdsObj.toString().split(",")).stream().map(r -> {
+            try {
                 return UUID.fromString(r);
-            } catch (IllegalArgumentException | NullPointerException e){
+            } catch (IllegalArgumentException | NullPointerException e) {
                 throw new NotMatchedFormatException("장바구니에 등록된 상품을 찾을 수 없거나, 비정상적인 상품이 있습니다. 장바구니를 비우고 상품을 다시 등록 후 시도해 주세요.");
             }
         }).collect(Collectors.toList());
 
-        message.setData(productBusinessService.searchListByIds(productIds));
+        message.setData(productBusinessService.searchListByIds(productIds, params));
         message.setStatus(HttpStatus.OK);
         message.setMessage("success");
 

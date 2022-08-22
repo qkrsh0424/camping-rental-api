@@ -7,9 +7,9 @@ import com.camping_rental.server.domain.product.entity.ProductEntity;
 import com.camping_rental.server.domain.product.enums.ProductDeletedFlagEnum;
 import com.camping_rental.server.domain.product.enums.ProductDisplayYnEnum;
 import com.camping_rental.server.domain.product.projection.ProductProjection;
-import com.camping_rental.server.domain.product.strategy.ProductSearchPageFactory;
-import com.camping_rental.server.domain.product.strategy.ProductSearchPageStrategy;
-import com.camping_rental.server.domain.product.strategy.ProductSearchPageStrategyName;
+import com.camping_rental.server.domain.product.strategy.ProductSearchStrategy;
+import com.camping_rental.server.domain.product.strategy.ProductSearchStrategyContext;
+import com.camping_rental.server.domain.product.strategy.ProductSearchStrategyName;
 import com.camping_rental.server.domain.product.vo.ProductVo;
 import com.camping_rental.server.domain.product_image.dto.ProductImageDto;
 import com.camping_rental.server.domain.product_image.entity.ProductImageEntity;
@@ -38,38 +38,43 @@ public class ProductBusinessService {
     private final RoomService roomService;
     private final ProductService productService;
     private final ProductImageService productImageService;
-    private final ProductSearchPageFactory productSearchPageFactory;
+    private final ProductSearchStrategyContext productSearchStrategyContext;
 
-    @Transactional
-    public Object searchOne(UUID productId) {
-        ProductProjection.FullJoin productProjection = productService.qSearchOneFullJoin(productId);
-        ProductVo.FullJoin productVo = ProductVo.FullJoin.toVo(productProjection);
-        return productVo;
+    @Transactional(readOnly = true)
+    public Object searchOne(
+            UUID productId,
+            Map<String, Object> params
+    ) {
+        String related = params.get("related") == null ? "basic" : params.get("related").toString();
+
+        productSearchStrategyContext.setStrategy(ProductSearchStrategyName.fromString(related));
+        ProductSearchStrategy productSearchStrategy = productSearchStrategyContext.returnStrategy();
+
+        return productSearchStrategy.searchById(productId);
     }
 
     @Transactional(readOnly = true)
-    public Object searchPage(Map<String, Object> params, Pageable pageable) {
-        String orderType = null;
-        try {
-            orderType = params.get("orderType").toString();
-        } catch (IllegalArgumentException | NullPointerException e) {
-            orderType = "order_rank";
-        }
+    public Object searchPage(
+            Map<String, Object> params,
+            Pageable pageable
+    ) {
+        String related = params.get("related") == null ? "roomAndRegions" : params.get("related").toString();
 
-        ProductSearchPageStrategy productSearchPageStrategy = productSearchPageFactory.findStrategy(ProductSearchPageStrategyName.fromString(orderType));
+        productSearchStrategyContext.setStrategy(ProductSearchStrategyName.fromString(related));
+        ProductSearchStrategy productSearchStrategy = productSearchStrategyContext.returnStrategy();
 
-        Page<ProductProjection.JoinRoomAndRegions> productProjectionPage = productSearchPageStrategy.search(params, pageable);
-        List<ProductProjection.JoinRoomAndRegions> productProjections = productProjectionPage.getContent();
+        return productSearchStrategy.searchPage(params, pageable);
 
-        List<ProductVo.JoinRoomAndRegions> productVos = productProjections.stream().map(ProductVo.JoinRoomAndRegions::toVo).collect(Collectors.toList());
-        return new PageImpl<>(productVos, productProjectionPage.getPageable(), productProjectionPage.getTotalElements());
     }
 
     @Transactional(readOnly = true)
-    public Object searchListByIds(List<UUID> productIds) {
-        List<ProductProjection.JoinRoomAndRegions> productProjections = productService.qSearchListByIdsJoinRoomAndRegions(productIds);
-        List<ProductVo.JoinRoomAndRegions> productVos = productProjections.stream().map(ProductVo.JoinRoomAndRegions::toVo).collect(Collectors.toList());
-        return productVos;
+    public Object searchListByIds(List<UUID> productIds, Map<String, Object> params) {
+        String related = params.get("related") == null ? "roomAndRegions" : params.get("related").toString();
+
+        productSearchStrategyContext.setStrategy(ProductSearchStrategyName.fromString(related));
+        ProductSearchStrategy productSearchStrategy = productSearchStrategyContext.returnStrategy();
+
+        return productSearchStrategy.searchListByIds(productIds);
     }
 
     /*
@@ -151,7 +156,7 @@ public class ProductBusinessService {
      */
     @Transactional
     public void changeDisplayYn(UUID productId, String displayYn) {
-        ProductProjection.JoinRoomAndRegions productProjection = productService.qSearchOneByIdJoinRoomAndRegionOrThrow(productId);
+        ProductProjection.RelatedRoomAndRegions productProjection = productService.qSearchOneByIdJoinRoomAndRegionOrThrow(productId);
         UUID userId = userService.getUserIdOrThrow();
         ProductEntity productEntity = productProjection.getProductEntity();
         RoomEntity roomEntity = productProjection.getRoomEntity();
@@ -171,7 +176,7 @@ public class ProductBusinessService {
 
     @Transactional
     public void deleteOne(UUID productId) {
-        ProductProjection.JoinRoomAndRegions productProjection = productService.qSearchOneByIdJoinRoomAndRegionOrThrow(productId);
+        ProductProjection.RelatedRoomAndRegions productProjection = productService.qSearchOneByIdJoinRoomAndRegionOrThrow(productId);
         UUID userId = userService.getUserIdOrThrow();
         ProductEntity productEntity = productProjection.getProductEntity();
         RoomEntity roomEntity = productProjection.getRoomEntity();
@@ -190,7 +195,7 @@ public class ProductBusinessService {
     @Transactional
     public void updateOne(UUID productId, ProductDto.Update productDto) {
         UUID userId = userService.getUserIdOrThrow();
-        ProductProjection.JoinRoomAndRegions productProjection = productService.qSearchOneByIdJoinRoomAndRegionOrThrow(productId);
+        ProductProjection.RelatedRoomAndRegions productProjection = productService.qSearchOneByIdJoinRoomAndRegionOrThrow(productId);
         ProductEntity productEntity = productProjection.getProductEntity();
         RoomEntity roomEntity = productProjection.getRoomEntity();
 

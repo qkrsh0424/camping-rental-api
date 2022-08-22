@@ -1,7 +1,6 @@
 package com.camping_rental.server.domain.validation.strategy;
 
 import com.camping_rental.server.domain.exception.dto.NotMatchedFormatException;
-import com.camping_rental.server.domain.product.strategy.ProductSearchPageStrategyName;
 
 public enum PhoneValidationName {
     ForFindUsername("forFindUsername"),

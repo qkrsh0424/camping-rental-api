@@ -16,8 +16,8 @@ import com.querydsl.core.group.GroupBy;
 import com.querydsl.core.types.Order;
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.Projections;
-import com.querydsl.core.types.dsl.BooleanExpression;
-import com.querydsl.core.types.dsl.PathBuilder;
+import com.querydsl.core.types.dsl.*;
+import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.JPQLQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
@@ -44,11 +44,41 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
     private final QProductCountInfoEntity qProductCountInfoEntity = QProductCountInfoEntity.productCountInfoEntity;
 
     @Override
-    public Optional<ProductProjection.JoinRoomAndRegions> qSelectOneByIdJoinRoomAndRegion(UUID id) {
+    public Optional<ProductProjection.RelatedRoomAndRegions> qSelectOneByIdJoinRoomAndRegion(UUID id) {
+        List<ProductProjection.RelatedRoomAndRegions> resultList = query.from(qProductEntity)
+                        .join(qRoomEntity).on(
+                                qRoomEntity.id.eq(qProductEntity.roomId)
+                                        .and(qRoomEntity.deletedFlag.eq(DeletedFlagEnums.EXIST.getValue()))
+                        )
+                        .join(qRegionEntity).on(
+                                qRegionEntity.roomId.eq(qRoomEntity.id)
+                                        .and(qRegionEntity.deletedFlag.eq(DeletedFlagEnums.EXIST.getValue()))
+                        )
+                        .where(qProductEntity.id.eq(id))
+                        .orderBy(qProductEntity.cid.asc())
+                        .transform(
+                                GroupBy.groupBy(qProductEntity.cid)
+                                        .list(
+                                                Projections.fields(
+                                                        ProductProjection.RelatedRoomAndRegions.class,
+                                                        qProductEntity.as("productEntity"),
+                                                        qRoomEntity.as("roomEntity"),
+                                                        GroupBy.set(
+                                                                qRegionEntity
+                                                        ).as("regionEntities")
+                                                )
+                                        )
+                        );
+
+        return resultList.stream().findFirst();
+    }
+
+    @Override
+    public Page<ProductProjection.RelatedRoom> qSelectPageRelatedRoom(Map<String, Object> params, Pageable pageable) {
         JPQLQuery customQuery = query.from(qProductEntity)
                 .select(
                         Projections.fields(
-                                ProductProjection.JoinRoomAndRegions.class,
+                                ProductProjection.RelatedRoom.class,
                                 qProductEntity.as("productEntity"),
                                 qRoomEntity.as("roomEntity")
                         )
@@ -57,70 +87,11 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
                         qRoomEntity.id.eq(qProductEntity.roomId)
                                 .and(qRoomEntity.deletedFlag.eq(DeletedFlagEnums.EXIST.getValue()))
                 )
-                .where(qProductEntity.id.eq(id));
-        ProductProjection.JoinRoomAndRegions result = (ProductProjection.JoinRoomAndRegions) customQuery.fetchOne();
-
-        return Optional.ofNullable(result);
-    }
-
-    @Override
-    public Page<ProductProjection.JoinRoomAndRegions> qSelectPageJoinRoomAndRegions(Map<String, Object> params, Pageable pageable) {
-        JPQLQuery productProjectionsQuery = query.from(qProductEntity)
-                .select(
-                        Projections.fields(
-                                ProductProjection.JoinRoomAndRegions.class,
-                                qProductEntity.as("productEntity"),
-                                qRoomEntity.as("roomEntity")
-                        )
+                .leftJoin(qRentalOrderProductEntity).on(
+                        qRentalOrderProductEntity.productId.eq(qProductEntity.id)
+                                .and(qRentalOrderProductEntity.deletedFlag.eq(DeletedFlagEnums.EXIST.getValue()))
                 )
-                .join(qRoomEntity).on(
-                        qRoomEntity.id.eq(qProductEntity.roomId)
-                                .and(qRoomEntity.deletedFlag.eq(DeletedFlagEnums.EXIST.getValue()))
-                )
-                .offset(pageable.getOffset())
-                .limit(pageable.getPageSize())
-                .where(eqCategoryId(params))
-                .where(eqRoomId(params))
-                .where(eqDisplayYn(params));
-
-        sortPagedData(productProjectionsQuery, pageable);
-
-        long totalCount = productProjectionsQuery.fetchCount();
-        List<ProductProjection.JoinRoomAndRegions> productProjections = productProjectionsQuery.fetch();
-
-        JPQLQuery regionsQuery = query.from(qRegionEntity)
-                .select(qRegionEntity)
-                .where(qRegionEntity.roomId.in(productProjections.stream().map(r -> r.getRoomEntity().getId()).collect(Collectors.toList())))
-                .limit(2)
-                ;
-
-        List<RegionEntity> allRegionEntities = regionsQuery.fetch();
-        productProjections.forEach(proj -> {
-            List<RegionEntity> regionEntites = allRegionEntities.stream().filter(r -> r.getRoomId().equals(proj.getRoomEntity().getId())).collect(Collectors.toList());
-            proj.setRegionEntities(regionEntites);
-        });
-
-        return new PageImpl<>(productProjections, pageable, totalCount);
-    }
-
-    @Override
-    public Page<ProductProjection.JoinRoomAndRegions> qSelectPageJoinRoomAndRegionsOrderByRank(Map<String, Object> params, Pageable pageable) {
-        JPQLQuery productProjectionsQuery = query.from(qProductEntity)
-                .select(
-                        Projections.fields(
-                                ProductProjection.JoinRoomAndRegions.class,
-                                qProductEntity.as("productEntity"),
-                                qRoomEntity.as("roomEntity")
-                        )
-                )
-                .join(qRoomEntity).on(
-                        qRoomEntity.id.eq(qProductEntity.roomId)
-                                .and(qRoomEntity.deletedFlag.eq(DeletedFlagEnums.EXIST.getValue()))
-                )
-                .leftJoin(qRentalOrderProductEntity).on(qRentalOrderProductEntity.productId.eq(qProductEntity.id))
                 .leftJoin(qProductCountInfoEntity).on(qProductCountInfoEntity.productId.eq(qProductEntity.id))
-                .offset(pageable.getOffset())
-                .limit(pageable.getPageSize())
                 .where(eqCategoryId(params))
                 .where(eqRoomId(params))
                 .where(eqDisplayYn(params))
@@ -129,36 +100,62 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
                         qRentalOrderProductEntity.cid.count()
                                 .multiply(10)
                                 .add(
-                                        qProductCountInfoEntity.viewCount.coalesce(0).multiply(1)
+                                        qProductCountInfoEntity.viewCount.coalesce(0)
                                 )
-                                .desc(),
-                        qProductEntity.cid.asc()
+                                .desc()
                 )
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize())
                 ;
 
-//        sortPagedData(productProjectionsQuery, pageable);
+        this.sortPagedData(customQuery, pageable);
 
-        long totalCount = productProjectionsQuery.fetchCount();
-        List<ProductProjection.JoinRoomAndRegions> productProjections = productProjectionsQuery.fetch();
+        List<ProductProjection.RelatedRoom> result = customQuery.fetch();
+        long totalCount = customQuery.fetchCount();
+
+        return new PageImpl<>(result, pageable, totalCount);
+    }
+
+    @Override
+    public Page<ProductProjection.RelatedRoomAndRegions> qSelectPageRelatedRoomAndRegions(Map<String, Object> params, Pageable pageable) {
+
+        JPQLQuery coveringIdxQuery = returnQueryForSearchPageCoveringIdxCids(params, pageable);
+        List<Long> cids = coveringIdxQuery.fetch();
+        long totalCount = coveringIdxQuery.fetchCount();
+
+        JPQLQuery productProjectionsQuery = query.from(qProductEntity)
+                .select(
+                        Projections.fields(
+                                ProductProjection.RelatedRoomAndRegions.class,
+                                qProductEntity.as("productEntity"),
+                                qRoomEntity.as("roomEntity")
+                        )
+                )
+                .join(qRoomEntity).on(
+                        qRoomEntity.id.eq(qProductEntity.roomId)
+                                .and(qRoomEntity.deletedFlag.eq(DeletedFlagEnums.EXIST.getValue()))
+                )
+                .where(qProductEntity.cid.in(cids))
+                .orderBy(orderByFieldList(qProductEntity.cid, cids, "asc"));
+
+        List<ProductProjection.RelatedRoomAndRegions> productProjections = productProjectionsQuery.fetch();
 
         JPQLQuery regionsQuery = query.from(qRegionEntity)
                 .select(qRegionEntity)
-                .where(qRegionEntity.roomId.in(productProjections.stream().map(r -> r.getRoomEntity().getId()).collect(Collectors.toList())))
-                .limit(2)
-                ;
+                .where(qRegionEntity.roomId.in(productProjections.stream().map(r -> r.getRoomEntity().getId()).collect(Collectors.toSet())));
 
         List<RegionEntity> allRegionEntities = regionsQuery.fetch();
         productProjections.forEach(proj -> {
             List<RegionEntity> regionEntites = allRegionEntities.stream().filter(r -> r.getRoomId().equals(proj.getRoomEntity().getId())).collect(Collectors.toList());
-            proj.setRegionEntities(regionEntites);
+            proj.setRegionEntities(regionEntites.stream().collect(Collectors.toSet()));
         });
 
         return new PageImpl<>(productProjections, pageable, totalCount);
     }
 
     @Override
-    public Optional<ProductProjection.FullJoin> qSelectOneFullJoin(UUID productId) {
-        List<ProductProjection.FullJoin> productProjections = query.from(qProductImageEntity)
+    public Optional<ProductProjection.RelatedProductCategoryAndRoomAndRegionsAndProductImages> qSelectByIdRelatedProductCategoryAndRoomAndRegionsAndProductImages(UUID productId) {
+        List<ProductProjection.RelatedProductCategoryAndRoomAndRegionsAndProductImages> productProjections = query.from(qProductImageEntity)
                 .join(qProductEntity).on(
                         qProductEntity.id.eq(qProductImageEntity.productId)
                                 .and(qProductEntity.deletedFlag.eq(DeletedFlagEnums.EXIST.getValue()))
@@ -183,7 +180,7 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
                         GroupBy.groupBy(qProductEntity.cid)
                                 .list(
                                         Projections.fields(
-                                                ProductProjection.FullJoin.class,
+                                                ProductProjection.RelatedProductCategoryAndRoomAndRegionsAndProductImages.class,
                                                 qRoomEntity.as("roomEntity"),
                                                 qProductCategoryEntity.as("productCategoryEntity"),
                                                 qProductEntity.as("productEntity"),
@@ -203,11 +200,11 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
     }
 
     @Override
-    public List<ProductProjection.JoinRoomAndRegions> qSelectListByIdsJoinRoomAndRegions(List<UUID> productIds) {
+    public List<ProductProjection.RelatedRoomAndRegions> qSelectListByIdsRelatedRoomAndRegions(List<UUID> productIds) {
         JPQLQuery productProjectionsQuery = query.from(qProductEntity)
                 .select(
                         Projections.fields(
-                                ProductProjection.JoinRoomAndRegions.class,
+                                ProductProjection.RelatedRoomAndRegions.class,
                                 qProductEntity.as("productEntity"),
                                 qRoomEntity.as("roomEntity")
                         )
@@ -218,7 +215,7 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
                 )
                 .where(qProductEntity.id.in(productIds));
 
-        List<ProductProjection.JoinRoomAndRegions> productProjections = productProjectionsQuery.fetch();
+        List<ProductProjection.RelatedRoomAndRegions> productProjections = productProjectionsQuery.fetch();
 
         JPQLQuery regionsQuery = query.from(qRegionEntity)
                 .select(qRegionEntity)
@@ -227,10 +224,86 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
         List<RegionEntity> allRegionEntities = regionsQuery.fetch();
         productProjections.forEach(proj -> {
             List<RegionEntity> regionEntites = allRegionEntities.stream().filter(r -> r.getRoomId().equals(proj.getRoomEntity().getId())).collect(Collectors.toList());
-            proj.setRegionEntities(regionEntites);
+            proj.setRegionEntities(regionEntites.stream().collect(Collectors.toSet()));
         });
 
         return productProjections;
+    }
+
+    private JPQLQuery returnQueryForSearchPageCoveringIdxCids(Map<String, Object> params, Pageable pageable) {
+        Object orderType = params.get("orderType");
+        JPQLQuery customQuery = query.from(qProductEntity)
+                .select(qProductEntity.cid)
+                .join(qRoomEntity).on(
+                        qRoomEntity.id.eq(qProductEntity.roomId)
+                                .and(qRoomEntity.deletedFlag.eq(DeletedFlagEnums.EXIST.getValue()))
+                )
+                .where(eqCategoryId(params))
+                .where(eqRoomId(params))
+                .where(eqDisplayYn(params))
+                .where(eqRoomIdWithRegionSubquery(params))
+                .groupBy(qProductEntity.cid)
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize());
+
+        if (orderType == null || orderType.toString().equals("order_rank")) {
+            customQuery
+                    .leftJoin(qRentalOrderProductEntity)
+                    .on(
+                            qRentalOrderProductEntity.productId.eq(qProductEntity.id)
+                                    .and(qRentalOrderProductEntity.deletedFlag.eq(DeletedFlagEnums.EXIST.getValue()))
+                    )
+                    .leftJoin(qProductCountInfoEntity)
+                    .on(
+                            qProductCountInfoEntity.productId.eq(qProductEntity.id)
+                    )
+                    .orderBy(
+                            qRentalOrderProductEntity.cid.count()
+                                    .multiply(10)
+                                    .add(
+                                            qProductCountInfoEntity.viewCount.coalesce(0)
+                                    )
+                                    .desc()
+                    );
+        }
+        this.sortPagedData(customQuery, pageable);
+
+        return customQuery;
+    }
+
+    private BooleanExpression eqRoomIdWithRegionSubquery(Map<String, Object> params) {
+        return qRoomEntity.id.eq(
+                query.select(qRegionEntity.roomId)
+                        .from(qRegionEntity)
+                        .where(eqRegionSido(params))
+                        .where(eqRegionSigungu(params))
+                        .where(qRegionEntity.roomId.eq(qRoomEntity.id))
+                        .groupBy(qRegionEntity.roomId)
+        );
+    }
+
+    private BooleanExpression eqRegionSido(Map<String, Object> params) {
+        String sido = null;
+
+        try {
+            sido = params.get("sido").toString();
+        } catch (IllegalArgumentException | NullPointerException e) {
+            return null;
+        }
+
+        return qRegionEntity.sido.eq(sido);
+    }
+
+    private BooleanExpression eqRegionSigungu(Map<String, Object> params) {
+        String sigungu = null;
+
+        try {
+            sigungu = params.get("sigungu").toString();
+        } catch (IllegalArgumentException | NullPointerException e) {
+            return null;
+        }
+
+        return qRegionEntity.sigungu.eq(sigungu);
     }
 
     private BooleanExpression eqRoomId(Map<String, Object> params) {
@@ -278,6 +351,16 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
         }
 
         return qProductEntity.displayYn.eq(displayYn);
+    }
+
+    private <T, E> OrderSpecifier<?> orderByFieldList(T field, List<E> fieldList, String orderBy) {
+        StringTemplate stringTemplate =Expressions.stringTemplate("FIELD({0}, {1})", field, fieldList);
+
+        if(orderBy.equals("asc")){
+            return stringTemplate.asc();
+        }else{
+            return stringTemplate.desc();
+        }
     }
 
     private void sortPagedData(JPQLQuery customQuery, Pageable pageable) {
