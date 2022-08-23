@@ -71,14 +71,14 @@ public class UserDto {
             /*
             username 형식 체크
              */
-            if(!DataFormatUtils.isPassSignupUsername(dto.getUsername())){
+            if(!DataFormatUtils.isPassUsernameFormatValid(dto.getUsername())){
                 throw new NotMatchedFormatException("입력하신 아이디 형식이 정확한지 확인하여 주세요.");
             }
 
             /*
             password 형식 체크
              */
-            if (!DataFormatUtils.isPassSignupPassword(dto.getPassword())) {
+            if (!DataFormatUtils.isPassPasswordFormatValid(dto.getPassword())) {
                 throw new NotMatchedFormatException("입력하신 패스워드 형식이 정확한지 확인하여 주세요.");
             }
 
@@ -89,14 +89,14 @@ public class UserDto {
                 throw new NotMatchedFormatException("입력하신 패스워드를 다시 확인하여 주세요.");
             }
 
-            if (!DataFormatUtils.isPassSignupNickname(dto.getNickname())) {
+            if (!DataFormatUtils.isPassNicknameFormatValid(dto.getNickname())) {
                 throw new NotMatchedFormatException("입력하신 닉네임 형식이 정확한지 확인하여 주세요.");
             }
 
             /*
             휴대전화 형식 체크
              */
-            if (!DataFormatUtils.isPassSignupPhoneNumber(dto.getPhoneNumber())) {
+            if (!DataFormatUtils.isPassPhoneNumberFormatValid(dto.getPhoneNumber())) {
                 throw new NotMatchedFormatException("입력하신 휴대전화 형식이 정확한지 확인하여 주세요.");
             }
 

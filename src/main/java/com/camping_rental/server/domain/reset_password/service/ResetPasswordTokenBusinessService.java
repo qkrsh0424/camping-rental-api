@@ -95,7 +95,7 @@ public class ResetPasswordTokenBusinessService {
         /*
         password 형식 체크
          */
-        if (!DataFormatUtils.isPassSignupPassword(password)) {
+        if (!DataFormatUtils.isPassPasswordFormatValid(password)) {
             throw new NotMatchedFormatException("입력하신 패스워드 형식이 정확한지 확인하여 주세요.");
         }
 

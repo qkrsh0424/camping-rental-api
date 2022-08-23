@@ -66,7 +66,7 @@ public class RentalOrderInfoDto {
                 throw new NotMatchedFormatException("주문자 이름을 정확히 입력해 주세요.");
             }
 
-            if(StringUtils.isBlank(rentalOrderInfoDto.getOrdererPhoneNumber()) || !DataFormatUtils.isPhoneNumberFormatValid(rentalOrderInfoDto.getOrdererPhoneNumber())){
+            if(StringUtils.isBlank(rentalOrderInfoDto.getOrdererPhoneNumber()) || !DataFormatUtils.isPassPhoneNumberFormatValid(rentalOrderInfoDto.getOrdererPhoneNumber())){
                 throw new NotMatchedFormatException("주문자 연락처를 정확히 입력해 주세요.");
             }
 

@@ -32,6 +32,12 @@ public class UserService {
         return userEntity;
     }
 
+    public UserEntity searchByEmailAndLoginTypeElseNull(String email, String loginType) {
+        UserEntity userEntity = userRepository.findByEmailAndLoginType(email, loginType).orElse(null);
+
+        return userEntity;
+    }
+
     public void saveAndModify(UserEntity userEntity){
         userRepository.save(userEntity);
     }

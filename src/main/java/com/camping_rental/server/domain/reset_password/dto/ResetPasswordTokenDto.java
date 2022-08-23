@@ -29,14 +29,14 @@ public class ResetPasswordTokenDto {
             /*
             username 형식 체크
              */
-            if(!DataFormatUtils.isPassSignupUsername(dto.getUsername())){
+            if(!DataFormatUtils.isPassUsernameFormatValid(dto.getUsername())){
                 throw new NotMatchedFormatException("입력하신 아이디 형식이 정확한지 확인하여 주세요.");
             }
 
             /*
             휴대전화 형식 체크
              */
-            if (!DataFormatUtils.isPassSignupPhoneNumber(dto.getPhoneNumber())) {
+            if (!DataFormatUtils.isPassPhoneNumberFormatValid(dto.getPhoneNumber())) {
                 throw new NotMatchedFormatException("입력하신 휴대전화 형식이 정확한지 확인하여 주세요.");
             }
 

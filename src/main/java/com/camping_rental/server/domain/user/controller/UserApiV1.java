@@ -142,4 +142,110 @@ public class UserApiV1 {
 
         return new ResponseEntity<>(message, message.getStatus());
     }
+
+    @PatchMapping("/target:nickname")
+    @RequiredLogin
+    public ResponseEntity<?> changeNickname(
+            @RequestBody Map<String, Object> body
+    ){
+        Message message = new Message();
+
+        String nickname = null;
+
+        try{
+            nickname = body.get("nickname").toString();
+        }catch (IllegalArgumentException | NullPointerException e){
+            throw new NotMatchedFormatException("닉네임을 정확히 입력해주세요.");
+        }
+
+        userBusinessService.changeNickname(nickname);
+
+        message.setStatus(HttpStatus.OK);
+        message.setMessage("success");
+
+        return new ResponseEntity<>(message, message.getStatus());
+    }
+
+    @PatchMapping("/target:phoneNumber")
+    @RequiredLogin
+    public ResponseEntity<?> changePhoneNumber(
+            HttpServletRequest request,
+            HttpServletResponse response,
+            @RequestBody Map<String, Object> body
+    ){
+        Message message = new Message();
+
+        String phoneNumber = null;
+        String phoneNumberValidationCode = null;
+
+        try{
+            phoneNumber = body.get("phoneNumber").toString();
+            phoneNumberValidationCode = body.get("phoneNumberValidationCode").toString();
+        }catch (IllegalArgumentException | NullPointerException e){
+            throw new NotMatchedFormatException("휴대전화와 인증번호를 정확히 입력해 주세요.");
+        }
+
+        userBusinessService.changePhoneNumber(request, response, phoneNumber, phoneNumberValidationCode);
+
+        message.setStatus(HttpStatus.OK);
+        message.setMessage("success");
+
+        return new ResponseEntity<>(message, message.getStatus());
+    }
+
+    @PatchMapping("/target:email")
+    @RequiredLogin
+    public ResponseEntity<?> changeEmail(
+            HttpServletRequest request,
+            HttpServletResponse response,
+            @RequestBody Map<String, Object> body
+    ){
+        Message message = new Message();
+
+        String email = null;
+        String emailValidationCode = null;
+
+        try{
+            email = body.get("email").toString();
+            emailValidationCode = body.get("emailValidationCode").toString();
+        }catch (IllegalArgumentException | NullPointerException e){
+            throw new NotMatchedFormatException("휴대전화와 인증번호를 정확히 입력해 주세요.");
+        }
+
+        userBusinessService.changeEmail(request, response, email, emailValidationCode);
+
+        message.setStatus(HttpStatus.OK);
+        message.setMessage("success");
+
+        return new ResponseEntity<>(message, message.getStatus());
+    }
+
+    @PatchMapping("/target:password")
+    @RequiredLogin
+    public ResponseEntity<?> changePassword(
+            HttpServletRequest request,
+            HttpServletResponse response,
+            @RequestBody Map<String, Object> body
+    ){
+        Message message = new Message();
+
+        String password = null;
+        String newPassword = null;
+        String newPasswordChecker = null;
+
+        try{
+            password = body.get("password").toString();
+            newPassword = body.get("newPassword").toString();
+            newPasswordChecker = body.get("newPasswordChecker").toString();
+        }catch (IllegalArgumentException | NullPointerException e){
+            throw new NotMatchedFormatException("잘못된 접근 입니다.");
+        }
+
+        userBusinessService.changePassword(request, response, password, newPassword, newPasswordChecker);
+
+        message.setStatus(HttpStatus.OK);
+        message.setMessage("success");
+
+        return new ResponseEntity<>(message, message.getStatus());
+    }
 }

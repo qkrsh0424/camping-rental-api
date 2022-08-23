@@ -50,7 +50,7 @@ public class RoomDto {
             /*
             휴대폰 번호 체크
              */
-            if(!DataFormatUtils.isPhoneNumberFormatValid(dto.getPhoneNumber())){
+            if(!DataFormatUtils.isPassPhoneNumberFormatValid(dto.getPhoneNumber())){
                 throw new NotMatchedFormatException("휴대폰 번호를 형식에 맞게 입력해 주세요.");
             }
 

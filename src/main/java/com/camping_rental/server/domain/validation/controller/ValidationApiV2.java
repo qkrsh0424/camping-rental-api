@@ -71,4 +71,52 @@ public class ValidationApiV2 {
 
         return new ResponseEntity<>(message, message.getStatus());
     }
+
+    @PostMapping("/email/validation-code/action:send")
+    public ResponseEntity<?> sendEmailValidationCode(
+            HttpServletRequest request,
+            HttpServletResponse response,
+            @RequestParam Map<String, Object> params,
+            @RequestBody Map<String, Object> body
+    ){
+        Message message = new Message();
+
+        String validationType = null;
+        String email = null;
+
+        try{
+            validationType = params.get("validationType").toString();
+            email = body.get("email").toString();
+        } catch (NullPointerException e){
+            throw new NotMatchedFormatException("잘못된 접근 방식 입니다.");
+        }
+
+
+        /*
+        불필요한 중복 요청을 막기위해 5초 마다 해당 요청을 실행 할 수 있음.
+         */
+        Cookie emailValidationCookie = WebUtils.getCookie(request, CustomCookieUtils.COOKIE_NAME_EMAIL_VALIDATION_TOKEN);
+
+        String emailValidationToken = null;
+        if (emailValidationCookie != null) {
+            emailValidationToken = emailValidationCookie.getValue();
+            DecodedJWT jwt = JWT.decode(emailValidationToken);
+
+            long diffTime = CustomDateUtils.getCurrentTimeMillis() - jwt.getIssuedAt().getTime();
+
+            if(diffTime < 10000){
+                throw new NotMatchedFormatException("요청이 너무 많습니다. 잠시 후 다시 시도해 주세요.");
+            }
+        }
+
+        /*
+        로직 실행
+         */
+        validationBusinessService.sendEmailValidationCode(response, validationType, email);
+
+        message.setStatus(HttpStatus.OK);
+        message.setMessage("success");
+
+        return new ResponseEntity<>(message, message.getStatus());
+    }
 }

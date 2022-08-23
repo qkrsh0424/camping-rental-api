@@ -47,6 +47,25 @@ public class NaverEmailService {
         }
     }
 
+    public void sendEmail(NaverEmailRequestDto.Send mailRequestDto) {
+        try {
+            Long time = System.currentTimeMillis();
+
+            ObjectMapper objectMapper = new ObjectMapper();
+            String jsonBody = objectMapper.writeValueAsString(mailRequestDto);
+            HttpHeaders headers = setApiRequestHeader(time);
+
+            HttpEntity<String> body = new HttpEntity<>(jsonBody, headers);
+            RestTemplate restTemplate = new RestTemplate();
+            restTemplate.setRequestFactory(new HttpComponentsClientHttpRequestFactory());
+            restTemplate.postForObject(new URI(naverEmailConfiguration.getMailRequestUrl() + naverEmailConfiguration.getMailApiUri()), body, HashMap.class);
+        } catch (URISyntaxException e) {
+            throw new NotMatchedFormatException("이메일 전송이 불가능 합니다.");
+        } catch (JsonProcessingException e) {
+            throw new NotMatchedFormatException("이메일 전송이 불가능 합니다.");
+        }
+    }
+
     public HttpHeaders setApiRequestHeader(Long time) {
         HttpHeaders headers = new HttpHeaders();
 

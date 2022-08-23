@@ -379,4 +379,156 @@ public class UserBusinessService {
         response.addHeader(HttpHeaders.SET_COOKIE, phoneValidationTokenCookie.toString());
         return userVo;
     }
+
+    @Transactional
+    public void changeNickname(String nickname) {
+        UUID userId = userService.getUserIdOrThrow();
+
+        UserEntity userEntity = userService.searchById(userId);
+
+        if (!DataFormatUtils.isPassNicknameFormatValid(nickname)) {
+            throw new NotMatchedFormatException("2-15자로 지정해 주세요.");
+        }
+
+        if (userEntity.getNickname().equals(nickname)) {
+            return;
+        }
+
+        userEntity.setNickname(nickname);
+        userEntity.setUpdatedAt(CustomDateUtils.getCurrentDateTime());
+    }
+
+    @Transactional
+    public void changePhoneNumber(HttpServletRequest request, HttpServletResponse response, String phoneNumber, String phoneNumberValidationCode) {
+        UUID userId = userService.getUserIdOrThrow();
+
+        /*
+        휴대전화 형식 체크
+         */
+        if (!DataFormatUtils.isPassPhoneNumberFormatValid(phoneNumber)) {
+            throw new NotMatchedFormatException("입력하신 휴대전화 형식이 정확한지 확인하여 주세요.");
+        }
+
+        /*
+        휴대전화 인증번호 체크
+         */
+        Cookie phoneValidationCookie = WebUtils.getCookie(request, CustomCookieUtils.COOKIE_NAME_PHONE_VALIDATION_TOKEN);
+
+        String phoneValidationToken = null;
+        if (phoneValidationCookie == null) {
+            throw new NotMatchedFormatException("인증번호가 정확하지 않습니다.");
+        }
+
+        phoneValidationToken = phoneValidationCookie.getValue();
+
+        String jwtSecret = phoneNumber + phoneNumberValidationCode + ValidationTokenUtils.getJwtEmailValidationSecret();
+        CustomJwtUtils.parseJwt(jwtSecret, phoneValidationToken, "인증번호가 정확하지 않습니다.");
+
+        UserEntity userEntity = userService.searchById(userId);
+
+        if (userEntity.getPhoneNumber() != null && userEntity.getPhoneNumber().equals(phoneNumber)) {
+            return;
+        }
+
+        userEntity.setPhoneNumber(phoneNumber);
+        userEntity.setUpdatedAt(CustomDateUtils.getCurrentDateTime());
+
+        /*
+        cp_phone_validation_token cookie 삭제
+         */
+        ResponseCookie phoneValidationTokenCookie = ResponseCookie.from(CustomCookieUtils.COOKIE_NAME_PHONE_VALIDATION_TOKEN, null)
+                .domain(CustomCookieUtils.COOKIE_DOMAIN)
+                .sameSite("Strict")
+                .path("/")
+                .maxAge(0)
+                .build();
+        response.addHeader(HttpHeaders.SET_COOKIE, phoneValidationTokenCookie.toString());
+    }
+
+    @Transactional
+    public void changeEmail(HttpServletRequest request, HttpServletResponse response, String email, String emailValidationCode) {
+        UUID userId = userService.getUserIdOrThrow();
+
+        /*
+        이메일 형식 체크
+         */
+        if (!DataFormatUtils.isPassEmailFormatValid(email)) {
+            throw new NotMatchedFormatException("입력하신 이메일 형식이 정확한지 확인하여 주세요.");
+        }
+
+        /*
+        이메일 인증번호 체크
+         */
+        Cookie emailValidationCookie = WebUtils.getCookie(request, CustomCookieUtils.COOKIE_NAME_EMAIL_VALIDATION_TOKEN);
+
+        String emailValidationToken = null;
+        if (emailValidationCookie == null) {
+            throw new NotMatchedFormatException("인증번호가 정확하지 않습니다.");
+        }
+
+        emailValidationToken = emailValidationCookie.getValue();
+
+        String jwtSecret = email + emailValidationCode + ValidationTokenUtils.getJwtEmailValidationSecret();
+        CustomJwtUtils.parseJwt(jwtSecret, emailValidationToken, "인증번호가 정확하지 않습니다.");
+
+        UserEntity userEntity = userService.searchById(userId);
+
+        if (userEntity.getEmail() != null && userEntity.getEmail().equals(email)) {
+            return;
+        }
+
+        userEntity.setEmail(email);
+        userEntity.setUpdatedAt(CustomDateUtils.getCurrentDateTime());
+
+        /*
+        cp_phone_validation_token cookie 삭제
+         */
+        ResponseCookie emailValidationTokenCookie = ResponseCookie.from(CustomCookieUtils.COOKIE_NAME_EMAIL_VALIDATION_TOKEN, null)
+                .domain(CustomCookieUtils.COOKIE_DOMAIN)
+                .sameSite("Strict")
+                .path("/")
+                .maxAge(0)
+                .build();
+        response.addHeader(HttpHeaders.SET_COOKIE, emailValidationTokenCookie.toString());
+    }
+
+    @Transactional
+    public void changePassword(HttpServletRequest request, HttpServletResponse response, String password, String newPassword, String newPasswordChecker) {
+        UUID userId = userService.getUserIdOrThrow();
+
+        if(!DataFormatUtils.isPassPasswordFormatValid(password)){
+            throw new NotMatchedFormatException("현재 비밀번호를 다시 확인해 주세요.");
+        }
+
+        if(!DataFormatUtils.isPassPasswordFormatValid(newPassword)){
+            throw new NotMatchedFormatException("비밀번호는 영문, 숫자, 특수문자 혼합 8-50자로 지정해 주세요.");
+        }
+
+        if(!newPassword.equals(newPasswordChecker)){
+            throw new NotMatchedFormatException("새 비밀번호를 다시 확인해 주세요.");
+        }
+
+        if(password.equals(newPassword)){
+            throw new NotMatchedFormatException("현재 비밀번호와 다른 비밀번호로 지정해 주세요.");
+        }
+
+        UserEntity userEntity = userService.searchById(userId);
+
+        String salt = userEntity.getSalt();
+        String storedPassword = userEntity.getPassword();
+
+        if(!passwordEncoder.matches(password + salt, storedPassword)){
+            throw new NotMatchedFormatException("현재 비밀번호가 일치하지 않습니다.");
+        }
+
+        String newSalt = UUID.randomUUID().toString();
+        String newEncPassword = passwordEncoder.encode(newPassword + newSalt);
+
+        userEntity.setPassword(newEncPassword);
+        userEntity.setSalt(newSalt);
+        userEntity.setUpdatedAt(CustomDateUtils.getCurrentDateTime());
+
+        this.logout(request, response);
+        refreshTokenService.deleteAllByUserId(userId);
+    }
 }

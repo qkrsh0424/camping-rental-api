@@ -1,5 +1,6 @@
 package com.camping_rental.server.domain.product.strategy;
 
+import com.camping_rental.server.annotation.TrackExecutionTime;
 import com.camping_rental.server.domain.product.entity.ProductEntity;
 import com.camping_rental.server.domain.product.projection.ProductProjection;
 import com.camping_rental.server.domain.product.service.ProductService;

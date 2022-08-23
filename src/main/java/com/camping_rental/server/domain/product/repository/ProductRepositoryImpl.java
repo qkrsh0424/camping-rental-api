@@ -75,6 +75,7 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
 
     @Override
     public Page<ProductProjection.RelatedRoom> qSelectPageRelatedRoom(Map<String, Object> params, Pageable pageable) {
+        Object orderType = params.get("orderType");
         JPQLQuery customQuery = query.from(qProductEntity)
                 .select(
                         Projections.fields(
@@ -87,26 +88,16 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
                         qRoomEntity.id.eq(qProductEntity.roomId)
                                 .and(qRoomEntity.deletedFlag.eq(DeletedFlagEnums.EXIST.getValue()))
                 )
-                .leftJoin(qRentalOrderProductEntity).on(
-                        qRentalOrderProductEntity.productId.eq(qProductEntity.id)
-                                .and(qRentalOrderProductEntity.deletedFlag.eq(DeletedFlagEnums.EXIST.getValue()))
-                )
-                .leftJoin(qProductCountInfoEntity).on(qProductCountInfoEntity.productId.eq(qProductEntity.id))
                 .where(eqCategoryId(params))
                 .where(eqRoomId(params))
                 .where(eqDisplayYn(params))
-                .groupBy(qProductEntity.cid)
-                .orderBy(
-                        qRentalOrderProductEntity.cid.count()
-                                .multiply(10)
-                                .add(
-                                        qProductCountInfoEntity.viewCount.coalesce(0)
-                                )
-                                .desc()
-                )
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
                 ;
+
+        if (orderType == null || orderType.toString().equals("order_rank")) {
+            this.orderByProductRankQuery(customQuery);
+        }
 
         this.sortPagedData(customQuery, pageable);
 
@@ -242,33 +233,38 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
                 .where(eqRoomId(params))
                 .where(eqDisplayYn(params))
                 .where(eqRoomIdWithRegionSubquery(params))
-                .groupBy(qProductEntity.cid)
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize());
 
         if (orderType == null || orderType.toString().equals("order_rank")) {
-            customQuery
-                    .leftJoin(qRentalOrderProductEntity)
-                    .on(
-                            qRentalOrderProductEntity.productId.eq(qProductEntity.id)
-                                    .and(qRentalOrderProductEntity.deletedFlag.eq(DeletedFlagEnums.EXIST.getValue()))
-                    )
-                    .leftJoin(qProductCountInfoEntity)
-                    .on(
-                            qProductCountInfoEntity.productId.eq(qProductEntity.id)
-                    )
-                    .orderBy(
-                            qRentalOrderProductEntity.cid.count()
-                                    .multiply(10)
-                                    .add(
-                                            qProductCountInfoEntity.viewCount.coalesce(0)
-                                    )
-                                    .desc()
-                    );
+            this.orderByProductRankQuery(customQuery);
         }
+
         this.sortPagedData(customQuery, pageable);
 
         return customQuery;
+    }
+
+    private void orderByProductRankQuery(JPQLQuery customQuery){
+        customQuery
+                .leftJoin(qRentalOrderProductEntity)
+                .on(
+                        qRentalOrderProductEntity.productId.eq(qProductEntity.id)
+                                .and(qRentalOrderProductEntity.deletedFlag.eq(DeletedFlagEnums.EXIST.getValue()))
+                )
+                .leftJoin(qProductCountInfoEntity)
+                .on(
+                        qProductCountInfoEntity.productId.eq(qProductEntity.id)
+                )
+                .groupBy(qProductEntity.cid)
+                .orderBy(
+                        qRentalOrderProductEntity.cid.count()
+                                .multiply(10)
+                                .add(
+                                        qProductCountInfoEntity.viewCount.coalesce(0)
+                                )
+                                .desc()
+                );
     }
 
     private BooleanExpression eqRoomIdWithRegionSubquery(Map<String, Object> params) {
