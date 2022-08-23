@@ -20,7 +20,6 @@ public class RegionApiV1 {
     private final RegionBusinessService regionBusinessService;
 
     @GetMapping("/rooms/{roomId}")
-    @RequiredLogin
     public ResponseEntity<?> searchListBySelf(@PathVariable("roomId") Object roomIdObj){
         Message message = new Message();
 
