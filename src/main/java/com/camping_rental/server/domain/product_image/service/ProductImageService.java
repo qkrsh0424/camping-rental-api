@@ -13,6 +13,9 @@ import java.util.UUID;
 public class ProductImageService {
     private final ProductImageRepository productImageRepository;
 
+    public List<ProductImageEntity> searchListByProductId(UUID productId) {
+        return productImageRepository.findAllByProductId(productId);
+    }
     public void saveAndModify(ProductImageEntity entity){
         productImageRepository.save(entity);
     }
@@ -23,5 +26,9 @@ public class ProductImageService {
 
     public void logicalDeleteByProductId(UUID productId) {
         productImageRepository.logicalDeleteByProductId(productId);
+    }
+
+    public void deleteByProductId(UUID productId){
+        productImageRepository.deleteByProductId(productId);
     }
 }

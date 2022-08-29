@@ -1,4 +1,4 @@
-package com.camping_rental.server.domain.user_consent.entity;
+package com.camping_rental.server.domain.product_package.entity;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -10,46 +10,44 @@ import org.hibernate.annotations.Type;
 import org.hibernate.annotations.Where;
 
 import javax.persistence.*;
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Data
-@Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@Table(name = "user_consent")
+@Builder
+@Table(name = "product_package")
 @Entity
 @DynamicInsert
 @DynamicUpdate
 @Where(clause = "deleted_flag=0")
-public class UserConsentEntity {
+public class ProductPackageEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "cid")
-    private Integer cid;
+    private Long cid;
 
     @Column(name = "id")
     @Type(type = "uuid-char")
     private UUID id;
 
-    @Column(name = "service_terms_yn")
-    private String serviceTermsYn;
+    @Column(name = "name")
+    private String name;
 
-    @Column(name = "privacy_policy_yn")
-    private String privacyPolicyYn;
+    @Column(name = "unit")
+    private Integer unit;
 
-    @Column(name = "marketing_yn")
-    private String marketingYn;
+    @Column(name = "thumbnail_uri")
+    private String thumbnailUri;
 
-    @Column(name = "marketing_phone_yn")
-    private String marketingPhoneYn;
-
-    @Column(name = "marketing_email_yn")
-    private String marketingEmailYn;
+    @Column(name = "updated_at")
+    private LocalDateTime updatedAt;
 
     @Column(name = "deleted_flag")
     private boolean deletedFlag;
 
-    @Column(name = "user_id")
+    @Column(name = "product_id")
     @Type(type = "uuid-char")
-    private UUID userId;
+    private UUID productId;
 }

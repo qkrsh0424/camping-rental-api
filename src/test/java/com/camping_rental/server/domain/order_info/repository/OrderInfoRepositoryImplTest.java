@@ -24,8 +24,6 @@ class OrderInfoRepositoryImplTest {
     @Test
     public void qSelectList() {
         List<OrderInfoEntity> orderInfoEntities = orderInfoRepository.qSelectList();
-
-        System.out.println(orderInfoEntities);
     }
 
     @Test

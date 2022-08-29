@@ -51,6 +51,30 @@ public class ProductApiV1 {
         return new ResponseEntity<>(message, message.getStatus());
     }
 
+    @GetMapping("/{productId}/for-modify")
+    public ResponseEntity<?> searchOneForModify(
+            @PathVariable("productId") Object productIdObj,
+            @RequestParam Map<String, Object> params
+    ) {
+        Message message = new Message();
+
+        UUID productId = null;
+        UUID roomId = null;
+
+        try {
+            productId = UUID.fromString(productIdObj.toString());
+            roomId = UUID.fromString(params.get("roomId").toString());
+        } catch (IllegalArgumentException | NullPointerException e) {
+            throw new NotMatchedFormatException("요청 데이터를 찾을 수 없습니다.");
+        }
+
+        message.setData(productBusinessService.searchOneForModify(productId, roomId));
+        message.setStatus(HttpStatus.OK);
+        message.setMessage("success");
+
+        return new ResponseEntity<>(message, message.getStatus());
+    }
+
     @GetMapping("/page")
     public ResponseEntity<?> searchPage(
             @RequestParam Map<String, Object> params,

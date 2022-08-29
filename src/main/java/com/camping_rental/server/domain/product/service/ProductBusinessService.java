@@ -1,31 +1,36 @@
 package com.camping_rental.server.domain.product.service;
 
+import com.camping_rental.server.domain.enums.DeletedFlagEnums;
 import com.camping_rental.server.domain.exception.dto.AccessDeniedPermissionException;
 import com.camping_rental.server.domain.exception.dto.NotMatchedFormatException;
 import com.camping_rental.server.domain.product.dto.ProductDto;
 import com.camping_rental.server.domain.product.entity.ProductEntity;
 import com.camping_rental.server.domain.product.enums.ProductDeletedFlagEnum;
 import com.camping_rental.server.domain.product.enums.ProductDisplayYnEnum;
+import com.camping_rental.server.domain.product.enums.ProductPackageYnEnum;
 import com.camping_rental.server.domain.product.projection.ProductProjection;
 import com.camping_rental.server.domain.product.strategy.ProductSearchStrategy;
 import com.camping_rental.server.domain.product.strategy.ProductSearchStrategyContext;
 import com.camping_rental.server.domain.product.strategy.ProductSearchStrategyName;
-import com.camping_rental.server.domain.product.vo.ProductVo;
 import com.camping_rental.server.domain.product_image.dto.ProductImageDto;
 import com.camping_rental.server.domain.product_image.entity.ProductImageEntity;
 import com.camping_rental.server.domain.product_image.enums.ProductImageDeletedFlagEnum;
 import com.camping_rental.server.domain.product_image.service.ProductImageService;
+import com.camping_rental.server.domain.product_package.dto.ProductPackageDto;
+import com.camping_rental.server.domain.product_package.entity.ProductPackageEntity;
+import com.camping_rental.server.domain.product_package.service.ProductPackageService;
 import com.camping_rental.server.domain.room.entity.RoomEntity;
 import com.camping_rental.server.domain.room.service.RoomService;
 import com.camping_rental.server.domain.user.service.UserService;
 import com.camping_rental.server.utils.CustomDateUtils;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
+import org.hibernate.annotations.Type;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.persistence.Column;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -39,6 +44,7 @@ public class ProductBusinessService {
     private final ProductService productService;
     private final ProductImageService productImageService;
     private final ProductSearchStrategyContext productSearchStrategyContext;
+    private final ProductPackageService productPackageService;
 
     @Transactional(readOnly = true)
     public Object searchOne(
@@ -47,6 +53,22 @@ public class ProductBusinessService {
     ) {
         String related = params.get("related") == null ? "basic" : params.get("related").toString();
 
+        productSearchStrategyContext.setStrategy(ProductSearchStrategyName.fromString(related));
+        ProductSearchStrategy productSearchStrategy = productSearchStrategyContext.returnStrategy();
+
+        return productSearchStrategy.searchById(productId, params);
+    }
+
+    @Transactional(readOnly = true)
+    public Object searchOneForModify(UUID productId, UUID roomId) {
+        UUID userId = userService.getUserIdOrThrow();
+        RoomEntity roomEntity = roomService.searchByIdOrThrow(roomId);
+
+        if (!roomEntity.getUserId().equals(userId)) {
+            throw new NotMatchedFormatException("접근 권한이 없습니다.");
+        }
+
+        String related = "basic";
         productSearchStrategyContext.setStrategy(ProductSearchStrategyName.fromString(related));
         ProductSearchStrategy productSearchStrategy = productSearchStrategyContext.returnStrategy();
 
@@ -77,16 +99,6 @@ public class ProductBusinessService {
         return productSearchStrategy.searchListByIds(productIds);
     }
 
-    /*
-    Get login userId
-    Get roomEntity
-    Compare the userId to the roomEntity.getUserId(). If not equal to both, then throw out the access-denied exception.
-    Extract a thumbnail for images.
-    Make a new productEntity.
-    Make new productImageEntity list.
-    Save the productEntity to the database.
-    Save the productImageEntities to the database.
-     */
     @Transactional
     public void createOne(UUID roomId, ProductDto.Create productDto) {
         UUID userId = userService.getUserIdOrThrow();
@@ -97,9 +109,11 @@ public class ProductBusinessService {
             throw new AccessDeniedPermissionException("접근 권한이 없습니다.");
         }
 
-        List<ProductImageDto.Create> productImageDto = productDto.getProductImages();
+        ProductDto.Create.checkFormValid(productDto);
 
-        ProductImageDto.Create thumbnailImageDto = productImageDto.get(0);
+        List<ProductImageDto.Create> productImageDtos = productDto.getProductImages();
+
+        ProductImageDto.Create thumbnailImageDto = productImageDtos.get(0);
 
         UUID productId = UUID.randomUUID();
         ProductEntity productEntity = ProductEntity.builder()
@@ -114,6 +128,8 @@ public class ProductBusinessService {
                 .discountMinimumHour(productDto.getDiscountMinimumHour())
                 .discountRate(productDto.getDiscountRate())
                 .displayYn(ProductDisplayYnEnum.Y.getValue())
+                .packageYn(productDto.getPackageYn())
+                .maxOrderUnit(productDto.getMaxOrderUnit())
                 .deletedFlag(ProductDeletedFlagEnum.EXIST.getValue())
                 .createdAt(CustomDateUtils.getCurrentDateTime())
                 .updatedAt(CustomDateUtils.getCurrentDateTime())
@@ -121,7 +137,7 @@ public class ProductBusinessService {
                 .roomId(roomEntity.getId())
                 .build();
 
-        List<ProductImageEntity> productImageEntities = productImageDto.stream().map(dto -> {
+        List<ProductImageEntity> productImageEntities = productImageDtos.stream().map(dto -> {
             ProductImageEntity entity = ProductImageEntity.builder()
                     .cid(null)
                     .id(UUID.randomUUID())
@@ -143,6 +159,29 @@ public class ProductBusinessService {
 
         productService.saveAndModify(productEntity);
         productImageService.saveAll(productImageEntities);
+
+        if (productDto.getPackageYn() != null && productDto.getPackageYn().equals(ProductPackageYnEnum.Y.getValue())) {
+            List<ProductPackageDto.Create> productPackageDtos = productDto.getProductPackages();
+            if (productPackageDtos.size() <= 0) {
+                throw new NotMatchedFormatException("패키지 카테고리는 패키지 구성 제품을 설정해야 합니다.");
+            }
+
+            List<ProductPackageEntity> productPackageEntities = productPackageDtos.stream().map(dto -> {
+                ProductPackageEntity entity = ProductPackageEntity.builder()
+                        .cid(null)
+                        .id(UUID.randomUUID())
+                        .name(dto.getName())
+                        .unit(dto.getUnit())
+                        .thumbnailUri(dto.getThumbnailUri())
+                        .updatedAt(CustomDateUtils.getCurrentDateTime())
+                        .deletedFlag(DeletedFlagEnums.EXIST.getValue())
+                        .productId(productId)
+                        .build();
+                return entity;
+            }).collect(Collectors.toList());
+
+            productPackageService.saveAll(productPackageEntities);
+        }
 
     }
 
@@ -203,8 +242,11 @@ public class ProductBusinessService {
             throw new AccessDeniedPermissionException("접근 권한이 없습니다.");
         }
 
-        ProductImageDto.Update thumbnailDto = productDto.getProductImages().stream().findFirst().orElseThrow(() -> new NotMatchedFormatException("이미지는 최소 1개 이상 등록입니다."));
+        ProductImageDto.Update thumbnailDto = productDto.getProductImages().stream().findFirst().orElseThrow(() -> new NotMatchedFormatException("이미지는 최소 1개 이상 등록해야 합니다."));
         String thumbnailUri = thumbnailDto.getFileFullUri();
+
+        productImageService.logicalDeleteByProductId(productEntity.getId());
+        productPackageService.logicalDeleteByProductId(productEntity.getId());
 
         List<ProductImageEntity> productImageEntities = productDto.getProductImages().stream().map(dto -> {
             ProductImageEntity entity = ProductImageEntity.builder()
@@ -226,8 +268,30 @@ public class ProductBusinessService {
             return entity;
         }).collect(Collectors.toList());
 
-        productImageService.logicalDeleteByProductId(productEntity.getId());
         productImageService.saveAll(productImageEntities);
+
+        if (productDto.getPackageYn() != null && productDto.getPackageYn().equals(ProductPackageYnEnum.Y.getValue())) {
+            List<ProductPackageDto.Create> productPackageDtos = productDto.getProductPackages();
+            if (productPackageDtos.size() <= 0) {
+                throw new NotMatchedFormatException("패키지 카테고리는 패키지 구성 제품을 설정해야 합니다.");
+            }
+            List<ProductPackageEntity> productPackageEntities = productDto.getProductPackages().stream().map(dto -> {
+                ProductPackageEntity entity = ProductPackageEntity.builder()
+                        .cid(null)
+                        .id(UUID.randomUUID())
+                        .name(dto.getName())
+                        .unit(dto.getUnit())
+                        .thumbnailUri(dto.getThumbnailUri())
+                        .updatedAt(CustomDateUtils.getCurrentDateTime())
+                        .deletedFlag(DeletedFlagEnums.EXIST.getValue())
+                        .productId(productEntity.getId())
+                        .build();
+                return entity;
+            }).collect(Collectors.toList());
+
+            productPackageService.saveAll(productPackageEntities);
+        }
+
 
         productEntity.setName(productDto.getName());
         productEntity.setDescription(productDto.getDescription());
@@ -238,6 +302,8 @@ public class ProductBusinessService {
         productEntity.setDiscountMinimumHour(productDto.getDiscountMinimumHour());
         productEntity.setDiscountRate(productDto.getDiscountRate());
         productEntity.setDisplayYn(productDto.getDisplayYn());
+        productEntity.setPackageYn(productDto.getPackageYn());
+        productEntity.setMaxOrderUnit(productDto.getMaxOrderUnit());
         productEntity.setUpdatedAt(CustomDateUtils.getCurrentDateTime());
         productEntity.setProductCategoryId(productDto.getProductCategoryId());
     }

@@ -27,6 +27,7 @@ public class UserVo {
     private String name;
     private String nickname;
     private String phoneNumber;
+    private String profileImageUri;
     private String roles;
     private Integer allowedAccessCount;
     private LocalDateTime updatedAt;
@@ -55,6 +56,7 @@ public class UserVo {
         private String name;
         private String nickname;
         private String phoneNumber;
+        private String profileImageUri;
         private String roles;
         private UUID roomId;
 
@@ -63,13 +65,14 @@ public class UserVo {
                 return null;
             }
 
-            UserVo.Basic dto = UserVo.Basic.builder()
+            UserVo.Basic dto = Basic.builder()
                     .id(entity.getId())
                     .username(entity.getUsername())
                     .email(entity.getEmail())
                     .name(entity.getName())
                     .nickname(entity.getNickname())
                     .phoneNumber(entity.getPhoneNumber())
+                    .profileImageUri(entity.getProfileImageUri())
                     .roles(entity.getRoles())
                     .roomId(entity.getRoomId())
                     .build();

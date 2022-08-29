@@ -145,7 +145,7 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
     }
 
     @Override
-    public Optional<ProductProjection.RelatedProductCategoryAndRoomAndRegionsAndProductImages> qSelectByIdRelatedProductCategoryAndRoomAndRegionsAndProductImages(UUID productId) {
+    public Optional<ProductProjection.RelatedProductCategoryAndRoomAndRegionsAndProductImages> qSelectByIdRelatedProductCategoryAndRoomAndRegionsAndProductImages(UUID productId, Map<String, Object> params) {
         List<ProductProjection.RelatedProductCategoryAndRoomAndRegionsAndProductImages> productProjections = query.from(qProductImageEntity)
                 .join(qProductEntity).on(
                         qProductEntity.id.eq(qProductImageEntity.productId)
@@ -164,6 +164,7 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
                                 .and(qRegionEntity.deletedFlag.eq(DeletedFlagEnums.EXIST.getValue()))
                 )
                 .where(qProductEntity.id.eq(productId))
+                .where(eqDisplayYn(params))
                 .orderBy(qProductEntity.cid.asc())
                 .orderBy(qProductImageEntity.cid.asc())
                 .orderBy(qRegionEntity.cid.asc())

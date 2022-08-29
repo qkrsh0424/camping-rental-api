@@ -23,8 +23,8 @@ public class ProductService {
         productRepository.save(entity);
     }
 
-    public ProductProjection.RelatedProductCategoryAndRoomAndRegionsAndProductImages qSearchByIdRelatedCategoryAndRoomAndRegionsAndImagesElseThrow(UUID productId) {
-        return productRepository.qSelectByIdRelatedProductCategoryAndRoomAndRegionsAndProductImages(productId).orElseThrow(()->new NotMatchedFormatException("요청 데이터를 찾을 수 없습니다."));
+    public ProductProjection.RelatedProductCategoryAndRoomAndRegionsAndProductImages qSearchByIdRelatedCategoryAndRoomAndRegionsAndImagesElseThrow(UUID productId, Map<String, Object> params) {
+        return productRepository.qSelectByIdRelatedProductCategoryAndRoomAndRegionsAndProductImages(productId, params).orElseThrow(()->new NotMatchedFormatException("요청 데이터를 찾을 수 없습니다."));
     }
 
     public Page<ProductProjection.RelatedRoom> qSearchPageRelatedRoom(Map<String, Object> params, Pageable pageable) {

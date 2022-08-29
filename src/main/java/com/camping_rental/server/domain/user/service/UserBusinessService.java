@@ -199,6 +199,7 @@ public class UserBusinessService {
                 .name(null)
                 .nickname(NICKNAME)
                 .phoneNumber(PHONE_NUMBER)
+                .profileImageUri("")
                 .roles(UserRoleEnum.USER.getValue())
                 .allowedAccessCount(UserAllowedAccessCountEnum.DEFUALT.getValue())
                 .updatedAt(CustomDateUtils.getCurrentDateTime())
@@ -213,6 +214,8 @@ public class UserBusinessService {
                 .serviceTermsYn(userSignupDto.getServiceTermsYn())
                 .privacyPolicyYn(userSignupDto.getPrivacyPolicyYn())
                 .marketingYn(userSignupDto.getMarketingYn())
+                .marketingPhoneYn(userSignupDto.getMarketingYn().equals("y") ? "y" : "n")
+                .marketingEmailYn("n")
                 .deletedFlag(DeletedFlagEnums.EXIST.getValue())
                 .userId(userId)
                 .build();
@@ -530,5 +533,15 @@ public class UserBusinessService {
 
         this.logout(request, response);
         refreshTokenService.deleteAllByUserId(userId);
+    }
+
+    @Transactional
+    public void changeProfileImageUri(String profileImageUri) {
+        UUID userId = userService.getUserIdOrThrow();
+
+        UserEntity userEntity = userService.searchById(userId);
+
+        userEntity.setProfileImageUri(profileImageUri);
+        userEntity.setUpdatedAt(CustomDateUtils.getCurrentDateTime());
     }
 }

@@ -34,6 +34,7 @@ public class UserDto {
     private String name;
     private String nickname;
     private String phoneNumber;
+    private String profileImageUri;
     private String roles;
     private Integer allowedAccessCount;
     private LocalDateTime updatedAt;
@@ -199,6 +200,7 @@ public class UserDto {
         private String name;
         private String nickname;
         private String phoneNumber;
+        private String profileImageUri;
         private String roles;
 
         public static Basic toDto(UserEntity entity) {

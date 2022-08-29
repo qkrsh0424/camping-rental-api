@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.UUID;
 
 @Repository
@@ -13,4 +14,10 @@ public interface ProductImageRepository extends JpaRepository<ProductImageEntity
     @Modifying
     @Query("UPDATE ProductImageEntity pi SET pi.deletedFlag=1 WHERE pi.productId=:productId")
     void logicalDeleteByProductId(UUID productId);
+
+    List<ProductImageEntity> findAllByProductId(UUID productId);
+
+    @Modifying
+    @Query("DELETE FROM ProductImageEntity pi WHERE pi.productId=:productId")
+    void deleteByProductId(UUID productId);
 }

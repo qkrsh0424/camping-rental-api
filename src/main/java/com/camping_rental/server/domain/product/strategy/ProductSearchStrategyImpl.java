@@ -97,8 +97,8 @@ public class ProductSearchStrategyImpl {
         public final ProductService productService;
 
         @Override
-        public <T> T searchById(UUID id) {
-            ProductProjection.RelatedProductCategoryAndRoomAndRegionsAndProductImages productProjection = productService.qSearchByIdRelatedCategoryAndRoomAndRegionsAndImagesElseThrow(id);
+        public <T> T searchById(UUID id, Map<String, Object> params) {
+            ProductProjection.RelatedProductCategoryAndRoomAndRegionsAndProductImages productProjection = productService.qSearchByIdRelatedCategoryAndRoomAndRegionsAndImagesElseThrow(id, params);
 
             return (T) ProductVo.RelatedProductCategoryAndRoomAndRegionsAndProductImages.toVo(productProjection);
         }

@@ -12,6 +12,9 @@ public interface ProductSearchStrategy {
     default <T> T searchById(UUID id) {
         return null;
     }
+    default <T> T searchById(UUID id, Map<String, Object> params) {
+        return null;
+    }
 
     default <T> Page<T> searchPage(Map<String, Object> params, Pageable pageable) {
         return null;

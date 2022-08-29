@@ -56,10 +56,16 @@ public class ProductEntity {
     @Column(name = "discount_rate")
     private Integer discountRate;
 
-    @Column(name = "displayYn")
+    @Column(name = "display_yn")
     private String displayYn;
 
-    @Column(name = "deletedFlag")
+    @Column(name = "package_yn")
+    private String packageYn;
+
+    @Column(name = "max_order_unit")
+    private Integer maxOrderUnit;
+
+    @Column(name = "deleted_flag")
     private boolean deletedFlag;
 
     @Column(name = "created_at")

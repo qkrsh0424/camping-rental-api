@@ -248,4 +248,27 @@ public class UserApiV1 {
 
         return new ResponseEntity<>(message, message.getStatus());
     }
+
+    @PatchMapping("/target:profileImageUri")
+    @RequiredLogin
+    public ResponseEntity<?> changeProfileImageUri(
+            @RequestBody Map<String, Object> body
+    ){
+        Message message = new Message();
+
+        String profileImageUri = null;
+
+        try{
+            profileImageUri = body.get("profileImageUri").toString();
+        }catch (IllegalArgumentException | NullPointerException e){
+            throw new NotMatchedFormatException("잘못된 접근 입니다.");
+        }
+
+        userBusinessService.changeProfileImageUri(profileImageUri);
+
+        message.setStatus(HttpStatus.OK);
+        message.setMessage("success");
+
+        return new ResponseEntity<>(message, message.getStatus());
+    }
 }

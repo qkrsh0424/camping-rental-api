@@ -32,6 +32,8 @@ public class ProductVo {
     private Integer discountMinimumHour;
     private Integer discountRate;
     private String displayYn;
+    private String packageYn;
+    private Integer maxOrderUnit;
     private boolean deletedFlag;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
@@ -53,6 +55,8 @@ public class ProductVo {
         private Integer discountMinimumHour;
         private Integer discountRate;
         private String displayYn;
+        private String packageYn;
+        private Integer maxOrderUnit;
         private UUID productCategoryId;
         private UUID roomId;
 
@@ -68,6 +72,8 @@ public class ProductVo {
                     .discountMinimumHour(entity.getDiscountMinimumHour())
                     .discountRate(entity.getDiscountRate())
                     .displayYn(entity.getDisplayYn())
+                    .packageYn(entity.getPackageYn())
+                    .maxOrderUnit(entity.getMaxOrderUnit())
                     .productCategoryId(entity.getProductCategoryId())
                     .roomId(entity.getRoomId())
                     .build();
@@ -90,6 +96,8 @@ public class ProductVo {
         private Integer discountMinimumHour;
         private Integer discountRate;
         private String displayYn;
+        private String packageYn;
+        private Integer maxOrderUnit;
         private UUID productCategoryId;
         private UUID roomId;
         private RoomVo.Basic room;
@@ -106,6 +114,8 @@ public class ProductVo {
                     .discountMinimumHour(proj.getProductEntity().getDiscountMinimumHour())
                     .discountRate(proj.getProductEntity().getDiscountRate())
                     .displayYn(proj.getProductEntity().getDisplayYn())
+                    .packageYn(proj.getProductEntity().getPackageYn())
+                    .maxOrderUnit(proj.getProductEntity().getMaxOrderUnit())
                     .productCategoryId(proj.getProductEntity().getProductCategoryId())
                     .roomId(proj.getProductEntity().getRoomId())
                     .room(RoomVo.Basic.toVo(proj.getRoomEntity()))
@@ -129,6 +139,8 @@ public class ProductVo {
         private Integer discountMinimumHour;
         private Integer discountRate;
         private String displayYn;
+        private String packageYn;
+        private Integer maxOrderUnit;
         private UUID productCategoryId;
         private UUID roomId;
         private RoomVo.Basic room;
@@ -146,6 +158,8 @@ public class ProductVo {
                     .discountMinimumHour(proj.getProductEntity().getDiscountMinimumHour())
                     .discountRate(proj.getProductEntity().getDiscountRate())
                     .displayYn(proj.getProductEntity().getDisplayYn())
+                    .packageYn(proj.getProductEntity().getPackageYn())
+                    .maxOrderUnit(proj.getProductEntity().getMaxOrderUnit())
                     .productCategoryId(proj.getProductEntity().getProductCategoryId())
                     .roomId(proj.getProductEntity().getRoomId())
                     .room(RoomVo.Basic.toVo(proj.getRoomEntity()))
@@ -170,6 +184,8 @@ public class ProductVo {
         private Integer discountMinimumHour;
         private Integer discountRate;
         private String displayYn;
+        private String packageYn;
+        private Integer maxOrderUnit;
         private UUID productCategoryId;
         private UUID roomId;
         private List<RegionVo.Basic> regions;
@@ -186,6 +202,8 @@ public class ProductVo {
                     .discountMinimumHour(proj.getProductEntity().getDiscountMinimumHour())
                     .discountRate(proj.getProductEntity().getDiscountRate())
                     .displayYn(proj.getProductEntity().getDisplayYn())
+                    .packageYn(proj.getProductEntity().getPackageYn())
+                    .maxOrderUnit(proj.getProductEntity().getMaxOrderUnit())
                     .productCategoryId(proj.getProductEntity().getProductCategoryId())
                     .roomId(proj.getProductEntity().getRoomId())
                     .regions(proj.getRegionEntities().stream().map(r -> RegionVo.Basic.toVo(r)).collect(Collectors.toList()))
@@ -209,6 +227,8 @@ public class ProductVo {
         private Integer discountMinimumHour;
         private Integer discountRate;
         private String displayYn;
+        private String packageYn;
+        private Integer maxOrderUnit;
         private UUID productCategoryId;
         private UUID roomId;
         private RoomVo.Basic room;
@@ -228,6 +248,8 @@ public class ProductVo {
                     .discountMinimumHour(proj.getProductEntity().getDiscountMinimumHour())
                     .discountRate(proj.getProductEntity().getDiscountRate())
                     .displayYn(proj.getProductEntity().getDisplayYn())
+                    .packageYn(proj.getProductEntity().getPackageYn())
+                    .maxOrderUnit(proj.getProductEntity().getMaxOrderUnit())
                     .productCategoryId(proj.getProductEntity().getProductCategoryId())
                     .roomId(proj.getProductEntity().getRoomId())
                     .room(RoomVo.Basic.toVo(proj.getRoomEntity()))

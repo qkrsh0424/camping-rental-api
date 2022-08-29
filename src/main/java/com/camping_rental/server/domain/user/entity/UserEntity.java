@@ -65,6 +65,9 @@ public class UserEntity {
     @Column(name = "phone_number")
     private String phoneNumber;
 
+    @Column(name = "profile_image_uri")
+    private String profileImageUri;
+
     @Column(name = "roles")
     private String roles;
 
