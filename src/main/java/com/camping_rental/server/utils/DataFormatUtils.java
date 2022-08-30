@@ -81,7 +81,7 @@ public class DataFormatUtils {
 
     public static void checkNicknameFormat(String nickname){
         if(!DataFormatUtils.isPassNicknameFormatValid(nickname)){
-            throw new NotMatchedFormatException("닉네임 형식이 올바르지 않습니다.");
+            throw new NotMatchedFormatException("이름 형식이 올바르지 않습니다.");
         }
     }
 

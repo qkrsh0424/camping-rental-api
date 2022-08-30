@@ -1,6 +1,7 @@
 package com.camping_rental.server.domain.user.service;
 
 import com.camping_rental.server.config.auth.PrincipalDetails;
+import com.camping_rental.server.domain.enums.DeletedFlagEnums;
 import com.camping_rental.server.domain.exception.dto.InvalidUserException;
 import com.camping_rental.server.domain.user.entity.UserEntity;
 import com.camping_rental.server.domain.user.enums.UserLoginTypeEnum;
@@ -75,5 +76,9 @@ public class UserService {
 
     public UserEntity saveAndGet(UserEntity userEntity) {
         return userRepository.save(userEntity);
+    }
+
+    public void logicalDelete(UserEntity userEntity) {
+        userEntity.setDeletedFlag(DeletedFlagEnums.DELETED.getValue());
     }
 }

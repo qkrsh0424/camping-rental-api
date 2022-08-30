@@ -36,7 +36,7 @@ public class ProductService {
     }
 
     public ProductProjection.RelatedRoomAndRegions qSearchOneByIdJoinRoomAndRegionOrThrow(UUID productId) {
-        return productRepository.qSelectOneByIdJoinRoomAndRegion(productId).orElseThrow(() -> new NotMatchedFormatException("요청 데이터를 찾을 수 없습니다."));
+        return productRepository.qSelectByIdRelatedRoomAndRegion(productId).orElseThrow(() -> new NotMatchedFormatException("요청 데이터를 찾을 수 없습니다."));
     }
 
     public List<ProductProjection.RelatedRoomAndRegions> qSearchListByIdsRelatedRoomAndRegions(List<UUID> productIds) {
@@ -47,7 +47,11 @@ public class ProductService {
         entity.setDeletedFlag(ProductDeletedFlagEnum.DELETED.getValue());
     }
 
-    public ProductEntity searchOneById(UUID productId) {
+    public ProductEntity searchOneByIdElseThrow(UUID productId) {
         return productRepository.findById(productId).orElseThrow(() -> new NotMatchedFormatException("요청 데이터를 찾을 수 없습니다."));
+    }
+
+    public ProductProjection.RelatedRoom qSearchByIdRelatedRoomElseThrow(UUID productId) {
+        return productRepository.qSelectByIdRelatedRoom(productId).orElseThrow(()->new NotMatchedFormatException("요청 데이터를 찾을 수 없습니다."));
     }
 }

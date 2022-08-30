@@ -44,7 +44,30 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
     private final QProductCountInfoEntity qProductCountInfoEntity = QProductCountInfoEntity.productCountInfoEntity;
 
     @Override
-    public Optional<ProductProjection.RelatedRoomAndRegions> qSelectOneByIdJoinRoomAndRegion(UUID id) {
+    public Optional<ProductProjection.RelatedRoom> qSelectByIdRelatedRoom(UUID id) {
+        List<ProductProjection.RelatedRoom> resultList = query.from(qProductEntity)
+                .join(qRoomEntity).on(
+                        qRoomEntity.id.eq(qProductEntity.roomId)
+                                .and(qRoomEntity.deletedFlag.eq(DeletedFlagEnums.EXIST.getValue()))
+                )
+                .where(qProductEntity.id.eq(id))
+                .orderBy(qProductEntity.cid.asc())
+                .transform(
+                        GroupBy.groupBy(qProductEntity.cid)
+                                .list(
+                                        Projections.fields(
+                                                ProductProjection.RelatedRoom.class,
+                                                qProductEntity.as("productEntity"),
+                                                qRoomEntity.as("roomEntity")
+                                        )
+                                )
+                );
+
+        return resultList.stream().findFirst();
+    }
+
+    @Override
+    public Optional<ProductProjection.RelatedRoomAndRegions> qSelectByIdRelatedRoomAndRegion(UUID id) {
         List<ProductProjection.RelatedRoomAndRegions> resultList = query.from(qProductEntity)
                         .join(qRoomEntity).on(
                                 qRoomEntity.id.eq(qProductEntity.roomId)
@@ -71,6 +94,53 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
                         );
 
         return resultList.stream().findFirst();
+    }
+
+    @Override
+    public Optional<ProductProjection.RelatedProductCategoryAndRoomAndRegionsAndProductImages> qSelectByIdRelatedProductCategoryAndRoomAndRegionsAndProductImages(UUID productId, Map<String, Object> params) {
+        List<ProductProjection.RelatedProductCategoryAndRoomAndRegionsAndProductImages> productProjections = query.from(qProductImageEntity)
+                .join(qProductEntity).on(
+                        qProductEntity.id.eq(qProductImageEntity.productId)
+                                .and(qProductEntity.deletedFlag.eq(DeletedFlagEnums.EXIST.getValue()))
+                )
+                .join(qProductCategoryEntity).on(
+                        qProductCategoryEntity.id.eq(qProductEntity.productCategoryId)
+                                .and(qProductCategoryEntity.deletedFlag.eq(DeletedFlagEnums.EXIST.getValue()))
+                )
+                .join(qRoomEntity).on(
+                        qRoomEntity.id.eq(qProductEntity.roomId)
+                                .and(qRoomEntity.deletedFlag.eq(DeletedFlagEnums.EXIST.getValue()))
+                )
+                .join(qRegionEntity).on(
+                        qRegionEntity.roomId.eq(qRoomEntity.id)
+                                .and(qRegionEntity.deletedFlag.eq(DeletedFlagEnums.EXIST.getValue()))
+                )
+                .where(qProductEntity.id.eq(productId))
+                .where(eqDisplayYn(params))
+                .orderBy(qProductEntity.cid.asc())
+                .orderBy(qProductImageEntity.cid.asc())
+                .orderBy(qRegionEntity.cid.asc())
+                .transform(
+                        GroupBy.groupBy(qProductEntity.cid)
+                                .list(
+                                        Projections.fields(
+                                                ProductProjection.RelatedProductCategoryAndRoomAndRegionsAndProductImages.class,
+                                                qRoomEntity.as("roomEntity"),
+                                                qProductCategoryEntity.as("productCategoryEntity"),
+                                                qProductEntity.as("productEntity"),
+                                                GroupBy.set(
+                                                        qRegionEntity
+                                                ).as("regionEntities"),
+                                                GroupBy.set(
+                                                        qProductImageEntity
+                                                ).as("productImageEntities")
+
+                                        )
+                                )
+
+                );
+
+        return productProjections.stream().findFirst();
     }
 
     @Override
@@ -142,53 +212,6 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
         });
 
         return new PageImpl<>(productProjections, pageable, totalCount);
-    }
-
-    @Override
-    public Optional<ProductProjection.RelatedProductCategoryAndRoomAndRegionsAndProductImages> qSelectByIdRelatedProductCategoryAndRoomAndRegionsAndProductImages(UUID productId, Map<String, Object> params) {
-        List<ProductProjection.RelatedProductCategoryAndRoomAndRegionsAndProductImages> productProjections = query.from(qProductImageEntity)
-                .join(qProductEntity).on(
-                        qProductEntity.id.eq(qProductImageEntity.productId)
-                                .and(qProductEntity.deletedFlag.eq(DeletedFlagEnums.EXIST.getValue()))
-                )
-                .join(qProductCategoryEntity).on(
-                        qProductCategoryEntity.id.eq(qProductEntity.productCategoryId)
-                                .and(qProductCategoryEntity.deletedFlag.eq(DeletedFlagEnums.EXIST.getValue()))
-                )
-                .join(qRoomEntity).on(
-                        qRoomEntity.id.eq(qProductEntity.roomId)
-                                .and(qRoomEntity.deletedFlag.eq(DeletedFlagEnums.EXIST.getValue()))
-                )
-                .join(qRegionEntity).on(
-                        qRegionEntity.roomId.eq(qRoomEntity.id)
-                                .and(qRegionEntity.deletedFlag.eq(DeletedFlagEnums.EXIST.getValue()))
-                )
-                .where(qProductEntity.id.eq(productId))
-                .where(eqDisplayYn(params))
-                .orderBy(qProductEntity.cid.asc())
-                .orderBy(qProductImageEntity.cid.asc())
-                .orderBy(qRegionEntity.cid.asc())
-                .transform(
-                        GroupBy.groupBy(qProductEntity.cid)
-                                .list(
-                                        Projections.fields(
-                                                ProductProjection.RelatedProductCategoryAndRoomAndRegionsAndProductImages.class,
-                                                qRoomEntity.as("roomEntity"),
-                                                qProductCategoryEntity.as("productCategoryEntity"),
-                                                qProductEntity.as("productEntity"),
-                                                GroupBy.set(
-                                                        qRegionEntity
-                                                ).as("regionEntities"),
-                                                GroupBy.set(
-                                                        qProductImageEntity
-                                                ).as("productImageEntities")
-
-                                        )
-                                )
-
-                );
-
-        return productProjections.stream().findFirst();
     }
 
     @Override

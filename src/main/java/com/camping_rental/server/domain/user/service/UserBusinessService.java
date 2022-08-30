@@ -5,6 +5,7 @@ import com.camping_rental.server.domain.exception.dto.InvalidUserException;
 import com.camping_rental.server.domain.exception.dto.NotMatchedFormatException;
 import com.camping_rental.server.domain.refresh_token.entity.RefreshTokenEntity;
 import com.camping_rental.server.domain.refresh_token.service.RefreshTokenService;
+import com.camping_rental.server.domain.room.entity.RoomEntity;
 import com.camping_rental.server.domain.room.service.RoomService;
 import com.camping_rental.server.domain.user.dto.UserDto;
 import com.camping_rental.server.domain.user.entity.UserEntity;
@@ -499,19 +500,19 @@ public class UserBusinessService {
     public void changePassword(HttpServletRequest request, HttpServletResponse response, String password, String newPassword, String newPasswordChecker) {
         UUID userId = userService.getUserIdOrThrow();
 
-        if(!DataFormatUtils.isPassPasswordFormatValid(password)){
+        if (!DataFormatUtils.isPassPasswordFormatValid(password)) {
             throw new NotMatchedFormatException("현재 비밀번호를 다시 확인해 주세요.");
         }
 
-        if(!DataFormatUtils.isPassPasswordFormatValid(newPassword)){
+        if (!DataFormatUtils.isPassPasswordFormatValid(newPassword)) {
             throw new NotMatchedFormatException("비밀번호는 영문, 숫자, 특수문자 혼합 8-50자로 지정해 주세요.");
         }
 
-        if(!newPassword.equals(newPasswordChecker)){
+        if (!newPassword.equals(newPasswordChecker)) {
             throw new NotMatchedFormatException("새 비밀번호를 다시 확인해 주세요.");
         }
 
-        if(password.equals(newPassword)){
+        if (password.equals(newPassword)) {
             throw new NotMatchedFormatException("현재 비밀번호와 다른 비밀번호로 지정해 주세요.");
         }
 
@@ -520,7 +521,7 @@ public class UserBusinessService {
         String salt = userEntity.getSalt();
         String storedPassword = userEntity.getPassword();
 
-        if(!passwordEncoder.matches(password + salt, storedPassword)){
+        if (!passwordEncoder.matches(password + salt, storedPassword)) {
             throw new NotMatchedFormatException("현재 비밀번호가 일치하지 않습니다.");
         }
 
@@ -543,5 +544,28 @@ public class UserBusinessService {
 
         userEntity.setProfileImageUri(profileImageUri);
         userEntity.setUpdatedAt(CustomDateUtils.getCurrentDateTime());
+    }
+
+    @Transactional
+    public void withdrawal(HttpServletRequest request, HttpServletResponse response, String password) {
+        UUID userId = userService.getUserIdOrThrow();
+
+        UserEntity userEntity = userService.searchById(userId);
+
+        String salt = userEntity.getSalt();
+        String storedPassword = userEntity.getPassword();
+
+        if (!passwordEncoder.matches(password + salt, storedPassword)) {
+            throw new NotMatchedFormatException("비밀번호가 일치하지 않습니다.");
+        }
+
+        userService.logicalDelete(userEntity);
+        refreshTokenService.deleteAllByUserId(userId);
+
+        if (userEntity.getRoomId() != null) {
+            RoomEntity roomEntity = roomService.searchByUserIdOrThrow(userId);
+            roomService.logicalDelete(roomEntity);
+        }
+        this.logout(request, response);
     }
 }

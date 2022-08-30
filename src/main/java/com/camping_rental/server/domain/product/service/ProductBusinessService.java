@@ -12,6 +12,7 @@ import com.camping_rental.server.domain.product.projection.ProductProjection;
 import com.camping_rental.server.domain.product.strategy.ProductSearchStrategy;
 import com.camping_rental.server.domain.product.strategy.ProductSearchStrategyContext;
 import com.camping_rental.server.domain.product.strategy.ProductSearchStrategyName;
+import com.camping_rental.server.domain.product.vo.ProductVo;
 import com.camping_rental.server.domain.product_image.dto.ProductImageDto;
 import com.camping_rental.server.domain.product_image.entity.ProductImageEntity;
 import com.camping_rental.server.domain.product_image.enums.ProductImageDeletedFlagEnum;
@@ -51,7 +52,7 @@ public class ProductBusinessService {
             UUID productId,
             Map<String, Object> params
     ) {
-        String related = params.get("related") == null ? "basic" : params.get("related").toString();
+        String related = params.get("related") == null ? "room" : params.get("related").toString();
 
         productSearchStrategyContext.setStrategy(ProductSearchStrategyName.fromString(related));
         ProductSearchStrategy productSearchStrategy = productSearchStrategyContext.returnStrategy();
@@ -68,11 +69,13 @@ public class ProductBusinessService {
             throw new NotMatchedFormatException("접근 권한이 없습니다.");
         }
 
-        String related = "basic";
-        productSearchStrategyContext.setStrategy(ProductSearchStrategyName.fromString(related));
-        ProductSearchStrategy productSearchStrategy = productSearchStrategyContext.returnStrategy();
+        ProductEntity productEntity = productService.searchOneByIdElseThrow(productId);
+        if(!productEntity.getRoomId().equals(roomEntity.getId())){
+            throw new NotMatchedFormatException("접근 권한이 없습니다.");
+        }
 
-        return productSearchStrategy.searchById(productId);
+        ProductVo.Basic productVo = ProductVo.Basic.toVo(productEntity);
+        return productVo;
     }
 
     @Transactional(readOnly = true)
@@ -234,7 +237,7 @@ public class ProductBusinessService {
     @Transactional
     public void updateOne(UUID productId, ProductDto.Update productDto) {
         UUID userId = userService.getUserIdOrThrow();
-        ProductProjection.RelatedRoomAndRegions productProjection = productService.qSearchOneByIdJoinRoomAndRegionOrThrow(productId);
+        ProductProjection.RelatedRoom productProjection = productService.qSearchByIdRelatedRoomElseThrow(productId);
         ProductEntity productEntity = productProjection.getProductEntity();
         RoomEntity roomEntity = productProjection.getRoomEntity();
 

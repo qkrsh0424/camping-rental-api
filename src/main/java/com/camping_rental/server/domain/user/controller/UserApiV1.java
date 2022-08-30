@@ -133,7 +133,7 @@ public class UserApiV1 {
             HttpServletRequest request,
             HttpServletResponse response,
             @RequestBody UserDto.FindUsername userDto
-    ){
+    ) {
         Message message = new Message();
 
         message.setData(userBusinessService.findUsername(request, response, userDto));
@@ -147,15 +147,15 @@ public class UserApiV1 {
     @RequiredLogin
     public ResponseEntity<?> changeNickname(
             @RequestBody Map<String, Object> body
-    ){
+    ) {
         Message message = new Message();
 
         String nickname = null;
 
-        try{
+        try {
             nickname = body.get("nickname").toString();
-        }catch (IllegalArgumentException | NullPointerException e){
-            throw new NotMatchedFormatException("닉네임을 정확히 입력해주세요.");
+        } catch (IllegalArgumentException | NullPointerException e) {
+            throw new NotMatchedFormatException("이름을 정확히 입력해주세요.");
         }
 
         userBusinessService.changeNickname(nickname);
@@ -172,16 +172,16 @@ public class UserApiV1 {
             HttpServletRequest request,
             HttpServletResponse response,
             @RequestBody Map<String, Object> body
-    ){
+    ) {
         Message message = new Message();
 
         String phoneNumber = null;
         String phoneNumberValidationCode = null;
 
-        try{
+        try {
             phoneNumber = body.get("phoneNumber").toString();
             phoneNumberValidationCode = body.get("phoneNumberValidationCode").toString();
-        }catch (IllegalArgumentException | NullPointerException e){
+        } catch (IllegalArgumentException | NullPointerException e) {
             throw new NotMatchedFormatException("휴대전화와 인증번호를 정확히 입력해 주세요.");
         }
 
@@ -199,16 +199,16 @@ public class UserApiV1 {
             HttpServletRequest request,
             HttpServletResponse response,
             @RequestBody Map<String, Object> body
-    ){
+    ) {
         Message message = new Message();
 
         String email = null;
         String emailValidationCode = null;
 
-        try{
+        try {
             email = body.get("email").toString();
             emailValidationCode = body.get("emailValidationCode").toString();
-        }catch (IllegalArgumentException | NullPointerException e){
+        } catch (IllegalArgumentException | NullPointerException e) {
             throw new NotMatchedFormatException("휴대전화와 인증번호를 정확히 입력해 주세요.");
         }
 
@@ -226,18 +226,18 @@ public class UserApiV1 {
             HttpServletRequest request,
             HttpServletResponse response,
             @RequestBody Map<String, Object> body
-    ){
+    ) {
         Message message = new Message();
 
         String password = null;
         String newPassword = null;
         String newPasswordChecker = null;
 
-        try{
+        try {
             password = body.get("password").toString();
             newPassword = body.get("newPassword").toString();
             newPasswordChecker = body.get("newPasswordChecker").toString();
-        }catch (IllegalArgumentException | NullPointerException e){
+        } catch (IllegalArgumentException | NullPointerException e) {
             throw new NotMatchedFormatException("잘못된 접근 입니다.");
         }
 
@@ -253,19 +253,43 @@ public class UserApiV1 {
     @RequiredLogin
     public ResponseEntity<?> changeProfileImageUri(
             @RequestBody Map<String, Object> body
-    ){
+    ) {
         Message message = new Message();
 
         String profileImageUri = null;
 
-        try{
+        try {
             profileImageUri = body.get("profileImageUri").toString();
-        }catch (IllegalArgumentException | NullPointerException e){
+        } catch (IllegalArgumentException | NullPointerException e) {
             throw new NotMatchedFormatException("잘못된 접근 입니다.");
         }
 
         userBusinessService.changeProfileImageUri(profileImageUri);
 
+        message.setStatus(HttpStatus.OK);
+        message.setMessage("success");
+
+        return new ResponseEntity<>(message, message.getStatus());
+    }
+
+    @PostMapping("/withdrawal")
+    @RequiredLogin
+    public ResponseEntity<?> withdrawal(
+            HttpServletRequest request,
+            HttpServletResponse response,
+            @RequestBody Map<String, Object> body
+    ) {
+        Message message = new Message();
+
+        String password = null;
+
+        try {
+            password = body.get("password").toString();
+        } catch (IllegalArgumentException | NullPointerException e) {
+            throw new NotMatchedFormatException("잘못된 접근 방법 입니다.");
+        }
+
+        userBusinessService.withdrawal(request, response, password);
         message.setStatus(HttpStatus.OK);
         message.setMessage("success");
 

@@ -24,7 +24,7 @@ public class ProductSearchStrategyImpl {
 
         @Override
         public <T> T searchById(UUID id) {
-            ProductEntity productEntity = productService.searchOneById(id);
+            ProductEntity productEntity = productService.searchOneByIdElseThrow(id);
             ProductVo.Basic productVo = ProductVo.Basic.toVo(productEntity);
             return (T) productVo;
         }

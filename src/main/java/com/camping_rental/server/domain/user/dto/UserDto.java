@@ -91,7 +91,7 @@ public class UserDto {
             }
 
             if (!DataFormatUtils.isPassNicknameFormatValid(dto.getNickname())) {
-                throw new NotMatchedFormatException("입력하신 닉네임 형식이 정확한지 확인하여 주세요.");
+                throw new NotMatchedFormatException("입력하신 이름 형식이 정확한지 확인하여 주세요.");
             }
 
             /*

@@ -1,5 +1,6 @@
 package com.camping_rental.server.domain.room.service;
 
+import com.camping_rental.server.domain.enums.DeletedFlagEnums;
 import com.camping_rental.server.domain.exception.dto.NotMatchedFormatException;
 import com.camping_rental.server.domain.room.entity.RoomEntity;
 import com.camping_rental.server.domain.room.repository.RoomRepository;
@@ -35,5 +36,9 @@ public class RoomService {
 
     public RoomEntity searchByName(String name) {
         return roomRepository.findByName(name).orElse(null);
+    }
+
+    public void logicalDelete(RoomEntity roomEntity) {
+        roomEntity.setDeletedFlag(DeletedFlagEnums.DELETED.getValue());
     }
 }
