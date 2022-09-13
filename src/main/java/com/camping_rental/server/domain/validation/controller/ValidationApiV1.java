@@ -63,7 +63,6 @@ public class ValidationApiV1 {
 
         /*
         로직 실행
-        // TODO : 주석 풀어야됨.
          */
         validationBusinessService.sendPhoneAuthCode(response, phoneNumber);
 

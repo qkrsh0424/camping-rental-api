@@ -117,7 +117,10 @@ public class FileUploadService {
 
         try {
             s3Client.putObject(new PutObjectRequest(bucketPath, fileName, file.getInputStream(), metadata)
-                    .withCannedAcl(CannedAccessControlList.PublicRead));
+                    .withCannedAcl(
+                            CannedAccessControlList.PublicRead
+                    )
+            );
         } catch (IOException e) {
             log.error("==ERROR UploadFileService : postFile2S3 => {}.==", "maybe cause by file.getInputStream, S3 upload failed");
             return false;

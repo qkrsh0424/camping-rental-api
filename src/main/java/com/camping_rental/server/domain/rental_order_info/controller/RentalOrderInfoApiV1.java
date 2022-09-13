@@ -74,31 +74,6 @@ public class RentalOrderInfoApiV1 {
         return new ResponseEntity<>(message, message.getStatus());
     }
 
-    @PostMapping("/{rentalOrderInfoId}/action:send-sms")
-    @RequiredLogin
-    public ResponseEntity<?> sendSms(
-            @PathVariable("rentalOrderInfoId") Object rentalOrderInfoIdObj,
-            @RequestBody Map<String, Object> body
-    ) {
-        Message message = new Message();
-
-        String smsMessage = null;
-        UUID rentalOrderInfoId = null;
-
-        try{
-            smsMessage = body.get("smsMessage").toString();
-            rentalOrderInfoId = UUID.fromString(rentalOrderInfoIdObj.toString());
-        } catch (IllegalArgumentException | NullPointerException e){
-            throw new NotMatchedFormatException("해당 데이터를 찾을 수 없습니다.");
-        }
-
-        rentalOrderInfoBusinessService.sendSms(rentalOrderInfoId, smsMessage);
-        message.setStatus(HttpStatus.OK);
-        message.setMessage("success");
-
-        return new ResponseEntity<>(message, message.getStatus());
-    }
-
     @PatchMapping("{rentalOrderInfoId}/target:cs-memo")
     @RequiredLogin
     public ResponseEntity<?> changeCsMemo(
