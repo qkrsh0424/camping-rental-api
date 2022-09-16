@@ -119,4 +119,32 @@ public class ValidationApiV2 {
 
         return new ResponseEntity<>(message, message.getStatus());
     }
+
+    @PostMapping("/phone/validation-code/action:check-validation")
+    public ResponseEntity<?> checkPhoneValidationCode(
+            HttpServletRequest request,
+            @RequestBody Map<String, Object> body
+    ){
+        Message message = new Message();
+
+        String phoneNumber = null;
+        String validationCode = null;
+
+        try{
+            phoneNumber = body.get("phoneNumber").toString();
+            validationCode = body.get("validationCode").toString();
+        } catch (NullPointerException e){
+            throw new NotMatchedFormatException("잘못된 접근 방식입니다.");
+        }
+
+        /*
+        로직 실행
+         */
+        validationBusinessService.checkPhoneValidation(request, phoneNumber, validationCode);
+
+        message.setStatus(HttpStatus.OK);
+        message.setMessage("success");
+
+        return new ResponseEntity<>(message, message.getStatus());
+    }
 }

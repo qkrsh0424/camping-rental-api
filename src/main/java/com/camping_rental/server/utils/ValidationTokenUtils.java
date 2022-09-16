@@ -2,7 +2,11 @@ package com.camping_rental.server.utils;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.ResponseCookie;
 import org.springframework.stereotype.Component;
+
+import javax.servlet.http.HttpServletResponse;
 
 
 @Slf4j
@@ -59,4 +63,13 @@ public class ValidationTokenUtils {
         return validationNum;
     }
 
+    public static void clearPhoneValidationCodeTokenCookie(HttpServletResponse response){
+        ResponseCookie phoneValidationTokenCookie = ResponseCookie.from(CustomCookieUtils.COOKIE_NAME_PHONE_VALIDATION_TOKEN, null)
+                .domain(CustomCookieUtils.COOKIE_DOMAIN)
+                .sameSite("Strict")
+                .path("/")
+                .maxAge(0)
+                .build();
+        response.addHeader(HttpHeaders.SET_COOKIE, phoneValidationTokenCookie.toString());
+    }
 }

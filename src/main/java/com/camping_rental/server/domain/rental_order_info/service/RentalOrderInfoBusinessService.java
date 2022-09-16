@@ -4,6 +4,7 @@ import com.camping_rental.server.domain.exception.dto.AccessDeniedPermissionExce
 import com.camping_rental.server.domain.product.entity.ProductEntity;
 import com.camping_rental.server.domain.product.projection.ProductProjection;
 import com.camping_rental.server.domain.product.service.ProductService;
+import com.camping_rental.server.domain.rental_order_info.dto.RentalOrderInfoCreateUtils;
 import com.camping_rental.server.domain.rental_order_info.dto.RentalOrderInfoDto;
 import com.camping_rental.server.domain.rental_order_info.entity.RentalOrderInfoEntity;
 import com.camping_rental.server.domain.rental_order_info.enums.RentalOrderInfoDeletedFlagEnum;
@@ -21,10 +22,10 @@ import com.camping_rental.server.domain.twilio.dto.TwilioSmsRequestDto;
 import com.camping_rental.server.domain.twilio.service.TwilioSmsService;
 import com.camping_rental.server.domain.twilio.strategy.RentalOrderInfoSms;
 import com.camping_rental.server.domain.twilio.strategy.TwilioSmsRequestFactory;
-import com.camping_rental.server.domain.twilio.strategy.TwilioSmsRequestStrategy;
 import com.camping_rental.server.domain.user.service.UserService;
 import com.camping_rental.server.utils.CustomDateUtils;
 import com.camping_rental.server.utils.CustomUniqueKeyUtils;
+import com.camping_rental.server.utils.ValidationTokenUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -32,6 +33,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -46,11 +48,29 @@ public class RentalOrderInfoBusinessService {
     private final RoomService roomService;
 
     @Transactional
-    public Map<String, Object> createOne(RentalOrderInfoDto.Create rentalOrderInfoDto) {
+    public Map<String, Object> createOne(HttpServletRequest request, RentalOrderInfoDto.Create rentalOrderInfoDto) {
         /*
-        필드값 validation check
+        == Fields Form Validation Check Start
          */
-        RentalOrderInfoDto.Create.checkFieldFormatValid(rentalOrderInfoDto);
+        RentalOrderInfoCreateUtils.checkServiceAgreementYnValid(rentalOrderInfoDto.getServiceAgreementYn());
+        RentalOrderInfoCreateUtils.checkOrdererValid(rentalOrderInfoDto.getOrderer());
+        RentalOrderInfoCreateUtils.checkOrdererPhoneNumberValid(rentalOrderInfoDto.getOrdererPhoneNumber());
+        RentalOrderInfoCreateUtils.checkPickupPlaceValid(rentalOrderInfoDto.getPickupPlace());
+        RentalOrderInfoCreateUtils.checkReturnPlaceValid(rentalOrderInfoDto.getReturnPlace());
+        RentalOrderInfoCreateUtils.checkPickupDateValid(rentalOrderInfoDto.getPickupDate());
+        RentalOrderInfoCreateUtils.checkReturnDateValid(rentalOrderInfoDto.getReturnDate());
+        RentalOrderInfoCreateUtils.checkPickupTimeValid(rentalOrderInfoDto.getPickupTime());
+        RentalOrderInfoCreateUtils.checkReturnTimeValid(rentalOrderInfoDto.getReturnTime());
+
+        if (!rentalOrderInfoDto.isSameWithOrdererFlag()) {
+            RentalOrderInfoCreateUtils.checkBorrowerValid(rentalOrderInfoDto.getBorrower());
+            RentalOrderInfoCreateUtils.checkBorrowerPhoneNumberValid(rentalOrderInfoDto.getBorrowerPhoneNumber());
+            RentalOrderInfoCreateUtils.checkBorrowerPhoneNumberValidationCodeValid(rentalOrderInfoDto.getBorrowerPhoneNumberValidationCode());
+            RentalOrderInfoCreateUtils.checkPhoneValidationValid(request, rentalOrderInfoDto.getBorrowerPhoneNumber(), rentalOrderInfoDto.getBorrowerPhoneNumberValidationCode());
+        }
+        /*
+        == Fields Form Validation Check End
+         */
 
         /*
         주문자 아이디 가져오기
@@ -82,6 +102,8 @@ public class RentalOrderInfoBusinessService {
                 .orderNumber(orderNumber)
                 .orderer(rentalOrderInfoDto.getOrderer())
                 .ordererPhoneNumber(rentalOrderInfoDto.getOrdererPhoneNumber())
+                .borrower(rentalOrderInfoDto.getBorrower())
+                .borrowerPhoneNumber(rentalOrderInfoDto.getBorrowerPhoneNumber())
                 .pickupDate(rentalOrderInfoDto.getPickupDate())
                 .pickupTime(rentalOrderInfoDto.getPickupTime())
                 .pickupPlace(rentalOrderInfoDto.getPickupPlace())
@@ -151,7 +173,7 @@ public class RentalOrderInfoBusinessService {
         twilioSmsRequestDtos.add(lenderSms);
         twilioSmsRequestDtos.add(adminSms);
 
-        twilioSmsService.sendMultipleSms(twilioSmsRequestDtos);
+//        twilioSmsService.sendMultipleSms(twilioSmsRequestDtos);
 
         Map<String, Object> resultMap = new HashMap<>();
 

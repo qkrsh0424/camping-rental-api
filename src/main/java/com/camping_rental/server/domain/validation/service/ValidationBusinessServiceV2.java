@@ -8,11 +8,17 @@ import com.camping_rental.server.domain.validation.strategy.EmailValidationConte
 import com.camping_rental.server.domain.validation.strategy.EmailValidationName;
 import com.camping_rental.server.domain.validation.strategy.PhoneValidationContext;
 import com.camping_rental.server.domain.validation.strategy.PhoneValidationName;
+import com.camping_rental.server.utils.CustomCookieUtils;
+import com.camping_rental.server.utils.CustomJwtUtils;
 import com.camping_rental.server.utils.DataFormatUtils;
+import com.camping_rental.server.utils.ValidationTokenUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.web.util.WebUtils;
 
+import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 @Service
@@ -42,5 +48,25 @@ public class ValidationBusinessServiceV2 {
 
         emailValidationContext.setStrategy(EmailValidationName.fromString(validationType));
         emailValidationContext.sendValidationCode(response, email);
+    }
+
+    public void checkPhoneValidation(HttpServletRequest request, String phoneNumber, String validationCode) {
+        DataFormatUtils.checkPhoneNumberFormat(phoneNumber);
+        DataFormatUtils.checkPhoneValidationCodeFormatValid(validationCode);
+
+        /*
+        휴대전화 인증번호 체크
+         */
+        Cookie phoneValidationCookie = WebUtils.getCookie(request, CustomCookieUtils.COOKIE_NAME_PHONE_VALIDATION_TOKEN);
+
+        String phoneValidationToken = null;
+        if (phoneValidationCookie == null) {
+            throw new NotMatchedFormatException("인증번호가 정확하지 않습니다.");
+        }
+
+        phoneValidationToken = phoneValidationCookie.getValue();
+
+        String jwtSecret = phoneNumber + validationCode + ValidationTokenUtils.getJwtEmailValidationSecret();
+        CustomJwtUtils.parseJwt(jwtSecret, phoneValidationToken, "인증번호가 정확하지 않습니다.");
     }
 }

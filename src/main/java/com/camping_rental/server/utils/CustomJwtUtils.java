@@ -129,7 +129,7 @@ public class CustomJwtUtils {
                     .parseClaimsJws(jwt)
                     .getBody();
         } catch (ExpiredJwtException e) {     // 토큰 만료
-            throw new NotMatchedFormatException("인증 요청시간이 만료되었습니다.");
+            throw new NotMatchedFormatException("인증기간이 만료되었습니다.");
         } catch (NullPointerException e) {
             throw new NotMatchedFormatException(exceptionMemo);
         } catch (IllegalArgumentException e) {

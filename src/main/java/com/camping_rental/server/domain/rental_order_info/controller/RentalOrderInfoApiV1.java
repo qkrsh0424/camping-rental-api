@@ -5,6 +5,7 @@ import com.camping_rental.server.domain.exception.dto.NotMatchedFormatException;
 import com.camping_rental.server.domain.message.dto.Message;
 import com.camping_rental.server.domain.rental_order_info.dto.RentalOrderInfoDto;
 import com.camping_rental.server.domain.rental_order_info.service.RentalOrderInfoBusinessService;
+import com.camping_rental.server.utils.ValidationTokenUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -13,6 +14,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.util.Map;
 import java.util.UUID;
 
@@ -62,14 +65,19 @@ public class RentalOrderInfoApiV1 {
         return new ResponseEntity<>(message, message.getStatus());
     }
     @PostMapping("")
+    @RequiredLogin
     public ResponseEntity<?> createOne(
+            HttpServletRequest request,
+            HttpServletResponse response,
             @RequestBody RentalOrderInfoDto.Create rentalOrderInfoDto
     ) {
         Message message = new Message();
 
-        message.setData(rentalOrderInfoBusinessService.createOne(rentalOrderInfoDto));
+        message.setData(rentalOrderInfoBusinessService.createOne(request, rentalOrderInfoDto));
         message.setStatus(HttpStatus.OK);
         message.setMessage("success");
+
+        ValidationTokenUtils.clearPhoneValidationCodeTokenCookie(response);
 
         return new ResponseEntity<>(message, message.getStatus());
     }

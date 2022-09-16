@@ -5,7 +5,8 @@ import com.camping_rental.server.domain.exception.dto.NotMatchedFormatException;
 public enum PhoneValidationName {
     ForFindUsername("forFindUsername"),
     ForFindPassword("forFindPassword"),
-    ForModify("forModify")
+    ForModify("forModify"),
+    ForRentalOrder("forRentalOrder")
     ;
     private String value;
 

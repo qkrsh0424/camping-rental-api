@@ -56,6 +56,20 @@ public class DataFormatUtils {
         return true;
     }
 
+    public static boolean isPassNameFormatValid(String name){
+        boolean space = Pattern.compile("^(\\s)|(\\s)$").matcher(name).find();
+
+        if(space){
+            return false;
+        }
+
+        if(name.length() < 2 || name.length() > 15){
+            return false;
+        }
+
+        return true;
+    }
+
     public static boolean isPassPhoneNumberFormatValid(String number) {
         boolean isPhoneNumberFormatValid = Pattern.compile("^01(?:0|1|[6-9])([0-9]{3,4})([0-9]{4})$").matcher(number).find();
 
@@ -65,6 +79,13 @@ public class DataFormatUtils {
     public static boolean isPassEmailFormatValid(String email) {
         boolean isEmailAddressFormat = Pattern.compile("^([\\w._-])*[a-zA-Z0-9]+([\\w._-])*([a-zA-Z0-9])+([\\w._-])+@([a-zA-Z0-9]+\\.)+[a-zA-Z0-9]{2,8}$").matcher(email).find();
         return isEmailAddressFormat;
+    }
+
+    public static boolean isPassPhoneValidationCodeValid(String phoneValidationCode) {
+        String regex = "^[0-9]{6}$";
+        boolean regexMatcher = Pattern.compile(regex).matcher(phoneValidationCode).find();
+        System.out.println(regexMatcher);
+        return regexMatcher;
     }
 
     public static void checkUsernameFormat(String username){
@@ -94,6 +115,15 @@ public class DataFormatUtils {
     public static void checkEmailFormat(String email) {
         if (!DataFormatUtils.isPassEmailFormatValid(email)) {
             throw new NotMatchedFormatException("이메일 형식이 올바르지 않습니다.");
+        }
+    }
+
+    public static void checkPhoneValidationCodeFormatValid(String phoneValidationCode){
+        String regex = "^[0-9]{6}$";
+        boolean regexMatcher = Pattern.compile(regex).matcher(phoneValidationCode).find();
+
+        if(!regexMatcher){
+            throw new NotMatchedFormatException("인증번호를 정확히 입력해 주세요.");
         }
     }
 }

@@ -41,6 +41,12 @@ public class RentalOrderInfoEntity {
     @Column(name = "orderer_phone_number")
     private String ordererPhoneNumber;
 
+    @Column(name = "borrower")
+    private String borrower;
+
+    @Column(name = "borrower_phone_number")
+    private String borrowerPhoneNumber;
+
     @Column(name = "pickup_date")
     private LocalDateTime pickupDate;
 
