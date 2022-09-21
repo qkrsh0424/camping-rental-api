@@ -173,7 +173,7 @@ public class RentalOrderInfoBusinessService {
         twilioSmsRequestDtos.add(lenderSms);
         twilioSmsRequestDtos.add(adminSms);
 
-//        twilioSmsService.sendMultipleSms(twilioSmsRequestDtos);
+        twilioSmsService.sendMultipleSms(twilioSmsRequestDtos);
 
         Map<String, Object> resultMap = new HashMap<>();
 
