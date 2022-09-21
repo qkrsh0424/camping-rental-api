@@ -149,16 +149,11 @@ public class RentalOrderInfoBusinessService {
         List<TwilioSmsRequestDto> twilioSmsRequestDtos = new ArrayList<>();
         TwilioSmsRequestFactory twilioSmsRequestFactory = new TwilioSmsRequestFactory(new RentalOrderInfoSms.Orderer());
 
-        TwilioSmsRequestDto ordererSms = twilioSmsRequestFactory.make(Map.of(
-                "smsReceiverPhoneNumber", rentalOrderInfoDto.getOrdererPhoneNumber(),
-                "orderNumber", orderNumber
-        ));
-
         twilioSmsRequestFactory.setTwilioSmsRequestStrategy(new RentalOrderInfoSms.Lender());
         TwilioSmsRequestDto lenderSms = twilioSmsRequestFactory.make(Map.of(
                 "smsReceiverPhoneNumber", lenderRoomPhoneNumber,
-                "orderer", rentalOrderInfoDto.getOrderer(),
-                "ordererPhoneNumber", rentalOrderInfoDto.getOrdererPhoneNumber()
+                "borrower", rentalOrderInfoDto.getBorrower(),
+                "borrowerPhoneNumber", rentalOrderInfoDto.getBorrowerPhoneNumber()
         ));
 
         twilioSmsRequestFactory.setTwilioSmsRequestStrategy(new RentalOrderInfoSms.Admin());
@@ -166,10 +161,11 @@ public class RentalOrderInfoBusinessService {
                 "smsReceiverPhoneNumber", "01085356112",
                 "lender", lenderRoomEntity.getName(),
                 "orderer", rentalOrderInfoDto.getOrderer(),
-                "ordererPhoneNumber", rentalOrderInfoDto.getOrdererPhoneNumber()
+                "ordererPhoneNumber", rentalOrderInfoDto.getOrdererPhoneNumber(),
+                "borrower", rentalOrderInfoDto.getBorrower(),
+                "borrowerPhoneNumber", rentalOrderInfoDto.getBorrowerPhoneNumber()
         ));
 
-        twilioSmsRequestDtos.add(ordererSms);
         twilioSmsRequestDtos.add(lenderSms);
         twilioSmsRequestDtos.add(adminSms);
 
@@ -178,8 +174,8 @@ public class RentalOrderInfoBusinessService {
         Map<String, Object> resultMap = new HashMap<>();
 
         resultMap.put("orderNumber", orderNumber);
-        resultMap.put("orderer", rentalOrderInfoEntity.getOrderer());
-        resultMap.put("ordererPhoneNumber", rentalOrderInfoEntity.getOrdererPhoneNumber());
+        resultMap.put("borrower", rentalOrderInfoEntity.getBorrower());
+        resultMap.put("borrowerPhoneNumber", rentalOrderInfoEntity.getBorrowerPhoneNumber());
         resultMap.put("lender", lenderRoomEntity.getName());
         resultMap.put("lenderPhoneNumber", lenderRoomPhoneNumber);
 
@@ -210,7 +206,7 @@ public class RentalOrderInfoBusinessService {
         UUID userId = userService.getUserIdOrThrow();
 
         Page<RentalOrderInfoProjection.RelatedRoom> rentalOrderInfoProjectionPage = rentalOrderInfoService.qSearchPageByUserIdRelatedRoom(userId, pageable);
-        List<RentalOrderInfoVo.RelatedRoom> vos = rentalOrderInfoProjectionPage.getContent().stream().map(r->{
+        List<RentalOrderInfoVo.RelatedRoom> vos = rentalOrderInfoProjectionPage.getContent().stream().map(r -> {
             return RentalOrderInfoVo.RelatedRoom.toVo(r);
         }).collect(Collectors.toList());
 

@@ -6,17 +6,17 @@ import com.camping_rental.server.domain.twilio.dto.TwilioSmsRequestDto;
 import java.util.Map;
 
 public class RentalOrderInfoSms {
-    public static class Orderer implements TwilioSmsRequestStrategy{
+    public static class Orderer implements TwilioSmsRequestStrategy {
 
         @Override
         public TwilioSmsRequestDto returnTwilioSmsRequestDto(Map<String, Object> requestInfo) {
             String orderNumber = null;
             String smsReceiverPhoneNumber = null;
 
-            try{
+            try {
                 orderNumber = requestInfo.get("orderNumber").toString();
                 smsReceiverPhoneNumber = requestInfo.get("smsReceiverPhoneNumber").toString();
-            } catch (IllegalArgumentException | NullPointerException e){
+            } catch (IllegalArgumentException | NullPointerException e) {
                 throw new NotMatchedFormatException("알림문자 전송 실패");
             }
 
@@ -36,27 +36,27 @@ public class RentalOrderInfoSms {
         }
     }
 
-    public static class Lender implements TwilioSmsRequestStrategy{
+    public static class Lender implements TwilioSmsRequestStrategy {
 
         @Override
         public TwilioSmsRequestDto returnTwilioSmsRequestDto(Map<String, Object> requestInfo) {
-            String orderer = null;
-            String ordererPhoneNumber = null;
+            String borrower = null;
+            String borrowerPhoneNumber = null;
             String smsReceiverPhoneNumber = null;
 
-            try{
-                orderer = requestInfo.get("orderer").toString();
-                ordererPhoneNumber = requestInfo.get("ordererPhoneNumber").toString();
+            try {
+                borrower = requestInfo.get("borrower").toString();
+                borrowerPhoneNumber = requestInfo.get("borrowerPhoneNumber").toString();
                 smsReceiverPhoneNumber = requestInfo.get("smsReceiverPhoneNumber").toString();
-            } catch (IllegalArgumentException | NullPointerException e){
+            } catch (IllegalArgumentException | NullPointerException e) {
                 throw new NotMatchedFormatException("알림문자 전송 실패");
             }
 
             StringBuilder smsMessage = new StringBuilder();
             smsMessage.append("[Campal | 캠핑 렌탈]\n\n")
                     .append("신규 주문이 있습니다.\n\n")
-                    .append("주문자 성함 : " + orderer + "\n")
-                    .append("주문자 전화번호 : " + ordererPhoneNumber + "\n\n")
+                    .append("예약자명 : " + borrower + "\n")
+                    .append("예약자 연락처 : " + borrowerPhoneNumber + "\n\n")
                     .append("조회 링크 바로가기 : " + "https://www.campal.co.kr/myadmin")
             ;
 
@@ -69,28 +69,34 @@ public class RentalOrderInfoSms {
         }
     }
 
-    public static class Admin implements TwilioSmsRequestStrategy{
+    public static class Admin implements TwilioSmsRequestStrategy {
         @Override
         public TwilioSmsRequestDto returnTwilioSmsRequestDto(Map<String, Object> requestInfo) {
             String lender = null;
             String orderer = null;
             String ordererPhoneNumber = null;
+            String borrower = null;
+            String borrowerPhoneNumber = null;
             String smsReceiverPhoneNumber = null;
 
-            try{
+            try {
                 lender = requestInfo.get("lender").toString();
                 orderer = requestInfo.get("orderer").toString();
                 ordererPhoneNumber = requestInfo.get("ordererPhoneNumber").toString();
+                borrower = requestInfo.get("borrower").toString();
+                borrowerPhoneNumber = requestInfo.get("borrowerPhoneNumber").toString();
                 smsReceiverPhoneNumber = requestInfo.get("smsReceiverPhoneNumber").toString();
-            } catch (IllegalArgumentException | NullPointerException e){
+            } catch (IllegalArgumentException | NullPointerException e) {
                 throw new NotMatchedFormatException("알림문자 전송 실패");
             }
 
             StringBuilder smsMessage = new StringBuilder();
             smsMessage.append("[Campal | 캠핑 렌탈] for Admin\n\n")
                     .append(lender + " 님에게 신규 주문이 있습니다.\n\n")
-                    .append("주문자 성함 : " + orderer + "\n")
-                    .append("주문자 전화번호 : " + ordererPhoneNumber + "\n\n")
+                    .append("주문자명 : " + orderer + "\n")
+                    .append("주문자 연락처 : " + ordererPhoneNumber + "\n")
+                    .append("예약자명 : " + borrower + "\n")
+                    .append("예약자 연락처 : " + borrowerPhoneNumber + "\n\n")
             ;
 
             TwilioSmsRequestDto twilioSmsRequestDto = TwilioSmsRequestDto.builder()
