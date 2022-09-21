@@ -24,6 +24,15 @@ public class RentalOrderInfoProjection {
     @AllArgsConstructor
     @NoArgsConstructor
     @Builder
+    public static class RelatedRoom{
+        private RentalOrderInfoEntity rentalOrderInfoEntity;
+        private RoomEntity roomEntity;
+    }
+
+    @Data
+    @AllArgsConstructor
+    @NoArgsConstructor
+    @Builder
     public static class FullJoin{
         private RoomEntity roomEntity;
         private RentalOrderInfoEntity rentalOrderInfoEntity;

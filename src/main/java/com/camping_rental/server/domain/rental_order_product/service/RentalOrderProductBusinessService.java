@@ -1,6 +1,10 @@
 package com.camping_rental.server.domain.rental_order_product.service;
 
 import com.camping_rental.server.domain.exception.dto.AccessDeniedPermissionException;
+import com.camping_rental.server.domain.exception.dto.NotMatchedFormatException;
+import com.camping_rental.server.domain.rental_order_info.entity.RentalOrderInfoEntity;
+import com.camping_rental.server.domain.rental_order_info.service.RentalOrderInfoService;
+import com.camping_rental.server.domain.rental_order_product.entity.RentalOrderProductEntity;
 import com.camping_rental.server.domain.rental_order_product.enums.RentalOrderProductStatusEnum;
 import com.camping_rental.server.domain.rental_order_product.projection.RentalOrderProductProjection;
 import com.camping_rental.server.domain.rental_order_product.vo.RentalOrderProductVo;
@@ -23,9 +27,11 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class RentalOrderProductBusinessService {
     private final RentalOrderProductService rentalOrderProductService;
+    private final RentalOrderInfoService rentalOrderInfoService;
     private final UserService userService;
     private final RoomService roomService;
 
+    @Transactional(readOnly = true)
     public Object searchPageByPrivate(Map<String, Object> params, Pageable pageable) {
         UUID userId = userService.getUserIdOrThrow();
 
@@ -43,6 +49,22 @@ public class RentalOrderProductBusinessService {
         return new PageImpl<>(rentalOrderProductVos, pageable, rentalOrderProductProjectionPage.getTotalElements());
     }
 
+    @Transactional(readOnly = true)
+    public Object searchListByRentalOrderInfoId(UUID rentalOrderInfoId) {
+        UUID userId = userService.getUserIdOrThrow();
+
+        RentalOrderInfoEntity rentalOrderInfoEntity = rentalOrderInfoService.searchByIdOrThrow(rentalOrderInfoId);
+
+        if(!rentalOrderInfoEntity.getOrdererId().equals(userId)){
+            throw new NotMatchedFormatException("해당 주문 정보에 접근 권한이 없습니다.");
+        }
+
+        List<RentalOrderProductEntity> rentalOrderProductEntities = rentalOrderProductService.searchListByRentalOrderInfoId(rentalOrderInfoId);
+        List<RentalOrderProductVo.Basic> rentalOrderProductVos = rentalOrderProductEntities.stream().map(RentalOrderProductVo.Basic::toVo).collect(Collectors.toList());
+
+        return rentalOrderProductVos;
+    }
+
     @Transactional
     public void changeStatusToConfirmOrder(List<UUID> productIds) {
         UUID userId = userService.getUserIdOrThrow();
@@ -54,8 +76,8 @@ public class RentalOrderProductBusinessService {
         권한 체크 lenderRoomId 와 roomId 를 비교, 일치하지 않는 데이터가 있다면 throw, 권한 체크 완료 후 status 를 세팅해준다.
         Dirty checking update
          */
-        rentalOrderProductProjections.forEach(r->{
-            if(!r.getRentalOrderInfoEntity().getLenderRoomId().equals(roomEntity.getId())){
+        rentalOrderProductProjections.forEach(r -> {
+            if (!r.getRentalOrderInfoEntity().getLenderRoomId().equals(roomEntity.getId())) {
                 throw new AccessDeniedPermissionException("접근 권한이 없습니다.");
             }
 
@@ -74,8 +96,8 @@ public class RentalOrderProductBusinessService {
         권한 체크 lenderRoomId 와 roomId 를 비교, 일치하지 않는 데이터가 있다면 throw, 권한 체크 완료 후 status 를 세팅해준다.
         Dirty checking update
          */
-        rentalOrderProductProjections.forEach(r->{
-            if(!r.getRentalOrderInfoEntity().getLenderRoomId().equals(roomEntity.getId())){
+        rentalOrderProductProjections.forEach(r -> {
+            if (!r.getRentalOrderInfoEntity().getLenderRoomId().equals(roomEntity.getId())) {
                 throw new AccessDeniedPermissionException("접근 권한이 없습니다.");
             }
 
@@ -94,8 +116,8 @@ public class RentalOrderProductBusinessService {
         권한 체크 lenderRoomId 와 roomId 를 비교, 일치하지 않는 데이터가 있다면 throw, 권한 체크 완료 후 status 를 세팅해준다.
         Dirty checking update
          */
-        rentalOrderProductProjections.forEach(r->{
-            if(!r.getRentalOrderInfoEntity().getLenderRoomId().equals(roomEntity.getId())){
+        rentalOrderProductProjections.forEach(r -> {
+            if (!r.getRentalOrderInfoEntity().getLenderRoomId().equals(roomEntity.getId())) {
                 throw new AccessDeniedPermissionException("접근 권한이 없습니다.");
             }
 
@@ -114,8 +136,8 @@ public class RentalOrderProductBusinessService {
         권한 체크 lenderRoomId 와 roomId 를 비교, 일치하지 않는 데이터가 있다면 throw, 권한 체크 완료 후 status 를 세팅해준다.
         Dirty checking update
          */
-        rentalOrderProductProjections.forEach(r->{
-            if(!r.getRentalOrderInfoEntity().getLenderRoomId().equals(roomEntity.getId())){
+        rentalOrderProductProjections.forEach(r -> {
+            if (!r.getRentalOrderInfoEntity().getLenderRoomId().equals(roomEntity.getId())) {
                 throw new AccessDeniedPermissionException("접근 권한이 없습니다.");
             }
 
@@ -134,8 +156,8 @@ public class RentalOrderProductBusinessService {
         권한 체크 lenderRoomId 와 roomId 를 비교, 일치하지 않는 데이터가 있다면 throw, 권한 체크 완료 후 status 를 세팅해준다.
         Dirty checking update
          */
-        rentalOrderProductProjections.forEach(r->{
-            if(!r.getRentalOrderInfoEntity().getLenderRoomId().equals(roomEntity.getId())){
+        rentalOrderProductProjections.forEach(r -> {
+            if (!r.getRentalOrderInfoEntity().getLenderRoomId().equals(roomEntity.getId())) {
                 throw new AccessDeniedPermissionException("접근 권한이 없습니다.");
             }
 
@@ -154,8 +176,8 @@ public class RentalOrderProductBusinessService {
         권한 체크 lenderRoomId 와 roomId 를 비교, 일치하지 않는 데이터가 있다면 throw, 권한 체크 완료 후 status 를 세팅해준다.
         Dirty checking update
          */
-        rentalOrderProductProjections.forEach(r->{
-            if(!r.getRentalOrderInfoEntity().getLenderRoomId().equals(roomEntity.getId())){
+        rentalOrderProductProjections.forEach(r -> {
+            if (!r.getRentalOrderInfoEntity().getLenderRoomId().equals(roomEntity.getId())) {
                 throw new AccessDeniedPermissionException("접근 권한이 없습니다.");
             }
 

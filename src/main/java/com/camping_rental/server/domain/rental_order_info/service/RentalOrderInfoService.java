@@ -31,4 +31,8 @@ public class RentalOrderInfoService {
     public RentalOrderInfoEntity searchByIdOrThrow(UUID rentalOrderInfoId) {
         return rentalOrderInfoRepository.findById(rentalOrderInfoId).orElseThrow(() -> new NotMatchedFormatException("요청 데이터를 찾을 수 없습니다."));
     }
+
+    public Page<RentalOrderInfoProjection.RelatedRoom> qSearchPageByUserIdRelatedRoom(UUID userId, Pageable pageable) {
+        return rentalOrderInfoRepository.qSelectPageByUserIdRelatedRoom(userId, pageable);
+    }
 }

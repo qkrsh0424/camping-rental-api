@@ -206,6 +206,17 @@ public class RentalOrderInfoBusinessService {
         return new PageImpl<>(vos, pageable, rentalOrderInfoProjectionPage.getTotalElements());
     }
 
+    public Object searchPageMyOrder(Pageable pageable) {
+        UUID userId = userService.getUserIdOrThrow();
+
+        Page<RentalOrderInfoProjection.RelatedRoom> rentalOrderInfoProjectionPage = rentalOrderInfoService.qSearchPageByUserIdRelatedRoom(userId, pageable);
+        List<RentalOrderInfoVo.RelatedRoom> vos = rentalOrderInfoProjectionPage.getContent().stream().map(r->{
+            return RentalOrderInfoVo.RelatedRoom.toVo(r);
+        }).collect(Collectors.toList());
+
+        return new PageImpl<>(vos, pageable, rentalOrderInfoProjectionPage.getTotalElements());
+    }
+
     public void sendSms(UUID rentalOrderInfoId, String smsMessage) {
         UUID userId = userService.getUserIdOrThrow();
         RoomEntity roomEntity = roomService.searchByUserIdOrThrow(userId);

@@ -28,4 +28,8 @@ public class RentalOrderProductService {
     public List<RentalOrderProductProjection.JoinRentalOrderInfo> qSearchListByIdsJoinRentalOrderInfo(List<UUID> ids) {
         return rentalOrderProductRepository.qSelectListByIdsJoinRentalOrderInfo(ids);
     }
+
+    public List<RentalOrderProductEntity> searchListByRentalOrderInfoId(UUID rentalOrderInfoId) {
+        return rentalOrderProductRepository.findAllByRentalOrderInfoId(rentalOrderInfoId);
+    }
 }

@@ -1,5 +1,6 @@
 package com.camping_rental.server.domain.rental_order_info.repository;
 
+import com.camping_rental.server.domain.rental_order_info.entity.RentalOrderInfoEntity;
 import com.camping_rental.server.domain.rental_order_info.projection.RentalOrderInfoProjection;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -13,4 +14,6 @@ public interface RentalOrderInfoRepositoryCustom {
     Optional<RentalOrderInfoProjection.FullJoin> qSelectOneFullJoinByOrderNumberAndOrdererAndOrdererPhoneNumber(String orderNumber, String orderer, String ordererPhoneNumber);
 
     Page<RentalOrderInfoProjection.FullJoin> qSelectPageFullJoinByRoomId(UUID roomId, Pageable pageable);
+
+    Page<RentalOrderInfoProjection.RelatedRoom> qSelectPageByUserIdRelatedRoom(UUID userId, Pageable pageable);
 }

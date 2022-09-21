@@ -2,6 +2,7 @@ package com.camping_rental.server.domain.rental_order_info.repository;
 
 import com.camping_rental.server.domain.enums.DeletedFlagEnums;
 import com.camping_rental.server.domain.rental_order_info.entity.QRentalOrderInfoEntity;
+import com.camping_rental.server.domain.rental_order_info.entity.RentalOrderInfoEntity;
 import com.camping_rental.server.domain.rental_order_info.projection.RentalOrderInfoProjection;
 import com.camping_rental.server.domain.rental_order_product.entity.QRentalOrderProductEntity;
 import com.camping_rental.server.domain.rental_order_product.entity.RentalOrderProductEntity;
@@ -29,6 +30,29 @@ public class RentalOrderInfoRepositoryImpl implements RentalOrderInfoRepositoryC
     private final QRentalOrderInfoEntity qRentalOrderInfoEntity = QRentalOrderInfoEntity.rentalOrderInfoEntity;
     private final QRentalOrderProductEntity qRentalOrderProductEntity = QRentalOrderProductEntity.rentalOrderProductEntity;
     private final QRoomEntity qRoomEntity = QRoomEntity.roomEntity;
+
+    @Override
+    public Page<RentalOrderInfoProjection.RelatedRoom> qSelectPageByUserIdRelatedRoom(UUID userId, Pageable pageable) {
+        JPQLQuery customQuery = query.from(qRentalOrderInfoEntity)
+                .select(
+                        Projections.fields(
+                                RentalOrderInfoProjection.RelatedRoom.class,
+                                qRentalOrderInfoEntity.as("rentalOrderInfoEntity"),
+                                qRoomEntity.as("roomEntity")
+                        )
+                )
+                .join(qRoomEntity).on(qRoomEntity.id.eq(qRentalOrderInfoEntity.lenderRoomId))
+                .where(qRentalOrderInfoEntity.ordererId.eq(userId))
+                .limit(pageable.getPageSize())
+                .offset(pageable.getOffset())
+                .orderBy(qRentalOrderInfoEntity.createdAt.desc())
+                ;
+
+        long totalCount = customQuery.fetchCount();
+        List<RentalOrderInfoProjection.RelatedRoom> rentalOrderInfoProjections = customQuery.fetch();
+
+        return new PageImpl<>(rentalOrderInfoProjections, pageable, totalCount);
+    }
 
     @Override
     public Optional<RentalOrderInfoProjection.FullJoin> qSelectOneFullJoinByOrderNumberAndOrdererAndOrdererPhoneNumber(String orderNumber, String orderer, String ordererPhoneNumber) {
@@ -84,8 +108,7 @@ public class RentalOrderInfoRepositoryImpl implements RentalOrderInfoRepositoryC
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
                 .orderBy(qRentalOrderInfoEntity.createdAt.desc())
-                .orderBy(qRentalOrderInfoEntity.orderer.asc())
-                ;
+                .orderBy(qRentalOrderInfoEntity.orderer.asc());
 
         long totalCount = customQuery.fetchCount();
 

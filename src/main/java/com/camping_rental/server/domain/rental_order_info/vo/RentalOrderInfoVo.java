@@ -25,6 +25,8 @@ public class RentalOrderInfoVo {
     private String orderNumber;
     private String orderer;
     private String ordererPhoneNumber;
+    private String borrower;
+    private String borrowerPhoneNumber;
     @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss'Z'")
     private LocalDateTime pickupDate;
     private String pickupTime;
@@ -53,6 +55,8 @@ public class RentalOrderInfoVo {
         private String orderNumber;
         private String orderer;
         private String ordererPhoneNumber;
+        private String borrower;
+        private String borrowerPhoneNumber;
         @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss'Z'")
         private LocalDateTime pickupDate;
         private String pickupTime;
@@ -74,6 +78,8 @@ public class RentalOrderInfoVo {
                     .orderNumber(entity.getOrderNumber())
                     .orderer(entity.getOrderer())
                     .ordererPhoneNumber(entity.getOrdererPhoneNumber())
+                    .borrower(entity.getBorrower())
+                    .borrowerPhoneNumber(entity.getBorrowerPhoneNumber())
                     .pickupDate(entity.getPickupDate())
                     .pickupTime(entity.getPickupTime())
                     .pickupPlace(entity.getPickupPlace())
@@ -94,11 +100,66 @@ public class RentalOrderInfoVo {
     @AllArgsConstructor
     @NoArgsConstructor
     @Builder
+    public static class RelatedRoom {
+        private UUID id;
+        private String orderNumber;
+        private String orderer;
+        private String ordererPhoneNumber;
+        private String borrower;
+        private String borrowerPhoneNumber;
+        @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss'Z'")
+        private LocalDateTime pickupDate;
+        private String pickupTime;
+        private String pickupPlace;
+        @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss'Z'")
+        private LocalDateTime returnDate;
+        private String returnTime;
+        private String returnPlace;
+        private String ordererType;
+        private String csMemo;
+        @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss'Z'")
+        private LocalDateTime createdAt;
+        private UUID ordererId;
+        private UUID lenderRoomId;
+
+        private RoomVo.Basic room;
+
+        public static RelatedRoom toVo(RentalOrderInfoProjection.RelatedRoom proj) {
+            RelatedRoom vo = RelatedRoom.builder()
+                    .id(proj.getRentalOrderInfoEntity().getId())
+                    .orderNumber(proj.getRentalOrderInfoEntity().getOrderNumber())
+                    .orderer(proj.getRentalOrderInfoEntity().getOrderer())
+                    .ordererPhoneNumber(proj.getRentalOrderInfoEntity().getOrdererPhoneNumber())
+                    .borrower(proj.getRentalOrderInfoEntity().getBorrower())
+                    .borrowerPhoneNumber(proj.getRentalOrderInfoEntity().getBorrowerPhoneNumber())
+                    .pickupDate(proj.getRentalOrderInfoEntity().getPickupDate())
+                    .pickupTime(proj.getRentalOrderInfoEntity().getPickupTime())
+                    .pickupPlace(proj.getRentalOrderInfoEntity().getPickupPlace())
+                    .returnDate(proj.getRentalOrderInfoEntity().getReturnDate())
+                    .returnTime(proj.getRentalOrderInfoEntity().getReturnTime())
+                    .returnPlace(proj.getRentalOrderInfoEntity().getReturnPlace())
+                    .ordererType(proj.getRentalOrderInfoEntity().getOrdererType())
+                    .csMemo(proj.getRentalOrderInfoEntity().getCsMemo())
+                    .createdAt(proj.getRentalOrderInfoEntity().getCreatedAt())
+                    .ordererId(proj.getRentalOrderInfoEntity().getOrdererId())
+                    .lenderRoomId(proj.getRentalOrderInfoEntity().getLenderRoomId())
+                    .room(RoomVo.Basic.toVo(proj.getRoomEntity()))
+                    .build();
+            return vo;
+        }
+    }
+
+    @Data
+    @AllArgsConstructor
+    @NoArgsConstructor
+    @Builder
     public static class FullJoin {
         private UUID id;
         private String orderNumber;
         private String orderer;
         private String ordererPhoneNumber;
+        private String borrower;
+        private String borrowerPhoneNumber;
         @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss'Z'")
         private LocalDateTime pickupDate;
         private String pickupTime;
@@ -123,6 +184,8 @@ public class RentalOrderInfoVo {
                     .orderNumber(proj.getRentalOrderInfoEntity().getOrderNumber())
                     .orderer(proj.getRentalOrderInfoEntity().getOrderer())
                     .ordererPhoneNumber(proj.getRentalOrderInfoEntity().getOrdererPhoneNumber())
+                    .borrower(proj.getRentalOrderInfoEntity().getBorrower())
+                    .borrowerPhoneNumber(proj.getRentalOrderInfoEntity().getBorrowerPhoneNumber())
                     .pickupDate(proj.getRentalOrderInfoEntity().getPickupDate())
                     .pickupTime(proj.getRentalOrderInfoEntity().getPickupTime())
                     .pickupPlace(proj.getRentalOrderInfoEntity().getPickupPlace())

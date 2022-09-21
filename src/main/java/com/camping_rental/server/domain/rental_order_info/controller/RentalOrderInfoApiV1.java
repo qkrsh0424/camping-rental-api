@@ -64,6 +64,21 @@ public class RentalOrderInfoApiV1 {
 
         return new ResponseEntity<>(message, message.getStatus());
     }
+
+    @GetMapping("/page/my-order")
+    @RequiredLogin
+    public ResponseEntity<?> searchPageMyOrder(
+            @PageableDefault(sort = "createdAt", direction = Sort.Direction.DESC, size = 20) Pageable pageable
+    ){
+        Message message = new Message();
+
+        message.setData(rentalOrderInfoBusinessService.searchPageMyOrder(pageable));
+        message.setStatus(HttpStatus.OK);
+        message.setMessage("success");
+
+        return new ResponseEntity<>(message, message.getStatus());
+    }
+
     @PostMapping("")
     @RequiredLogin
     public ResponseEntity<?> createOne(

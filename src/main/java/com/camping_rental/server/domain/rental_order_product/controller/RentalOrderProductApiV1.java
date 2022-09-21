@@ -36,6 +36,29 @@ public class RentalOrderProductApiV1 {
         return new ResponseEntity<>(message, message.getStatus());
     }
 
+    @GetMapping("/rental-order-infos/{rentalOrderInfoId}")
+    @RequiredLogin
+    public ResponseEntity<?> searchListByRentalOrderInfoId(
+            @PathVariable("rentalOrderInfoId") Object rentalOrderInfoIdObj,
+            @RequestParam Map<String, Object> params
+    ) {
+        Message message = new Message();
+
+        UUID rentalOrderInfoId = null;
+
+        try{
+            rentalOrderInfoId = UUID.fromString(rentalOrderInfoIdObj.toString());
+        }catch (IllegalArgumentException | NullPointerException e){
+            throw new NotMatchedFormatException("주문 정보를 찾을 수 없습니다.");
+        }
+
+        message.setData(rentalOrderProductBusinessService.searchListByRentalOrderInfoId(rentalOrderInfoId));
+        message.setStatus(HttpStatus.OK);
+        message.setMessage("success");
+
+        return new ResponseEntity<>(message, message.getStatus());
+    }
+
     @PatchMapping("/target:status/action:set-confirmOrder")
     @RequiredLogin
     public ResponseEntity<?> changeStatusToConfirmOrder(

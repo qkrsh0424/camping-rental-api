@@ -1,6 +1,7 @@
 package com.camping_rental.server.domain.cs_sms_log.vo;
 
 import com.camping_rental.server.domain.cs_sms_log.entity.CsSmsLogEntity;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.*;
 import org.hibernate.annotations.Type;
 
@@ -15,6 +16,7 @@ public class CsSmsLogVo {
     private String fromPhoneNumber;
     private String toPhoneNumber;
     private UUID createdBy;
+    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss'Z'")
     private LocalDateTime createdAt;
     private boolean deletedFlag;
     private UUID rentalOrderInfoId;
@@ -29,6 +31,7 @@ public class CsSmsLogVo {
         private String smsMessage;
         private String fromPhoneNumber;
         private String toPhoneNumber;
+        @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss'Z'")
         private LocalDateTime createdAt;
         private UUID rentalOrderInfoId;
         private UUID roomId;
