@@ -4,8 +4,10 @@ import com.camping_rental.server.domain.exception.dto.AccessDeniedPermissionExce
 import com.camping_rental.server.domain.exception.dto.NotMatchedFormatException;
 import com.camping_rental.server.domain.rental_order_info.entity.RentalOrderInfoEntity;
 import com.camping_rental.server.domain.rental_order_info.service.RentalOrderInfoService;
+import com.camping_rental.server.domain.rental_order_info.vo.CountProductsVo;
 import com.camping_rental.server.domain.rental_order_product.entity.RentalOrderProductEntity;
 import com.camping_rental.server.domain.rental_order_product.enums.RentalOrderProductStatusEnum;
+import com.camping_rental.server.domain.rental_order_product.projection.CountProductsProjection;
 import com.camping_rental.server.domain.rental_order_product.projection.RentalOrderProductProjection;
 import com.camping_rental.server.domain.rental_order_product.vo.RentalOrderProductVo;
 import com.camping_rental.server.domain.room.entity.RoomEntity;
@@ -18,9 +20,11 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
 @Service
@@ -183,5 +187,23 @@ public class RentalOrderProductBusinessService {
 
             r.getRentalOrderProductEntity().setStatus(RentalOrderProductStatusEnum.CANCELLED.getValue());
         });
+    }
+
+    public Object countProducts(LocalDateTime startDate, LocalDateTime endDate, List<String> orderTypes) {
+        UUID userId = userService.getUserIdOrThrow();
+        RoomEntity roomEntity = roomService.searchByUserIdOrThrow(userId);
+        UUID roomId = roomEntity.getId();
+
+        List<CountProductsProjection.Product> countProductsProjections = rentalOrderProductService.qCountProductsByRoomId(roomId, startDate, endDate, orderTypes);
+        AtomicReference<Integer> totalSum = new AtomicReference<>(0);
+        Integer length = countProductsProjections.size();
+
+        countProductsProjections.forEach(r->{
+            totalSum.updateAndGet(v -> v + r.getUnitSum());
+        });
+
+        CountProductsVo.Basic countProductsVo = CountProductsVo.Basic.toVo(countProductsProjections, totalSum.get(), length);
+
+        return countProductsVo;
     }
 }

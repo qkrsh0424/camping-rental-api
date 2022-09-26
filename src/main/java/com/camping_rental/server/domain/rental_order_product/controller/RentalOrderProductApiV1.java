@@ -12,6 +12,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 @RestController
@@ -46,13 +48,37 @@ public class RentalOrderProductApiV1 {
 
         UUID rentalOrderInfoId = null;
 
-        try{
+        try {
             rentalOrderInfoId = UUID.fromString(rentalOrderInfoIdObj.toString());
-        }catch (IllegalArgumentException | NullPointerException e){
+        } catch (IllegalArgumentException | NullPointerException e) {
             throw new NotMatchedFormatException("주문 정보를 찾을 수 없습니다.");
         }
 
         message.setData(rentalOrderProductBusinessService.searchListByRentalOrderInfoId(rentalOrderInfoId));
+        message.setStatus(HttpStatus.OK);
+        message.setMessage("success");
+
+        return new ResponseEntity<>(message, message.getStatus());
+    }
+
+    @GetMapping("/count/products")
+    @RequiredLogin
+    public ResponseEntity<?> countProducts(
+            @RequestParam Map<String, Object> params
+    ) {
+        Message message = new Message();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
+
+        Object startDateObj = params.get("startDate");
+        Object endDateObj = params.get("endDate");
+
+        LocalDateTime startDate = LocalDateTime.parse(startDateObj.toString(), formatter);
+        LocalDateTime endDate = LocalDateTime.parse(endDateObj.toString(), formatter);
+        Object orderTypesObj = params.get("orderTypes");
+
+        List<String> orderTypes = List.of(orderTypesObj.toString().split(","));
+
+        message.setData(rentalOrderProductBusinessService.countProducts(startDate, endDate, orderTypes));
         message.setStatus(HttpStatus.OK);
         message.setMessage("success");
 
@@ -69,11 +95,11 @@ public class RentalOrderProductApiV1 {
         List<Object> productIdsObj = (List<Object>) body.get("productIds");
         List<UUID> productIds = new ArrayList<>();
 
-        try{
-            productIdsObj.stream().forEach(r->{
+        try {
+            productIdsObj.stream().forEach(r -> {
                 productIds.add(UUID.fromString(r.toString()));
             });
-        } catch (IllegalArgumentException | NullPointerException e){
+        } catch (IllegalArgumentException | NullPointerException e) {
             throw new NotMatchedFormatException("제품 데이터를 찾을 수 없습니다.");
         }
 
@@ -94,11 +120,11 @@ public class RentalOrderProductApiV1 {
         List<Object> productIdsObj = (List<Object>) body.get("productIds");
         List<UUID> productIds = new ArrayList<>();
 
-        try{
-            productIdsObj.stream().forEach(r->{
+        try {
+            productIdsObj.stream().forEach(r -> {
                 productIds.add(UUID.fromString(r.toString()));
             });
-        } catch (IllegalArgumentException | NullPointerException e){
+        } catch (IllegalArgumentException | NullPointerException e) {
             throw new NotMatchedFormatException("제품 데이터를 찾을 수 없습니다.");
         }
 
@@ -119,11 +145,11 @@ public class RentalOrderProductApiV1 {
         List<Object> productIdsObj = (List<Object>) body.get("productIds");
         List<UUID> productIds = new ArrayList<>();
 
-        try{
-            productIdsObj.stream().forEach(r->{
+        try {
+            productIdsObj.stream().forEach(r -> {
                 productIds.add(UUID.fromString(r.toString()));
             });
-        } catch (IllegalArgumentException | NullPointerException e){
+        } catch (IllegalArgumentException | NullPointerException e) {
             throw new NotMatchedFormatException("제품 데이터를 찾을 수 없습니다.");
         }
 
@@ -144,11 +170,11 @@ public class RentalOrderProductApiV1 {
         List<Object> productIdsObj = (List<Object>) body.get("productIds");
         List<UUID> productIds = new ArrayList<>();
 
-        try{
-            productIdsObj.stream().forEach(r->{
+        try {
+            productIdsObj.stream().forEach(r -> {
                 productIds.add(UUID.fromString(r.toString()));
             });
-        } catch (IllegalArgumentException | NullPointerException e){
+        } catch (IllegalArgumentException | NullPointerException e) {
             throw new NotMatchedFormatException("제품 데이터를 찾을 수 없습니다.");
         }
 
@@ -169,11 +195,11 @@ public class RentalOrderProductApiV1 {
         List<Object> productIdsObj = (List<Object>) body.get("productIds");
         List<UUID> productIds = new ArrayList<>();
 
-        try{
-            productIdsObj.stream().forEach(r->{
+        try {
+            productIdsObj.stream().forEach(r -> {
                 productIds.add(UUID.fromString(r.toString()));
             });
-        } catch (IllegalArgumentException | NullPointerException e){
+        } catch (IllegalArgumentException | NullPointerException e) {
             throw new NotMatchedFormatException("제품 데이터를 찾을 수 없습니다.");
         }
 
@@ -194,11 +220,11 @@ public class RentalOrderProductApiV1 {
         List<Object> productIdsObj = (List<Object>) body.get("productIds");
         List<UUID> productIds = new ArrayList<>();
 
-        try{
-            productIdsObj.stream().forEach(r->{
+        try {
+            productIdsObj.stream().forEach(r -> {
                 productIds.add(UUID.fromString(r.toString()));
             });
-        } catch (IllegalArgumentException | NullPointerException e){
+        } catch (IllegalArgumentException | NullPointerException e) {
             throw new NotMatchedFormatException("제품 데이터를 찾을 수 없습니다.");
         }
 
