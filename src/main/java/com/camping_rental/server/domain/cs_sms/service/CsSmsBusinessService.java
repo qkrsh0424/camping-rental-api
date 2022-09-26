@@ -41,7 +41,7 @@ public class CsSmsBusinessService {
             throw new AccessDeniedPermissionException("접근 권한이 없습니다.");
         }
 
-        String ordererPhoneNumber = rentalOrderInfoEntity.getOrdererPhoneNumber();
+        String borrowerPhoneNumber = rentalOrderInfoEntity.getBorrowerPhoneNumber();
         String senderPhoneNumber = roomEntity.getPhoneNumber();
         UUID roomId = roomEntity.getId();
         UUID csSmsLogId = UUID.randomUUID();
@@ -50,7 +50,7 @@ public class CsSmsBusinessService {
 
         twilioSmsRequestDtos.add(
                 TwilioSmsRequestDto.toDto(
-                        rentalOrderInfoEntity.getOrdererPhoneNumber(),
+                        borrowerPhoneNumber,
                         smsMessage
                 )
         );
@@ -60,7 +60,7 @@ public class CsSmsBusinessService {
                 .id(csSmsLogId)
                 .smsMessage(smsMessage)
                 .fromPhoneNumber(senderPhoneNumber)
-                .toPhoneNumber(ordererPhoneNumber)
+                .toPhoneNumber(borrowerPhoneNumber)
                 .createdBy(userId)
                 .createdAt(CustomDateUtils.getCurrentDateTime())
                 .deletedFlag(DeletedFlagEnums.EXIST.getValue())
