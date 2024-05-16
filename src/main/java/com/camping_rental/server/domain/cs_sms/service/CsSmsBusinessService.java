@@ -4,20 +4,18 @@ import com.camping_rental.server.domain.cs_sms_log.entity.CsSmsLogEntity;
 import com.camping_rental.server.domain.cs_sms_log.service.CsSmsLogService;
 import com.camping_rental.server.domain.enums.DeletedFlagEnums;
 import com.camping_rental.server.domain.exception.dto.AccessDeniedPermissionException;
+import com.camping_rental.server.domain.naver.sens.dto.NaverCloudSensSmsSendDto;
+import com.camping_rental.server.domain.naver.sens.service.NaverCloudSensSmsService;
 import com.camping_rental.server.domain.rental_order_info.entity.RentalOrderInfoEntity;
 import com.camping_rental.server.domain.rental_order_info.service.RentalOrderInfoService;
 import com.camping_rental.server.domain.room.entity.RoomEntity;
 import com.camping_rental.server.domain.room.service.RoomService;
-import com.camping_rental.server.domain.twilio.dto.TwilioSmsRequestDto;
-import com.camping_rental.server.domain.twilio.service.TwilioSmsService;
 import com.camping_rental.server.domain.user.service.UserService;
 import com.camping_rental.server.utils.CustomDateUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.persistence.Column;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -28,8 +26,8 @@ public class CsSmsBusinessService {
     private final UserService userService;
     private final RoomService roomService;
     private final RentalOrderInfoService rentalOrderInfoService;
-    private final TwilioSmsService twilioSmsService;
     private final CsSmsLogService csSmsLogService;
+    private final NaverCloudSensSmsService naverCloudSensSmsService;
 
     @Transactional
     public void sendSmsForRentalOrderInfo(UUID rentalOrderInfoId, String smsMessage) {
@@ -46,15 +44,6 @@ public class CsSmsBusinessService {
         UUID roomId = roomEntity.getId();
         UUID csSmsLogId = UUID.randomUUID();
 
-        List<TwilioSmsRequestDto> twilioSmsRequestDtos = new ArrayList<>();
-
-        twilioSmsRequestDtos.add(
-                TwilioSmsRequestDto.toDto(
-                        borrowerPhoneNumber,
-                        smsMessage
-                )
-        );
-
         CsSmsLogEntity csSmsLogEntity = CsSmsLogEntity.builder()
                 .cid(null)
                 .id(csSmsLogId)
@@ -69,6 +58,11 @@ public class CsSmsBusinessService {
                 .build();
 
         csSmsLogService.saveAndModify(csSmsLogEntity);
-        twilioSmsService.sendMultipleSms(twilioSmsRequestDtos);
+
+        List<NaverCloudSensSmsSendDto> naverCloudSensSmsSendDtoList = new ArrayList<>();
+        naverCloudSensSmsSendDtoList.add(
+                NaverCloudSensSmsSendDto.toDto(borrowerPhoneNumber, smsMessage, "[Campal | 캠핑 렌탈]")
+        );
+        naverCloudSensSmsService.sendMultiple(naverCloudSensSmsSendDtoList);
     }
 }

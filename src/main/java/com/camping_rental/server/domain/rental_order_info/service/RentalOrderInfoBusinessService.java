@@ -1,6 +1,10 @@
 package com.camping_rental.server.domain.rental_order_info.service;
 
 import com.camping_rental.server.domain.exception.dto.AccessDeniedPermissionException;
+import com.camping_rental.server.domain.naver.sens.dto.NaverCloudSensSmsSendDto;
+import com.camping_rental.server.domain.naver.sens.service.NaverCloudSensSmsService;
+import com.camping_rental.server.domain.naver.sens.strategy.NaverCloudSensSmsRentalOrderInfo;
+import com.camping_rental.server.domain.naver.sens.strategy.NaverCloudSensSmsRequestFactory;
 import com.camping_rental.server.domain.product.entity.ProductEntity;
 import com.camping_rental.server.domain.product.projection.ProductProjection;
 import com.camping_rental.server.domain.product.service.ProductService;
@@ -18,14 +22,9 @@ import com.camping_rental.server.domain.rental_order_product.enums.RentalOrderPr
 import com.camping_rental.server.domain.rental_order_product.service.RentalOrderProductService;
 import com.camping_rental.server.domain.room.entity.RoomEntity;
 import com.camping_rental.server.domain.room.service.RoomService;
-import com.camping_rental.server.domain.twilio.dto.TwilioSmsRequestDto;
-import com.camping_rental.server.domain.twilio.service.TwilioSmsService;
-import com.camping_rental.server.domain.twilio.strategy.RentalOrderInfoSms;
-import com.camping_rental.server.domain.twilio.strategy.TwilioSmsRequestFactory;
 import com.camping_rental.server.domain.user.service.UserService;
 import com.camping_rental.server.utils.CustomDateUtils;
 import com.camping_rental.server.utils.CustomUniqueKeyUtils;
-import com.camping_rental.server.utils.ValidationTokenUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -44,8 +43,8 @@ public class RentalOrderInfoBusinessService {
     private final UserService userService;
     private final RentalOrderInfoService rentalOrderInfoService;
     private final RentalOrderProductService rentalOrderProductService;
-    private final TwilioSmsService twilioSmsService;
     private final RoomService roomService;
+    private final NaverCloudSensSmsService naverCloudSensSmsService;
 
     @Transactional
     public Map<String, Object> createOne(HttpServletRequest request, RentalOrderInfoDto.Create rentalOrderInfoDto) {
@@ -144,20 +143,28 @@ public class RentalOrderInfoBusinessService {
         rentalOrderProductService.saveAll(rentalOrderProductEntities);
 
         /*
-        twilio 메세지 전송
+        SENS 메세지 전송
          */
-        List<TwilioSmsRequestDto> twilioSmsRequestDtos = new ArrayList<>();
-        TwilioSmsRequestFactory twilioSmsRequestFactory = new TwilioSmsRequestFactory(new RentalOrderInfoSms.Orderer());
+        List<NaverCloudSensSmsSendDto> naverCloudSensSmsSendDtoList = new ArrayList<>();
+        NaverCloudSensSmsRequestFactory naverCloudSensSmsRequestFactory = new NaverCloudSensSmsRequestFactory();
 
-        twilioSmsRequestFactory.setTwilioSmsRequestStrategy(new RentalOrderInfoSms.Lender());
-        TwilioSmsRequestDto lenderSms = twilioSmsRequestFactory.make(Map.of(
+        naverCloudSensSmsRequestFactory.setNaverCloudSensSmsRequestStrategy(new NaverCloudSensSmsRentalOrderInfo.Orderer());
+        NaverCloudSensSmsSendDto ordererSms = naverCloudSensSmsRequestFactory.make(Map.of(
+                "orderNumber", orderNumber,
+                "smsReceiverPhoneNumber", rentalOrderInfoDto.getOrdererPhoneNumber(),
+                "borrower", rentalOrderInfoDto.getBorrower(),
+                "borrowerPhoneNumber", rentalOrderInfoDto.getBorrowerPhoneNumber()
+        ));
+
+        naverCloudSensSmsRequestFactory.setNaverCloudSensSmsRequestStrategy(new NaverCloudSensSmsRentalOrderInfo.Lender());
+        NaverCloudSensSmsSendDto lenderSms = naverCloudSensSmsRequestFactory.make(Map.of(
                 "smsReceiverPhoneNumber", lenderRoomPhoneNumber,
                 "borrower", rentalOrderInfoDto.getBorrower(),
                 "borrowerPhoneNumber", rentalOrderInfoDto.getBorrowerPhoneNumber()
         ));
 
-        twilioSmsRequestFactory.setTwilioSmsRequestStrategy(new RentalOrderInfoSms.Admin());
-        TwilioSmsRequestDto adminSms = twilioSmsRequestFactory.make(Map.of(
+        naverCloudSensSmsRequestFactory.setNaverCloudSensSmsRequestStrategy(new NaverCloudSensSmsRentalOrderInfo.Admin());
+        NaverCloudSensSmsSendDto adminSms = naverCloudSensSmsRequestFactory.make(Map.of(
                 "smsReceiverPhoneNumber", "01085356112",
                 "lender", lenderRoomEntity.getName(),
                 "orderer", rentalOrderInfoDto.getOrderer(),
@@ -166,10 +173,11 @@ public class RentalOrderInfoBusinessService {
                 "borrowerPhoneNumber", rentalOrderInfoDto.getBorrowerPhoneNumber()
         ));
 
-        twilioSmsRequestDtos.add(lenderSms);
-        twilioSmsRequestDtos.add(adminSms);
+        naverCloudSensSmsSendDtoList.add(ordererSms);
+        naverCloudSensSmsSendDtoList.add(lenderSms);
+        naverCloudSensSmsSendDtoList.add(adminSms);
 
-        twilioSmsService.sendMultipleSms(twilioSmsRequestDtos);
+        naverCloudSensSmsService.sendMultiple(naverCloudSensSmsSendDtoList);
 
         Map<String, Object> resultMap = new HashMap<>();
 
@@ -211,28 +219,6 @@ public class RentalOrderInfoBusinessService {
         }).collect(Collectors.toList());
 
         return new PageImpl<>(vos, pageable, rentalOrderInfoProjectionPage.getTotalElements());
-    }
-
-    public void sendSms(UUID rentalOrderInfoId, String smsMessage) {
-        UUID userId = userService.getUserIdOrThrow();
-        RoomEntity roomEntity = roomService.searchByUserIdOrThrow(userId);
-
-        RentalOrderInfoEntity rentalOrderInfoEntity = rentalOrderInfoService.searchByIdOrThrow(rentalOrderInfoId);
-
-        if (!rentalOrderInfoEntity.getLenderRoomId().equals(roomEntity.getId())) {
-            throw new AccessDeniedPermissionException("접근 권한이 없습니다.");
-        }
-
-        List<TwilioSmsRequestDto> twilioSmsRequestDtos = new ArrayList<>();
-
-        twilioSmsRequestDtos.add(
-                TwilioSmsRequestDto.toDto(
-                        rentalOrderInfoEntity.getOrdererPhoneNumber(),
-                        smsMessage
-                )
-        );
-
-        twilioSmsService.sendMultipleSms(twilioSmsRequestDtos);
     }
 
     @Transactional
