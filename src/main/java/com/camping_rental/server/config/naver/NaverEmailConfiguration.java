@@ -3,8 +3,8 @@ package com.camping_rental.server.config.naver;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
 
-@Configuration
-@ConfigurationProperties("app.cloud.naver.platform")
+//@Configuration
+//@ConfigurationProperties("app.cloud.naver")
 public class NaverEmailConfiguration {
     private String accessKey;
     private String secretKey;

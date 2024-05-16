@@ -1,6 +1,6 @@
 package com.camping_rental.server.domain.naver.email.service;
 
-import com.camping_rental.server.config.naver.NaverEmailConfiguration;
+import com.camping_rental.server.config.naver.NaverCloudProperties;
 import com.camping_rental.server.domain.exception.dto.NotMatchedFormatException;
 import com.camping_rental.server.domain.naver.email.dto.NaverEmailRequestDto;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -26,7 +26,7 @@ import java.util.HashMap;
 @Service
 @RequiredArgsConstructor
 public class NaverEmailService {
-    private final NaverEmailConfiguration naverEmailConfiguration;
+    private final NaverCloudProperties naverCloudProperties;
 
     public void sendEmail(NaverEmailRequestDto mailRequestDto) {
         try {
@@ -39,7 +39,7 @@ public class NaverEmailService {
             HttpEntity<String> body = new HttpEntity<>(jsonBody, headers);
             RestTemplate restTemplate = new RestTemplate();
             restTemplate.setRequestFactory(new HttpComponentsClientHttpRequestFactory());
-            restTemplate.postForObject(new URI(naverEmailConfiguration.getMailRequestUrl() + naverEmailConfiguration.getMailApiUri()), body, HashMap.class);
+            restTemplate.postForObject(new URI(naverCloudProperties.getMailer().getMailRequestUrl() + naverCloudProperties.getMailer().getMailApiUri()), body, HashMap.class);
         } catch (URISyntaxException e) {
             throw new NotMatchedFormatException("이메일 전송이 불가능 합니다.");
         } catch (JsonProcessingException e) {
@@ -58,7 +58,7 @@ public class NaverEmailService {
             HttpEntity<String> body = new HttpEntity<>(jsonBody, headers);
             RestTemplate restTemplate = new RestTemplate();
             restTemplate.setRequestFactory(new HttpComponentsClientHttpRequestFactory());
-            restTemplate.postForObject(new URI(naverEmailConfiguration.getMailRequestUrl() + naverEmailConfiguration.getMailApiUri()), body, HashMap.class);
+            restTemplate.postForObject(new URI(naverCloudProperties.getMailer().getMailRequestUrl() + naverCloudProperties.getMailer().getMailApiUri()), body, HashMap.class);
         } catch (URISyntaxException e) {
             throw new NotMatchedFormatException("이메일 전송이 불가능 합니다.");
         } catch (JsonProcessingException e) {
@@ -71,7 +71,7 @@ public class NaverEmailService {
 
         headers.setContentType(MediaType.APPLICATION_JSON);
         headers.set("x-ncp-apigw-timestamp", time.toString());
-        headers.set("x-ncp-iam-access-key", naverEmailConfiguration.getAccessKey());
+        headers.set("x-ncp-iam-access-key", naverCloudProperties.getAccessKey());
         String sig = makeSignature(time);
         headers.set("x-ncp-apigw-signature-v2", sig);
 
@@ -82,9 +82,9 @@ public class NaverEmailService {
         String newLine = "\n";
         String method = "POST";
         String space = " ";
-        String url = naverEmailConfiguration.getMailApiUri();
-        String accessKey = naverEmailConfiguration.getAccessKey();
-        String secretKey = naverEmailConfiguration.getSecretKey();
+        String url = naverCloudProperties.getMailer().getMailApiUri();
+        String accessKey = naverCloudProperties.getAccessKey();
+        String secretKey = naverCloudProperties.getSecretKey();
 
         String message = new StringBuilder()
                 .append(method)
