@@ -9,6 +9,7 @@ import org.springframework.stereotype.Repository;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 
 @Repository
@@ -17,4 +18,6 @@ public interface RentalOrderProductRepositoryCustom {
     List<RentalOrderProductProjection.JoinRentalOrderInfo> qSelectListByIdsJoinRentalOrderInfo(List<UUID> ids);
 
     List<CountProductsProjection.Product> qCountProductsByRoomId(UUID roomId, LocalDateTime startDate, LocalDateTime endDate, List<String> orderTypes);
+
+    Optional<RentalOrderProductProjection.JoinRentalOrderInfo> qSelectByIdAndLenderRoomIdJoinRentalOrderInfo(UUID id, UUID roomId);
 }

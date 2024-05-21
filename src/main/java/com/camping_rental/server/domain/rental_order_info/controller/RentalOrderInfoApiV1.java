@@ -4,9 +4,11 @@ import com.camping_rental.server.annotation.RequiredLogin;
 import com.camping_rental.server.domain.exception.dto.NotMatchedFormatException;
 import com.camping_rental.server.domain.message.dto.Message;
 import com.camping_rental.server.domain.rental_order_info.dto.RentalOrderInfoDto;
+import com.camping_rental.server.domain.rental_order_info.dto.RentalOrderInfoUpdateDto;
 import com.camping_rental.server.domain.rental_order_info.service.RentalOrderInfoBusinessService;
 import com.camping_rental.server.utils.ValidationTokenUtils;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Required;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
@@ -55,7 +57,7 @@ public class RentalOrderInfoApiV1 {
     @RequiredLogin
     public ResponseEntity<?> searchPage(
             @PageableDefault(sort = "createdAt", direction = Sort.Direction.DESC, size = 20) Pageable pageable
-    ){
+    ) {
         Message message = new Message();
 
         message.setData(rentalOrderInfoBusinessService.searchPage(pageable));
@@ -69,7 +71,7 @@ public class RentalOrderInfoApiV1 {
     @RequiredLogin
     public ResponseEntity<?> searchPageMyOrder(
             @PageableDefault(sort = "createdAt", direction = Sort.Direction.DESC, size = 20) Pageable pageable
-    ){
+    ) {
         Message message = new Message();
 
         message.setData(rentalOrderInfoBusinessService.searchPageMyOrder(pageable));
@@ -102,20 +104,34 @@ public class RentalOrderInfoApiV1 {
     public ResponseEntity<?> changeCsMemo(
             @PathVariable("rentalOrderInfoId") Object rentalOrderInfoIdObj,
             @RequestBody Map<String, Object> body
-    ){
+    ) {
         Message message = new Message();
 
         String csMemo = null;
         UUID rentalOrderInfoId = null;
 
-        try{
+        try {
             csMemo = body.get("csMemo").toString();
             rentalOrderInfoId = UUID.fromString(rentalOrderInfoIdObj.toString());
-        } catch (IllegalArgumentException | NullPointerException e){
+        } catch (IllegalArgumentException | NullPointerException e) {
             throw new NotMatchedFormatException("해당 데이터를 찾을 수 없습니다.");
         }
 
         rentalOrderInfoBusinessService.changeCsMemo(rentalOrderInfoId, csMemo);
+        message.setStatus(HttpStatus.OK);
+        message.setMessage("success");
+
+        return new ResponseEntity<>(message, message.getStatus());
+    }
+
+    @PutMapping("")
+    @RequiredLogin
+    public ResponseEntity<?> update(
+            @RequestBody RentalOrderInfoUpdateDto rentalOrderInfoUpdateDto
+    ) {
+        Message message = new Message();
+
+        message.setData(rentalOrderInfoBusinessService.update(rentalOrderInfoUpdateDto));
         message.setStatus(HttpStatus.OK);
         message.setMessage("success");
 

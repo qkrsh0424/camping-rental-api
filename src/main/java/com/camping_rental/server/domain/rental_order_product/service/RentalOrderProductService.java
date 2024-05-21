@@ -1,5 +1,6 @@
 package com.camping_rental.server.domain.rental_order_product.service;
 
+import com.camping_rental.server.domain.exception.dto.NotMatchedFormatException;
 import com.camping_rental.server.domain.rental_order_product.entity.RentalOrderProductEntity;
 import com.camping_rental.server.domain.rental_order_product.projection.CountProductsProjection;
 import com.camping_rental.server.domain.rental_order_product.projection.RentalOrderProductProjection;
@@ -37,5 +38,9 @@ public class RentalOrderProductService {
 
     public List<CountProductsProjection.Product> qCountProductsByRoomId(UUID roomId, LocalDateTime startDate, LocalDateTime endDate, List<String> orderTypes) {
         return rentalOrderProductRepository.qCountProductsByRoomId(roomId, startDate, endDate, orderTypes);
+    }
+
+    public RentalOrderProductProjection.JoinRentalOrderInfo qSearchByIdAndLenderRoomIdJoinRentalOrderInfo(UUID id, UUID roomId) {
+        return rentalOrderProductRepository.qSelectByIdAndLenderRoomIdJoinRentalOrderInfo(id, roomId).orElseThrow(()->new NotMatchedFormatException("요청 데이터를 찾을 수 없습니다."));
     }
 }
