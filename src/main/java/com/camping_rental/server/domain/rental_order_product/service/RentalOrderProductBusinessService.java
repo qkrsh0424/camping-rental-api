@@ -5,6 +5,7 @@ import com.camping_rental.server.domain.exception.dto.NotMatchedFormatException;
 import com.camping_rental.server.domain.rental_order_info.entity.RentalOrderInfoEntity;
 import com.camping_rental.server.domain.rental_order_info.service.RentalOrderInfoService;
 import com.camping_rental.server.domain.rental_order_info.vo.CountProductsVo;
+import com.camping_rental.server.domain.rental_order_product.dto.RentalOrderProductUpdateDto;
 import com.camping_rental.server.domain.rental_order_product.entity.RentalOrderProductEntity;
 import com.camping_rental.server.domain.rental_order_product.enums.RentalOrderProductStatusEnum;
 import com.camping_rental.server.domain.rental_order_product.projection.CountProductsProjection;
@@ -14,12 +15,14 @@ import com.camping_rental.server.domain.room.entity.RoomEntity;
 import com.camping_rental.server.domain.room.service.RoomService;
 import com.camping_rental.server.domain.user.service.UserService;
 import lombok.RequiredArgsConstructor;
+import org.hibernate.annotations.Type;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.persistence.Column;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
@@ -189,6 +192,7 @@ public class RentalOrderProductBusinessService {
         });
     }
 
+    @Transactional(readOnly = true)
     public Object countProducts(LocalDateTime startDate, LocalDateTime endDate, List<String> orderTypes) {
         UUID userId = userService.getUserIdOrThrow();
         RoomEntity roomEntity = roomService.searchByUserIdOrThrow(userId);
@@ -205,5 +209,32 @@ public class RentalOrderProductBusinessService {
         CountProductsVo.Basic countProductsVo = CountProductsVo.Basic.toVo(countProductsProjections, totalSum.get(), length);
 
         return countProductsVo;
+    }
+
+    @Transactional
+    public Object update(RentalOrderProductUpdateDto rentalOrderProductUpdateDto) {
+        UUID userId = userService.getUserIdOrThrow();
+        RoomEntity roomEntity = roomService.searchByUserIdOrThrow(userId);
+        UUID roomId = roomEntity.getId();
+
+        if(rentalOrderProductUpdateDto.getId() == null){
+            throw new NotMatchedFormatException("요청 데이터를 찾을 수 없습니다.");
+        }
+
+        RentalOrderProductProjection.JoinRentalOrderInfo rentalOrderProductProjection = rentalOrderProductService.qSearchByIdAndLenderRoomIdJoinRentalOrderInfo(rentalOrderProductUpdateDto.getId(), roomId);
+
+        RentalOrderProductEntity rentalOrderProductEntity = rentalOrderProductProjection.getRentalOrderProductEntity();
+
+        // Dirty checking update
+        rentalOrderProductEntity.setProductName(rentalOrderProductUpdateDto.getProductName());
+        rentalOrderProductEntity.setThumbnailUri(rentalOrderProductUpdateDto.getThumbnailUri());
+        rentalOrderProductEntity.setPrice(rentalOrderProductUpdateDto.getPrice());
+        rentalOrderProductEntity.setDiscountYn(rentalOrderProductUpdateDto.getDiscountYn());
+        rentalOrderProductEntity.setDiscountMinimumHour(rentalOrderProductUpdateDto.getDiscountMinimumHour());
+        rentalOrderProductEntity.setDiscountRate(rentalOrderProductUpdateDto.getDiscountRate());
+        rentalOrderProductEntity.setUnit(rentalOrderProductUpdateDto.getUnit());
+        rentalOrderProductEntity.setProductId(rentalOrderProductUpdateDto.getProductId());
+
+        return RentalOrderProductVo.JoinRentalOrderInfo.toVo(rentalOrderProductProjection);
     }
 }

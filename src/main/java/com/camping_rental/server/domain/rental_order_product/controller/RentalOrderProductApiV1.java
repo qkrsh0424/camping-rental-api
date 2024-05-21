@@ -3,6 +3,7 @@ package com.camping_rental.server.domain.rental_order_product.controller;
 import com.camping_rental.server.annotation.RequiredLogin;
 import com.camping_rental.server.domain.exception.dto.NotMatchedFormatException;
 import com.camping_rental.server.domain.message.dto.Message;
+import com.camping_rental.server.domain.rental_order_product.dto.RentalOrderProductUpdateDto;
 import com.camping_rental.server.domain.rental_order_product.service.RentalOrderProductBusinessService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
@@ -229,6 +230,20 @@ public class RentalOrderProductApiV1 {
         }
 
         rentalOrderProductBusinessService.changeStatusToCancelled(productIds);
+        message.setStatus(HttpStatus.OK);
+        message.setMessage("success");
+
+        return new ResponseEntity<>(message, message.getStatus());
+    }
+
+    @PutMapping("")
+    @RequiredLogin
+    public ResponseEntity<?> update(
+            @RequestBody RentalOrderProductUpdateDto rentalOrderProductUpdateDto
+    ) {
+        Message message = new Message();
+
+        message.setData(rentalOrderProductBusinessService.update(rentalOrderProductUpdateDto));
         message.setStatus(HttpStatus.OK);
         message.setMessage("success");
 

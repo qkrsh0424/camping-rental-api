@@ -22,6 +22,7 @@ import org.springframework.stereotype.Repository;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -120,6 +121,27 @@ public class RentalOrderProductRepositoryImpl implements RentalOrderProductRepos
         List<CountProductsProjection.Product> countProducts = customQuery.fetch();
 
         return countProducts;
+    }
+
+    @Override
+    public Optional<RentalOrderProductProjection.JoinRentalOrderInfo> qSelectByIdAndLenderRoomIdJoinRentalOrderInfo(UUID id, UUID roomId) {
+        JPQLQuery<RentalOrderProductProjection.JoinRentalOrderInfo> customQuery = query.from(qRentalOrderProductEntity)
+                .select(
+                        Projections.fields(
+                                RentalOrderProductProjection.JoinRentalOrderInfo.class,
+                                qRentalOrderProductEntity.as("rentalOrderProductEntity"),
+                                qRentalOrderInfoEntity.as("rentalOrderInfoEntity")
+                        )
+                )
+                .join(qRentalOrderInfoEntity).on(
+                        qRentalOrderInfoEntity.id.eq(qRentalOrderProductEntity.rentalOrderInfoId)
+                                .and(qRentalOrderInfoEntity.deletedFlag.eq(DeletedFlagEnums.EXIST.getValue()))
+                )
+                .where(qRentalOrderProductEntity.id.eq(id))
+                .where(qRentalOrderInfoEntity.lenderRoomId.eq(roomId))
+                ;
+
+        return Optional.of(customQuery.fetchOne());
     }
 
     private BooleanExpression eqRoomId(Map<String, Object> params) {

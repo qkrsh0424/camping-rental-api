@@ -1,6 +1,7 @@
 package com.camping_rental.server.domain.rental_order_info.service;
 
 import com.camping_rental.server.domain.exception.dto.AccessDeniedPermissionException;
+import com.camping_rental.server.domain.exception.dto.NotMatchedFormatException;
 import com.camping_rental.server.domain.naver.sens.dto.NaverCloudSensSmsSendDto;
 import com.camping_rental.server.domain.naver.sens.service.NaverCloudSensSmsService;
 import com.camping_rental.server.domain.naver.sens.strategy.NaverCloudSensSmsRentalOrderInfo;
@@ -10,6 +11,7 @@ import com.camping_rental.server.domain.product.projection.ProductProjection;
 import com.camping_rental.server.domain.product.service.ProductService;
 import com.camping_rental.server.domain.rental_order_info.dto.RentalOrderInfoCreateUtils;
 import com.camping_rental.server.domain.rental_order_info.dto.RentalOrderInfoDto;
+import com.camping_rental.server.domain.rental_order_info.dto.RentalOrderInfoUpdateDto;
 import com.camping_rental.server.domain.rental_order_info.entity.RentalOrderInfoEntity;
 import com.camping_rental.server.domain.rental_order_info.enums.RentalOrderInfoDeletedFlagEnum;
 import com.camping_rental.server.domain.rental_order_info.enums.RentalOrderInfoOrdererTypeEnum;
@@ -33,6 +35,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.servlet.http.HttpServletRequest;
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -236,5 +239,42 @@ public class RentalOrderInfoBusinessService {
         Dirty checking update
          */
         rentalOrderInfoEntity.setCsMemo(csMemo);
+    }
+
+    @Transactional
+    public RentalOrderInfoVo.Basic update(RentalOrderInfoUpdateDto rentalOrderInfoUpdateDto) {
+        UUID userId = userService.getUserIdOrThrow();
+        RoomEntity roomEntity = roomService.searchByUserIdOrThrow(userId);
+        UUID rentalOrderInfoId = null;
+
+        try {
+            rentalOrderInfoId = UUID.fromString(rentalOrderInfoUpdateDto.getId());
+        } catch (IllegalArgumentException | NullPointerException e) {
+            throw new NotMatchedFormatException("해당 데이터를 찾을 수 없습니다.");
+        }
+
+        RentalOrderInfoEntity rentalOrderInfoEntity = rentalOrderInfoService.searchByIdOrThrow(rentalOrderInfoId);
+
+        if (!rentalOrderInfoEntity.getLenderRoomId().equals(roomEntity.getId())) {
+            throw new AccessDeniedPermissionException("접근 권한이 없습니다.");
+        }
+
+        /*
+        Dirty checking update
+         */
+        rentalOrderInfoEntity.setBorrower(rentalOrderInfoUpdateDto.getBorrower());
+        rentalOrderInfoEntity.setBorrowerPhoneNumber(rentalOrderInfoUpdateDto.getBorrowerPhoneNumber());
+        rentalOrderInfoEntity.setPickupDate(rentalOrderInfoUpdateDto.getPickupDate());
+        rentalOrderInfoEntity.setPickupTime(rentalOrderInfoUpdateDto.getPickupTime());
+        rentalOrderInfoEntity.setPickupPlace(rentalOrderInfoUpdateDto.getPickupPlace());
+        rentalOrderInfoEntity.setReturnDate(rentalOrderInfoUpdateDto.getReturnDate());
+        rentalOrderInfoEntity.setReturnTime(rentalOrderInfoUpdateDto.getReturnTime());
+        rentalOrderInfoEntity.setReturnPlace(rentalOrderInfoUpdateDto.getReturnPlace());
+        rentalOrderInfoEntity.setCsMemo(rentalOrderInfoUpdateDto.getCsMemo());
+        rentalOrderInfoEntity.setUpdatedAt(CustomDateUtils.getCurrentDateTime());
+
+        RentalOrderInfoVo.Basic vo =RentalOrderInfoVo.Basic.toVo(rentalOrderInfoEntity);
+
+        return vo;
     }
 }
